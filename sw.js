@@ -1,5 +1,5 @@
 // Mes Heures : fonctionnement hors ligne
-const CACHE = 'mes-heures-v1';
+const CACHE = 'mes-heures-v2';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 const EXTRA = [
   'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js',

@@ -154,6 +154,14 @@ textarea{min-height:84px;resize:vertical}
 .nowb{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:0 10px;height:44px;font-size:13.5px;color:var(--work);font-weight:600}
 .pz{border-left:3px solid var(--sup);padding-left:10px;margin:4px 0 8px}
 .pz .tm{grid-template-columns:86px 1fr auto}
+.cols > div{min-width:0}
+@media (min-width:860px){
+  main{max-width:1060px;padding-left:24px;padding-right:24px}
+  .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 24px;align-items:start}
+  .punch{padding-top:24px}
+  .clock{font-size:96px}
+}
+@media (display-mode:standalone) and (min-width:600px){ .top{padding-left:100px} }
 .chipb{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 13px;font-size:14px;color:var(--ink)}
 .prm{border-left:3px solid var(--work);padding-left:10px;margin:6px 0 12px}
 .calc{margin:14px 0 4px;padding:12px 14px;border-radius:12px;background:var(--work-soft);font-size:14px;line-height:1.55}
@@ -234,8 +242,8 @@ const TYPES = {
 const DEF_SET = {nom:'', employeur:'', poste:'', base:35, seuil:43, t1:25, t2:50, taux:0, contingent:220, grande:false, credit:false, creditH:7, remu:[], debut:'', fin:'', contrat:'CDI', convention:'', updatedAt:''};
 let S = load();
 function load() {
-  try { const o = JSON.parse(localStorage.getItem('mh_data') || '{}'); return {settings:{...DEF_SET, ...(o.settings||{})}, days:o.days || {}, paie:o.paie || {}}; }
-  catch (e) { return {settings:{...DEF_SET}, days:{}, paie:{}}; }
+  try { const o = JSON.parse(localStorage.getItem('mh_data') || '{}'); return {settings:{...DEF_SET, ...(o.settings||{})}, days:o.days || {}, paie:o.paie || {}, dels:o.dels || {}}; }
+  catch (e) { return {settings:{...DEF_SET}, days:{}, paie:{}, dels:{}}; }
 }
 function persist() {
   try { localStorage.setItem('mh_data', JSON.stringify(S)); }
@@ -373,10 +381,21 @@ function punch(kind) {
   if (navigator.vibrate) navigator.vibrate(15);
   const msg = {in:'Arrivée pointée à ', pause:'Pause pointée à ', out:'Départ pointé à ', finish:'Journée terminée à '}[kind] + t;
   toast(msg, () => {
-    if (prev) { S.days[ds] = prev; stamp(prev); saveDay(ds); } else { delete S.days[ds]; persist(); pushDelete(ds); render(); }
+    if (prev) { S.days[ds] = prev; stamp(prev); saveDay(ds); } else { delDay(ds); }
   });
 }
-function saveDay(ds) { persist(); pushDay(ds); render(); }
+function saveDay(ds) { if (S.dels[ds]) delete S.dels[ds]; persist(); pushDay(ds); render(); }
+function delDay(ds) {
+  const n = new Date().toISOString(); delete S.days[ds]; S.dels[ds] = n; persist();
+  if (fb.user) track(ucol().collection('days').doc(ds).set({date:ds, deleted:true, updatedAt:n}));
+  render();
+}
+function mergeDay(ds, r) { // fusion d'une journée reçue ; true si la donnée locale a changé
+  const l = S.days[ds], lt = l ? (l.updatedAt || '') : (S.dels[ds] || ''), rt = r.updatedAt || '';
+  if (rt <= lt) return false;
+  if (r.deleted) { S.dels[ds] = rt; if (!l) return false; delete S.days[ds]; return true; }
+  S.days[ds] = r; delete S.dels[ds]; return true;
+}
 
 /* ================= Rendu ================= */
 let tab = 'today', weekMon = monday(today()), rMonth = {y:new Date().getFullYear(), m:new Date().getMonth()};
@@ -414,6 +433,7 @@ function vToday() {
   const hc = inContract(today()) ? '' : `<div class="alert">Aujourd’hui est en dehors de la période du contrat indiquée dans Réglages : les heures ne seront pas comptées.</div>`;
   const al = dayAlerts(st.ds, now).concat(w.over48 ? ['Plus de 48 h travaillées cette semaine'] : []);
   return `
+  <div class="cols"><div>
   <section class="punch">
     <div class="date">${frLong(today())}</div>
     <div class="clock num" id="clock">${nowHM()}</div>
@@ -423,6 +443,7 @@ function vToday() {
     <button class="btn ghost" data-act="edit" data-ds="${st.ds}">Saisir ou corriger mes horaires</button>
   </section>
   ${hc}${al.map(a => `<div class="alert">${esc(a)}</div>`).join('')}
+  </div><div>
   <div class="group">
     <div class="gpad">${timeline(d, now)}<div class="tl-scale num"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span></div></div>
     <div class="stats num">
@@ -443,6 +464,7 @@ function vToday() {
   <div class="group"><div class="gpad">
     <label class="l" for="otherDay" style="margin-top:0">Saisir un autre jour</label>
     <div class="two"><input type="date" id="otherDay" value="${addD(today(), -1)}" max="${today()}"><button class="btn ghost" data-act="other">Ouvrir</button></div>
+  </div></div>
   </div></div>`;
 }
 
@@ -474,7 +496,9 @@ function vWeek() {
   </div>
   ${cur ? '' : '<div style="text-align:center"><button class="linkbtn" data-act="wnow">Revenir à cette semaine</button></div>'}
   ${w.over48 ? '<div class="alert">Plus de 48 h travaillées cette semaine (durée maximale légale).</div>' : ''}
+  <div class="cols"><div>
   <div class="group">${rows}</div>
+  </div><div>
   <div class="group">
     <div class="gh">Décompte de la semaine</div>
     <div class="row"><span>Heures travaillées</span><span class="v num">${fmt(w.eff)}</span></div>
@@ -484,7 +508,8 @@ function vWeek() {
     <div class="row sup"><span>Heures sup. à +${st.t2} %</span><span class="v num">${fmt(w.s50)}</span></div>
     ${w.taux > 0 ? `<div class="row"><span>Valeur brute des heures sup. (taux ${eur(w.taux)})</span><span class="v num">${eur(w.amount)}</span></div>` : ''}
   </div>
-  <p class="note">Touchez un jour pour saisir ou corriger ses horaires.</p>`;
+  <p class="note">Touchez un jour pour saisir ou corriger ses horaires.</p>
+  </div></div>`;
 }
 
 function vRecap() {
@@ -511,6 +536,7 @@ function vRecap() {
     <div class="t"><b>${moisNom(y, m)}</b><span>${ms.nbT} jour${ms.nbT > 1 ? 's' : ''} travaillé${ms.nbT > 1 ? 's' : ''}</span></div>
     <button data-act="mnext" aria-label="Mois suivant">›</button>
   </div>
+  <div class="cols"><div>
   <div class="group">
     <div class="row"><span>Heures travaillées dans le mois</span><span class="v num">${fmt(ms.effM)}</span></div>
     <div class="row sup"><span>Heures sup. à +${st.t1} %</span><span class="v num">${fmt(ms.s25)}</span></div>
@@ -534,6 +560,7 @@ function vRecap() {
     </div>
     ${cmp}
   </div>
+  </div><div>
   <div class="group">
     <div class="gh">Contingent annuel ${y}</div>
     <div class="gpad" style="padding-top:4px">
@@ -569,6 +596,7 @@ function vRecap() {
       <button class="btn ghost" data-act="backup">Exporter</button>
       <button class="btn ghost" data-act="restore">Restaurer</button>
     </div>
+  </div></div>
   </div></div>`;
 }
 
@@ -645,7 +673,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 2.0</p>`;
+  <p class="note">Mes Heures, version 2.1</p>`;
 }
 
 function render() {
@@ -699,7 +727,8 @@ function renderSheet() {
     <p class="small muted">Remplissez au fur et à mesure : laissez le départ vide si vous êtes encore au travail, ou la fin de pause vide si vous êtes en pause.${src ? ' Mode de saisie actuel : ' + esc(src) + '.' : ''}</p>
     <label class="l" for="e-lieu">Lieu ou chantier</label><input type="text" id="e-lieu" value="${esc(d.lieu)}">
     <label class="l" for="e-note">Note</label><textarea id="e-note" placeholder="Tâches, qui a demandé de rester, imprévu…">${esc(d.note)}</textarea>
-    <div class="btns"><button class="btn" data-act="save">Enregistrer</button></div>
+    <div class="btns"><button class="btn" data-act="save">Enregistrer</button>${ed.orig ? '<button class="btn danger" data-act="delday">Supprimer cette journée</button>' : ''}</div>
+    ${ed.orig ? '<p class="small muted">Supprimer efface la journée entière sur tous vos appareils, sans trace dans l’historique ni dans les relevés : à réserver aux essais et aux erreurs.</p>' : ''}
     ${d.createdAt ? `<p class="small muted">Première saisie le ${stampTxt(d.createdAt)}</p>` : ''}
     ${hist ? `<div class="hist"><div style="border:0;font-weight:700">Historique des modifications</div>${hist}</div>` : ''}
   </div>`;
@@ -712,7 +741,7 @@ function readSheet() {
   document.querySelectorAll('#sheet .pz').forEach(el => { const p = f.pauses[+el.dataset.i]; p.d = el.querySelector('.pd').value; p.f = el.querySelector('.pf').value; });
   d.lieu = $('#e-lieu').value.trim(); d.note = $('#e-note').value.trim();
 }
-function closeSheet() { $('#sheet').classList.add('hidden'); $('#sheet').innerHTML = ''; ed = null; red = null; }
+function closeSheet() { $('#sheet').classList.add('hidden'); $('#sheet').innerHTML = ''; ed = null; red = null; if (pendingRender) setTimeout(softRender, 50); }
 function buildSegs() { // formulaire -> périodes de travail ; renvoie un message d'erreur ou null
   const f = ed.form, d = ed.day, live = ed.ds >= addD(today(), -1);
   const ps = f.pauses.filter(p => p.d || p.f);
@@ -1032,7 +1061,7 @@ function importBackup(file) {
     const n = Object.keys(o.days).length;
     if (!confirm(`Restaurer ${n} jour(s) ? Les journées plus récentes déjà présentes sur ce téléphone sont conservées.`)) return;
     let c = 0;
-    for (const [ds, d] of Object.entries(o.days)) { const l = S.days[ds]; if (!l || (d.updatedAt || '') > (l.updatedAt || '')) { S.days[ds] = d; c++; pushDay(ds); } }
+    for (const [ds, d] of Object.entries(o.days)) { if (d.deleted) continue; if (mergeDay(ds, d)) { c++; pushDay(ds); } }
     if (o.settings && (o.settings.updatedAt || '') > (S.settings.updatedAt || '')) { S.settings = {...DEF_SET, ...o.settings}; pushSettings(); }
     let pc = false; for (const [k, v] of Object.entries(o.paie || {})) { const l = S.paie[k]; if (!l || (v.updatedAt || '') > (l.updatedAt || '')) { S.paie[k] = v; pc = true; } }
     if (pc) pushPaie();
@@ -1061,7 +1090,7 @@ async function fbStart() {
     fb.db = firebase.firestore();
     try { await fb.db.enablePersistence({synchronizeTabs:true}); } catch (e) {}
     fb.auth = firebase.auth(); fb.ready = true;
-    fb.auth.onAuthStateChanged(u => { fb.user = u; if (u) fullSync(); render(); });
+    fb.auth.onAuthStateChanged(u => { fb.user = u; listen(); if (u) fullSync(); render(); });
   } catch (e) { fb.failed = true; render(); }
 }
 const ucol = () => fb.db.collection('users').doc(fb.user.uid);
@@ -1075,9 +1104,11 @@ async function fullSync() {
   try {
     const snap = await ucol().collection('days').get(); const remote = {}; let changed = false;
     snap.forEach(doc => remote[doc.id] = doc.data());
-    for (const [ds, r] of Object.entries(remote)) { const l = S.days[ds]; if (!l || (r.updatedAt || '') > (l.updatedAt || '')) { S.days[ds] = r; changed = true; } }
-    const up = Object.keys(S.days).filter(ds => !remote[ds] || (S.days[ds].updatedAt || '') > (remote[ds].updatedAt || ''));
-    for (let i = 0; i < up.length; i += 400) { const bt = fb.db.batch(); up.slice(i, i + 400).forEach(ds => bt.set(ucol().collection('days').doc(ds), clone(S.days[ds]))); track(bt.commit()); }
+    for (const [ds, r] of Object.entries(remote)) if (mergeDay(ds, r)) changed = true;
+    const up = Object.keys(S.days).filter(ds => !remote[ds] || (S.days[ds].updatedAt || '') > (remote[ds].updatedAt || ''))
+      .map(ds => [ds, clone(S.days[ds])])
+      .concat(Object.keys(S.dels).filter(ds => remote[ds] && !remote[ds].deleted && S.dels[ds] > (remote[ds].updatedAt || '')).map(ds => [ds, {date:ds, deleted:true, updatedAt:S.dels[ds]}]));
+    for (let i = 0; i < up.length; i += 400) { const bt = fb.db.batch(); up.slice(i, i + 400).forEach(([ds, d]) => bt.set(ucol().collection('days').doc(ds), d)); track(bt.commit()); }
     const ss = await ucol().collection('meta').doc('settings').get();
     const r = ss.exists ? ss.data() : null;
     if (r && (r.updatedAt || '') > (S.settings.updatedAt || '')) { S.settings = {...DEF_SET, ...r}; changed = true; }
@@ -1090,6 +1121,29 @@ async function fullSync() {
   } catch (e) { fb.err = true; }
   fb.busy = false; setSync();
 }
+let unsubs = [], pendingRender = false;
+function softRender() { if (ed || red || $('#view').contains(document.activeElement)) { pendingRender = true; return; } pendingRender = false; render(); }
+function listen() { // synchronisation instantanée entre appareils
+  unsubs.forEach(u => { try { u(); } catch (e) {} }); unsubs = [];
+  if (!fb.user) return;
+  const onErr = () => { fb.err = true; setSync(); };
+  unsubs.push(ucol().collection('days').onSnapshot(snap => {
+    let ch = false;
+    snap.docChanges().forEach(c => { if (c.type === 'removed' || c.doc.metadata.hasPendingWrites) return; if (mergeDay(c.doc.id, c.doc.data())) ch = true; });
+    if (!snap.metadata.fromCache) { fb.last = new Date(); fb.err = false; }
+    if (ch) { persist(); softRender(); } setSync();
+  }, onErr));
+  unsubs.push(ucol().collection('meta').doc('settings').onSnapshot(d => {
+    if (!d.exists || d.metadata.hasPendingWrites) return; const r = d.data();
+    if ((r.updatedAt || '') > (S.settings.updatedAt || '')) { S.settings = {...DEF_SET, ...r}; persist(); softRender(); }
+  }, onErr));
+  unsubs.push(ucol().collection('meta').doc('paie').onSnapshot(d => {
+    if (!d.exists || d.metadata.hasPendingWrites) return; let ch = false;
+    for (const [k, v] of Object.entries(d.data().months || {})) { const l = S.paie[k]; if (!l || (v.updatedAt || '') > (l.updatedAt || '')) { S.paie[k] = v; ch = true; } }
+    if (ch) { persist(); softRender(); }
+  }, onErr));
+}
+document.addEventListener('focusout', () => setTimeout(() => { if (pendingRender) softRender(); }, 400));
 function setSync() {
   const el = $('#sync'); if (!el) return; let t = 'Sur l’appareil', c = '';
   if (localStorage.getItem('mh_fbcfg')) {
@@ -1125,6 +1179,7 @@ document.addEventListener('click', async e => {
     case 'delpause': readSheet(); ed.form.pauses.splice(+b.dataset.i, 1); renderSheet(); break;
     case 'now': { const i = b.previousElementSibling; if (i) i.value = nowHM(); break; }
     case 'save': saveEditor(); break;
+    case 'delday': if (confirm('Supprimer définitivement cette journée sur tous vos appareils ?')) { const ds = ed.ds; closeSheet(); delDay(ds); toast('Journée supprimée'); } break;
     case 'remu': openRemu(+b.dataset.i); break;
     case 'remunew': openRemu(null); break;
     case 'addprime': readRemu(); red.r.primes = red.r.primes || []; red.r.primes.push({l:'', m:'', inc:true}); renderRemu(); break;
