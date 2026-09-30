@@ -180,6 +180,11 @@ select{width:100%;padding:11px 12px;border-radius:11px;border:1px solid var(--li
 .nrow{border-left:3px solid var(--line);padding-left:10px;margin:6px 0 12px}
 .nrow textarea{margin-top:8px;min-height:64px}
 .xrow{border-left:3px solid var(--sup);padding-left:10px;margin:6px 0 12px}
+.mline{display:block;width:100%;text-align:left;border:1px dashed var(--line);background:var(--bg);border-radius:10px;padding:8px 12px;margin:8px 0;font-size:14px;color:var(--ink)}
+.mline.hidden{display:none}
+#ask{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center}
+#ask .bgd{position:absolute;inset:0;background:rgba(10,15,25,.45)}
+.askbox{position:relative;background:var(--panel);border-radius:16px;padding:18px;width:min(380px,90vw);display:flex;flex-direction:column;gap:12px}
 .chipb.on{background:var(--work);border-color:var(--work);color:#fff;font-weight:600}
 details.pfx{margin-top:12px}
 details.pfx summary{font-weight:600;font-size:14.5px;color:var(--work);cursor:pointer;padding:6px 0}
@@ -1614,7 +1619,8 @@ function renderSheet() {
   const pz = f.pauses.map((p, i) => p.k === 'abs' ? `
     <div class="pz abs" data-i="${i}">
       <div class="tm"><span>Motif</span>${motifSelect('class="pm"', p.m)}<span></span></div>
-      <input type="text" class="pt" value="${esc(p.t || '')}" placeholder="Précision (obligatoire si « Autre »)" style="margin-bottom:8px">
+      <input type="hidden" class="pt" value="${esc(p.t || '')}">
+      <button class="mline${p.t ? '' : ' hidden'}" data-act="askpt" data-i="${i}">Précision : <b>${esc(p.t || '')}</b> <span class="muted">(modifier)</span></button>
       <div class="tm"><span>Départ</span><input type="time" class="pd" value="${p.d}">${now}</div>
       <div class="tm"><span>Retour</span><input type="time" class="pf" value="${p.f}">${now}</div>
       <label class="check" style="margin:4px 0"><input type="checkbox" class="pc" ${p.c ? 'checked' : ''}><span>Compte comme temps de travail</span></label>
@@ -1639,7 +1645,8 @@ function renderSheet() {
     <label class="check" style="margin:0 0 8px"><input type="checkbox" id="e-half" ${d.half ? 'checked' : ''} data-act="halftoggle"><span>Demi-journées différentes (matin / après-midi)</span></label>
     ${d.half ? `<div class="two"><div><label class="l" style="margin-top:0">Matin</label>${typeSelect('id="e-am"', d.am || 'travail')}</div><div><label class="l" style="margin-top:0">Après-midi</label>${typeSelect('id="e-pm"', d.pm || 'travail')}</div></div>`
              : typeSelect('id="e-type"', d.type)}
-    <input type="text" id="e-motif" value="${esc(d.motif || '')}" placeholder="Précision du motif (obligatoire pour « Absence autre »)" style="margin-top:8px">
+    <input type="hidden" id="e-motif" value="${esc(d.motif || '')}">
+    <button class="mline${d.motif ? '' : ' hidden'}" id="e-motif-l" data-act="askmotif">Motif : <b>${esc(d.motif || '')}</b> <span class="muted">(modifier)</span></button>
     <label class="l">Horaires</label>
     <div class="tm"><span>Arrivée</span><input type="time" id="f-arr" value="${f.arr}">${now}</div>
     ${pz}
@@ -1737,8 +1744,8 @@ function saveEditor() {
   const pick = x => canon({motif:x.motif || '', lieu:x.lieu || '', notes:(x.notes && x.notes.length ? x.notes.map(n => [n.lv || 'info', n.txt]) : (x.note ? [['info', x.note]] : [])), ast:!!x.ast, trajet:x.trajet, kmJour:x.kmJour, rep:x.rep, repPrix:x.repPrix});
   if ((d.itv || []).some(itvErr)) return toast('Intervention : ' + itvErr(d.itv.find(itvErr)));
   if ((d.sol || []).some(v => !v.t)) return toast('Indiquez l’heure de chaque appel ou message.');
-  if (!d.motif && [d.half ? d.am : d.type, d.half ? d.pm : ''].includes('absence')) return toast('Précisez le motif de l’« Absence autre ».');
-  if (ed.form.pauses.some(p => p.k === 'abs' && p.m === 'autre' && !p.t)) return toast('Précisez le motif de l’absence « Autre ».');
+  if (!d.motif && [d.half ? d.am : d.type, d.half ? d.pm : ''].includes('absence')) return askMotif();
+  { const i = ed.form.pauses.findIndex(p => p.k === 'abs' && p.m === 'autre' && !p.t); if (i >= 0) return askPt(ed.form.pauses.filter(p => p.d || p.f).length === ed.form.pauses.length ? i : i); }
   const noteChg = ed.orig && pick(ed.orig) !== pick(d);
   const typeChg = ed.orig && (ed.orig.type !== d.type || !!ed.orig.half !== !!d.half);
   const giChg = ed.orig && JSON.stringify(ed.orig.gi || {}) !== JSON.stringify(d.gi || {});
@@ -1753,6 +1760,25 @@ function saveEditor() {
   else if (noteChg || occChg) d.hist.push({at:now, act:'Détail modifié' + post});
   stamp(d); S.days[ed.ds] = d; const ds = ed.ds; closeSheet(); saveDay(ds); toast('Journée enregistrée');
 }
+/* ================= Petite fenêtre « Précisez » ================= */
+function askText(title, val, cb) {
+  let o = $('#ask'); if (!o) { o = document.createElement('div'); o.id = 'ask'; document.body.appendChild(o); }
+  o.innerHTML = `<div class="bgd" data-act="askno"></div><div class="askbox"><b>${esc(title)}</b><input type="text" id="ask-v" value="${esc(val || '')}"><div class="btns two"><button class="btn ghost" data-act="askno">Annuler</button><button class="btn" data-act="askok">Valider</button></div></div>`;
+  o.style.display = 'flex'; o._cb = cb; setTimeout(() => { const i = $('#ask-v'); if (i) { i.focus(); i.select(); } }, 80);
+}
+function askClose(ok) { const o = $('#ask'); if (!o) return; const v = ok ? $('#ask-v').value.trim() : null; o.style.display = 'none'; if (ok && o._cb) o._cb(v); }
+function askMotif() {
+  askText('Précisez le motif de l’absence', $('#e-motif').value, v => { $('#e-motif').value = v; const l = $('#e-motif-l'); l.querySelector('b').textContent = v; l.classList.toggle('hidden', !v); });
+}
+function askPt(i) {
+  const row = document.querySelector(`#sheet .pz[data-i="${i}"]`); if (!row) return;
+  askText('Précisez le motif de l’absence', row.querySelector('.pt').value, v => { row.querySelector('.pt').value = v; const l = row.querySelector('.mline'); l.querySelector('b').textContent = v; l.classList.toggle('hidden', !v); });
+}
+document.addEventListener('change', e => {
+  const t = e.target; if (!ed || !t.closest('#sheet')) return;
+  if ((t.id === 'e-type' || t.id === 'e-am' || t.id === 'e-pm') && t.value === 'absence') askMotif();
+  if (t.classList.contains('pm') && t.value === 'autre') askPt(+t.closest('.pz').dataset.i);
+});
 /* ================= Saisie rapide, période, copie ================= */
 function quickSet(ds, t) {
   const ex = S.days[ds], now = new Date().toISOString();
@@ -2392,6 +2418,10 @@ document.addEventListener('click', async e => {
     case 'setlock': { const a = $('#lk-new').value, c = $('#lk-new2').value; if (!/^\d{4,}$/.test(a)) return toast('Le code doit contenir au moins 4 chiffres.'); if (a !== c) return toast('Les deux codes sont différents.'); localStorage.setItem('mh_lock', await sha(a)); render(); toast('Code enregistré sur cet appareil'); break; }
     case 'rmlock': if (confirm('Retirer le code de cet appareil ?')) { localStorage.removeItem('mh_lock'); render(); toast('Code retiré'); } break;
     case 'copyurl': try { await navigator.clipboard.writeText(b.dataset.u); toast('Adresse copiée'); } catch (err) { toast(b.dataset.u); } break;
+    case 'askmotif': askMotif(); break;
+    case 'askpt': askPt(+b.dataset.i); break;
+    case 'askok': askClose(true); break;
+    case 'askno': askClose(false); break;
     case 'addnote': readSheet(); ed.day.notes = (ed.day.notes || []).concat([{id:uid(), txt:'', lv:'info', _new:1}]); renderSheet(); break;
     case 'delnote': readSheet(); ed.day.notes.splice(+b.dataset.i, 1); renderSheet(); break;
     case 'additv': readSheet(); ed.day.itv = (ed.day.itv || []).concat([{m:'froid', call:'', dep:'', arr:'', fin:'', ret:'', km:2 * (+S.settings.kmAller || 0), note:''}]); renderSheet(); break;
@@ -2472,7 +2502,7 @@ document.addEventListener('click', async e => {
   }
 });
 $('#restoreFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheet').classList.contains('hidden')) closeSheet(); if (e.key === 'Enter' && e.target.id === 'lk-code') tryUnlock(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheet').classList.contains('hidden')) closeSheet(); if (e.key === 'Enter' && e.target.id === 'lk-code') tryUnlock(); if (e.key === 'Enter' && e.target.id === 'ask-v') askClose(true); });
 document.addEventListener('input', e => {
   if (red && e.target.closest('#sheet')) { readRemu(); updRemuCalc(); }
   if (e.target.id === 'nq') { noteQ = e.target.value; clearTimeout(window.__nqT); window.__nqT = setTimeout(() => { const pos = e.target.selectionStart; render(); const i = $('#nq'); if (i) { i.focus(); try { i.setSelectionRange(pos, pos); } catch (x) {} } }, 350); }
