@@ -295,8 +295,9 @@ const motifSelect = (attrs, val) => `<select ${attrs}>${Object.entries(MOTIFS).m
 const FERIES = [['jan1','1er janvier'],['paques','Lundi de Pâques'],['mai1','1er mai'],['mai8','8 mai'],['ascension','Ascension'],['pentecote','Lundi de Pentecôte'],['jul14','14 juillet'],['aou15','15 août'],['nov1','Toussaint'],['nov11','11 novembre'],['dec25','Noël']];
 
 /* ================= Données ================= */
-const DEF_SET = {nom:'', employeur:'', poste:'', base:35, seuil:43, t1:25, t2:50, taux:0, contingent:220, grande:false, credit:false, creditH:7, remu:[], debut:'', fin:'', contrat:'CDI', convention:'', mode:'heures', fj:216, fjDebut:'01-01', rachat:10, rttOv:{}, cpUnit:'ouvrables', cpCal:{}, recupAdj:[], fChom:['jan1','paques','mai1','mai8','ascension','pentecote','jul14','aou15','nov1','nov11','dec25'], nuit:[{a:'21:00', z:'22:00', p:5}, {a:'22:00', z:'05:00', p:20}, {a:'05:00', z:'06:00', p:0}], dimReg:30, dimOcc:100, ferPct:100, ancGrid:[[10, 1], [15, 2], [20, 3]], maskMotif:true, entretiens:[], alertes:[], fjOv:{}, kmAller:35, trajetMin:35, cv:5, elec:false, repasAuto:true, repasPrix:'', repasEmp:0, repasFoyer:5.45, repasLimite:'', niAnnuel:'', astMontant:0, updatedAt:''};
+const DEF_SET = {nom:'', employeur:'', poste:'', base:35, seuil:43, t1:25, t2:50, taux:0, contingent:220, grande:false, credit:false, creditH:7, remu:[], debut:'', fin:'', contrat:'CDI', convention:'', mode:'heures', fj:216, fjDebut:'01-01', rachat:10, rttOv:{}, cpUnit:'ouvrables', cpCal:{}, recupAdj:[], fChom:['jan1','paques','mai1','mai8','ascension','pentecote','jul14','aou15','nov1','nov11','dec25'], nuit:[{a:'21:00', z:'22:00', p:5}, {a:'22:00', z:'05:00', p:20}, {a:'05:00', z:'06:00', p:0}], dimReg:30, dimOcc:100, ferPct:100, ancGrid:[{y:10, j:1}, {y:15, j:2}, {y:20, j:3}], maskMotif:true, entretiens:[], alertes:[], fjOv:{}, kmAller:35, trajetMin:35, cv:5, elec:false, repasAuto:true, repasPrix:'', repasEmp:0, repasFoyer:5.45, repasLimite:'', niAnnuel:'', astMontant:0, updatedAt:''};
 let S = load();
+if ((S.settings.ancGrid || []).some(Array.isArray)) S.settings.ancGrid = S.settings.ancGrid.map(g => Array.isArray(g) ? {y:g[0], j:g[1]} : g);
 function load() {
   try { const o = JSON.parse(localStorage.getItem('mh_data') || '{}'); return {settings:{...DEF_SET, ...(o.settings||{})}, days:o.days || {}, paie:o.paie || {}, dels:o.dels || {}, docs:o.docs || {}, clos:o.clos || {}}; }
   catch (e) { return {settings:{...DEF_SET}, days:{}, paie:{}, dels:{}, docs:{}, clos:{}}; }
@@ -613,7 +614,7 @@ function ancDays(ds) { // jours d'ancienneté pour la période qui commence (au 
   const st = S.settings; if (!st.debut) return 0;
   const may = pd(ds.slice(0, 4) + '-05-01'), deb = pd(st.debut);
   let y = may.getFullYear() - deb.getFullYear(); if (may < new Date(may.getFullYear(), deb.getMonth(), deb.getDate())) y--;
-  let n = 0; for (const [yrs, j] of st.ancGrid || []) if (y >= yrs) n = j; return n;
+  let n = 0; for (const g of st.ancGrid || []) { const yrs = Array.isArray(g) ? g[0] : g.y, j = Array.isArray(g) ? g[1] : g.j; if (y >= yrs) n = j; } return n;
 }
 function cpMonthAcq(y, m, rate) { // acquisition d'un mois, selon présence et absences
   const st = S.settings, malRate = st.cpUnit === 'ouvres' ? 2*5/6 : 2;
@@ -1408,7 +1409,7 @@ function readSettingsV3() {
 function applyIdcc2216() {
   const st = S.settings;
   Object.assign(st, {contingent:180, fj:216, nuit:[{a:'21:00', z:'22:00', p:5}, {a:'22:00', z:'05:00', p:20}, {a:'05:00', z:'06:00', p:0}], dimReg:30, dimOcc:100, ferPct:100,
-    ancGrid:[[10, 1], [15, 2], [20, 3]], convention:st.convention || 'Commerce de détail et de gros à prédominance alimentaire (IDCC 2216)'});
+    ancGrid:[{y:10, j:1}, {y:15, j:2}, {y:20, j:3}], convention:st.convention || 'Commerce de détail et de gros à prédominance alimentaire (IDCC 2216)'});
   st.updatedAt = new Date().toISOString(); persist(); pushSettings(); render(); toast('Valeurs de la convention 2216 appliquées');
 }
 
@@ -1531,6 +1532,7 @@ function vSettings() {
   } else {
     cloud = `<div class="row" style="padding:6px 0;border:0"><span>Compte</span><span class="v small">${esc(fb.user.email)}</span></div>
       <div class="row" style="padding:6px 0"><span>Dernière synchro</span><span class="v small">${fb.last ? stampTxt(fb.last.toISOString()) : '—'}</span></div>
+      ${fb.err ? `<p class="small" style="color:var(--alert);word-break:break-word">Dernière erreur : ${esc(fb.errMsg || 'inconnue')}</p>` : ''}
       <div class="btns two"><button class="btn ghost" data-act="fbsync">Synchroniser</button><button class="btn ghost" data-act="fblogout">Se déconnecter</button></div>`;
   }
   return `
@@ -2299,7 +2301,7 @@ async function fbStart() {
   } catch (e) { fb.failed = true; render(); }
 }
 const ucol = () => fb.db.collection('users').doc(fb.user.uid);
-function track(p) { fb.pending++; setSync(); p.then(() => { fb.pending--; fb.err = false; fb.last = new Date(); setSync(); }).catch(() => { fb.pending--; fb.err = true; setSync(); }); }
+function track(p) { fb.pending++; setSync(); p.then(() => { fb.pending--; fb.err = false; fb.errMsg = ''; fb.last = new Date(); setSync(); }).catch(e => { fb.pending--; fb.err = true; fb.errMsg = (e && (e.code || '') + ' ' + (e.message || '')).trim(); console.error(e); setSync(); }); }
 function pushDay(ds) { if (!fb.user || !S.days[ds]) return; track(ucol().collection('days').doc(ds).set(clone(S.days[ds]))); }
 function pushDelete(ds) { if (!fb.user) return; track(ucol().collection('days').doc(ds).delete()); }
 function pushPaie() { if (!fb.user) return; track(ucol().collection('meta').doc('paie').set({months:clone(S.paie)})); }
@@ -2328,7 +2330,7 @@ async function fullSync() {
     if (cUp) pushClos();
     for (const [id, m] of Object.entries(S.docs)) if (!m.synced && !m.srvAt) pushDoc(id).catch(() => {});
     persist(); fb.err = false; fb.last = new Date(); if (changed) render();
-  } catch (e) { fb.err = true; }
+  } catch (e) { fb.err = true; fb.errMsg = (e && (e.code || '') + ' ' + (e.message || '')).trim(); console.error(e); }
   fb.busy = false; setSync();
 }
 let unsubs = [], pendingRender = false;
@@ -2336,7 +2338,7 @@ function softRender() { if (ed || red || $('#view').contains(document.activeElem
 function listen() { // synchronisation instantanée entre appareils
   unsubs.forEach(u => { try { u(); } catch (e) {} }); unsubs = [];
   if (!fb.user) return;
-  const onErr = () => { fb.err = true; setSync(); };
+  const onErr = e => { fb.err = true; fb.errMsg = (e && (e.code || '') + ' ' + (e.message || '')).trim(); setSync(); };
   unsubs.push(ucol().collection('days').onSnapshot(snap => {
     let ch = false;
     snap.docChanges().forEach(c => { if (c.type === 'removed' || c.doc.metadata.hasPendingWrites) return; if (mergeDay(c.doc.id, c.doc.data())) ch = true; });
