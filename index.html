@@ -414,7 +414,7 @@ function itvAlerts(ds) { // repos après une intervention
 function dayAlerts(ds, now) {
   const d = S.days[ds]; const out = []; if (!d) return out; if (!d.segs.length) return itvAlerts(ds);
   const forfait = S.settings.mode === 'forfait';
-  if (!forfait && dayEff(d, now) > 600) out.push('Plus de 10 h travaillées');
+  if (dayEff(d, now) > 600) out.push('Plus de 10 h travaillées' + (forfait ? ' (indicatif en forfait jours)' : ''));
   const b = bounds(ds);
   if (b && b.en && (b.en - b.st)/60000 > 780) out.push('Amplitude de ' + fmt((b.en - b.st)/60000) + ' (plus de 13 h)');
   const p = bounds(addD(ds, -1));
@@ -1103,16 +1103,48 @@ async function verifyClosUI() {
 }
 /* ================= Code de verrouillage ================= */
 async function sha(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('mh:' + t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
-let locked = false, hiddenAt = 0, afterUnlock = null;
+let locked = false, hiddenAt = 0, afterUnlock = null, bioBusy = false;
+/* Face ID / Touch ID (WebAuthn, clé d'accès propre à cet appareil) */
+const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unb64u = t => Uint8Array.from(atob(t.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((t.length + 3) % 4)), c => c.charCodeAt(0));
+async function bioAvailable() { try { return !!(window.PublicKeyCredential && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); } catch (e) { return false; } }
+async function bioEnable() {
+  if (!localStorage.getItem('mh_lock')) return toast('Définissez d’abord un code : il reste la solution de secours.');
+  if (!(await bioAvailable())) return toast('Face ID n’est pas disponible sur cet appareil.');
+  try {
+    const cred = await navigator.credentials.create({publicKey:{
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      rp: {name:'Mes Heures'},
+      user: {id: crypto.getRandomValues(new Uint8Array(16)), name: 'mes-heures', displayName: 'Mes Heures'},
+      pubKeyCredParams: [{type:'public-key', alg:-7}, {type:'public-key', alg:-257}],
+      authenticatorSelection: {authenticatorAttachment:'platform', userVerification:'required', residentKey:'preferred'},
+      timeout: 60000, attestation: 'none'}});
+    localStorage.setItem('mh_bio', b64u(cred.rawId)); render(); toast('Face ID activé sur cet appareil');
+  } catch (e) { toast(e && e.name === 'NotAllowedError' ? 'Activation annulée' : 'Activation de Face ID impossible'); }
+}
+async function bioUnlock(auto) {
+  const id = localStorage.getItem('mh_bio'); if (!id || bioBusy || !locked) return;
+  bioBusy = true;
+  try {
+    await navigator.credentials.get({publicKey:{challenge: crypto.getRandomValues(new Uint8Array(32)),
+      allowCredentials: [{type:'public-key', id: unb64u(id), transports:['internal', 'hybrid']}], userVerification:'required', timeout: 60000}});
+    unlockDone();
+  } catch (e) { if (!auto) toast('Face ID non reconnu : utilisez le code.'); }
+  finally { bioBusy = false; }
+}
+function unlockDone() { locked = false; $('#lock').style.display = 'none'; if (afterUnlock) { const f = afterUnlock; afterUnlock = null; f(); } }
 function showLock() {
   if (!localStorage.getItem('mh_lock')) return false; locked = true;
   let o = $('#lock'); if (!o) { o = document.createElement('div'); o.id = 'lock'; document.body.appendChild(o); }
-  o.innerHTML = `<div class="lockbox"><div style="font-size:40px">🔒</div><b>Mes Heures</b><input type="password" inputmode="numeric" id="lk-code" placeholder="Code" autocomplete="off"><button class="btn" data-act="unlock">Déverrouiller</button><button class="linkbtn" data-act="lockforgot">Code oublié</button></div>`;
-  o.style.display = 'flex'; setTimeout(() => { const i = $('#lk-code'); if (i) i.focus(); }, 100); return true;
+  o.innerHTML = `<div class="lockbox"><div style="font-size:40px">🔒</div><b>Mes Heures</b>${localStorage.getItem('mh_bio') ? '<button class="btn" data-act="bio">Déverrouiller avec Face ID</button>' : ''}<input type="password" inputmode="numeric" id="lk-code" placeholder="Code" autocomplete="off"><button class="btn${localStorage.getItem('mh_bio') ? ' ghost' : ''}" data-act="unlock">Déverrouiller avec le code</button><button class="linkbtn" data-act="lockforgot">Code oublié</button></div>`;
+  o.style.display = 'flex';
+  if (localStorage.getItem('mh_bio')) setTimeout(() => bioUnlock(true), 300);
+  else setTimeout(() => { const i = $('#lk-code'); if (i) i.focus(); }, 100);
+  return true;
 }
 async function tryUnlock() {
   const v = $('#lk-code').value; if ((await sha(v)) !== localStorage.getItem('mh_lock')) { $('#lk-code').value = ''; return toast('Code incorrect'); }
-  locked = false; $('#lock').style.display = 'none'; if (afterUnlock) { const f = afterUnlock; afterUnlock = null; f(); }
+  unlockDone();
 }
 /* ================= Raccourcis (Siri, écran d'accueil) ================= */
 function runUrlAction() {
@@ -1374,6 +1406,9 @@ function htmlSettingsV3() {
     <p class="small muted" style="margin:4px 0 0">${localStorage.getItem('mh_lock') ? 'Un code protège l’ouverture de l’application sur cet appareil.' : 'Aucun code : l’application s’ouvre directement.'}</p>
     <div class="two"><input type="password" inputmode="numeric" id="lk-new" placeholder="Nouveau code (4 chiffres ou plus)"><input type="password" inputmode="numeric" id="lk-new2" placeholder="Confirmer"></div>
     <div class="btns two"><button class="btn ghost" data-act="setlock">${localStorage.getItem('mh_lock') ? 'Changer le code' : 'Définir un code'}</button>${localStorage.getItem('mh_lock') ? '<button class="btn danger" data-act="rmlock">Retirer le code</button>' : ''}</div>
+    ${localStorage.getItem('mh_lock') ? `<div style="font-weight:700;margin-top:14px">Face ID (cet appareil)</div>
+    <p class="small muted" style="margin:4px 0 0">${localStorage.getItem('mh_bio') ? 'L’application s’ouvre avec Face ID. Le code reste possible en secours.' : 'Ouvrez l’application d’un regard au lieu de taper le code. Le code reste possible en secours.'}</p>
+    <div class="btns"><button class="btn ghost" data-act="${localStorage.getItem('mh_bio') ? 'biooff' : 'bioon'}">${localStorage.getItem('mh_bio') ? 'Désactiver Face ID' : 'Activer Face ID'}</button></div>` : ''}
   </div></div>
   <div class="group"><div class="gpad">
     <div style="font-weight:700">Pointer avec Siri ou un raccourci</div>
@@ -1587,7 +1622,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 4.0</p>`;
+  <p class="note">Mes Heures, version 4.2</p>`;
 }
 
 function render() {
@@ -2128,7 +2163,7 @@ async function exportSuivi(y, m) {
     const b = bounds(ds), pv = bounds(addD(ds, -1));
     const amp = b && b.en ? `${pad(b.st.getHours())}:${pad(b.st.getMinutes())} – ${pad(b.en.getHours())}:${pad(b.en.getMinutes())}` : '';
     let rest = ''; if (b && pv && pv.en) { const r = (b.st - pv.en)/60000; rest = fmt(r) + (r < 660 ? ' (moins de 11 h)' : ''); }
-    const obs = dayAlerts(ds).filter(t => !/^Repos de/.test(t)).join(' ; ');
+    const obs = dayAlerts(ds).filter(t => !/^Repos de/.test(t) && !/^Plus de 10 h/.test(t)).join(' ; ');
     body.push([wd, am, pmv, amp, rest, obs]);
   }
   doc.autoTable({startY:y0, head:[['Date', 'Matin', 'Après-midi', 'Amplitude', 'Repos depuis la veille', 'Observations']], body, margin:M,
@@ -2416,9 +2451,12 @@ document.addEventListener('click', async e => {
     case 'bilan': b.disabled = true; try { await exportBilan(); } catch (err) { toast('Création du PDF impossible : ' + err.message); } b.disabled = false; break;
     case 'fiscalpdf': b.disabled = true; try { await exportFiscal(rMonth.y); } catch (err) { toast('Création du PDF impossible : ' + err.message); } b.disabled = false; break;
     case 'unlock': tryUnlock(); break;
-    case 'lockforgot': if (confirm('Effacer les données de cet appareil et retirer le code ? Vos données en ligne restent intactes : reconnectez-vous ensuite pour les retrouver.')) { localStorage.removeItem('mh_data'); localStorage.removeItem('mh_lock'); location.reload(); } break;
+    case 'bio': bioUnlock(false); break;
+    case 'bioon': bioEnable(); break;
+    case 'biooff': if (confirm('Désactiver Face ID sur cet appareil ? Le code restera demandé.')) { localStorage.removeItem('mh_bio'); render(); toast('Face ID désactivé'); } break;
+    case 'lockforgot': if (confirm('Effacer les données de cet appareil et retirer le code ? Vos données en ligne restent intactes : reconnectez-vous ensuite pour les retrouver.')) { localStorage.removeItem('mh_data'); localStorage.removeItem('mh_lock'); localStorage.removeItem('mh_bio'); location.reload(); } break;
     case 'setlock': { const a = $('#lk-new').value, c = $('#lk-new2').value; if (!/^\d{4,}$/.test(a)) return toast('Le code doit contenir au moins 4 chiffres.'); if (a !== c) return toast('Les deux codes sont différents.'); localStorage.setItem('mh_lock', await sha(a)); render(); toast('Code enregistré sur cet appareil'); break; }
-    case 'rmlock': if (confirm('Retirer le code de cet appareil ?')) { localStorage.removeItem('mh_lock'); render(); toast('Code retiré'); } break;
+    case 'rmlock': if (confirm('Retirer le code de cet appareil ?')) { localStorage.removeItem('mh_lock'); localStorage.removeItem('mh_bio'); render(); toast('Code retiré'); } break;
     case 'copyurl': try { await navigator.clipboard.writeText(b.dataset.u); toast('Adresse copiée'); } catch (err) { toast(b.dataset.u); } break;
     case 'askmotif': askMotif(); break;
     case 'askpt': askPt(+b.dataset.i); break;
