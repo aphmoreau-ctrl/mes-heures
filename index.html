@@ -1419,6 +1419,8 @@ function htmlSettingsV3() {
     <div style="font-weight:700">Documents</div>
     <label class="check"><input type="checkbox" id="s-mask" ${st.maskMotif ? 'checked' : ''}><span>Masquer les motifs d’absence dans les PDF (seulement « Autre absence » / « absence »)</span></label>
     <p class="small muted">Les dates de saisie restent uniquement dans l’application : elles n’apparaissent jamais dans les documents.</p>
+    <p class="small muted">Chaque réglage est enregistré automatiquement dès que vous le modifiez, puis envoyé sur vos autres appareils.</p>
+    <div class="btns"><button class="btn" data-act="saveset">Enregistrer les réglages</button></div>
   </div></div>`;
 }
 function readSettingsV3() {
@@ -1622,7 +1624,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 4.2</p>`;
+  <p class="note">Mes Heures, version 4.3</p>`;
 }
 
 function render() {
@@ -2518,17 +2520,7 @@ document.addEventListener('click', async e => {
     }
     case 'backup': exportBackup(); break;
     case 'restore': $('#restoreFile').click(); break;
-    case 'saveset': {
-      const st = S.settings;
-      st.debut = $('#s-deb').value; st.fin = $('#s-fin').value; if (st.debut && st.fin && st.fin < st.debut) return toast('La fin de contrat doit être après la date d’entrée.');
-      st.contrat = $('#s-ctr').value; st.convention = $('#s-conv').value.trim();
-      st.nom = $('#s-nom').value.trim(); st.poste = $('#s-poste').value.trim(); st.employeur = $('#s-emp').value.trim();
-      st.base = numIn($('#s-base').value) || 35; st.seuil = Math.max(st.base, numIn($('#s-seuil').value) || st.base);
-      st.t1 = numIn($('#s-t1').value); st.t2 = numIn($('#s-t2').value); st.grande = $('#s-grande').checked;
-      st.contingent = numIn($('#s-cont').value) || 220; st.credit = $('#s-credit').checked; st.creditH = numIn($('#s-ch').value) || 7;
-      readSettingsV3();
-      st.updatedAt = new Date().toISOString(); persist(); pushSettings(); render(); toast('Réglages enregistrés'); break;
-    }
+    case 'saveset': if (saveSettings()) { keepScroll(render); toast('Réglages enregistrés'); } break;
     case 'fbcfg': {
       const c = parseCfg($('#fbcfg').value); if (!c) return toast('Configuration incomplète : il faut au moins apiKey, projectId et appId.');
       localStorage.setItem('mh_fbcfg', JSON.stringify(c)); render(); fbStart(); break;
@@ -2559,6 +2551,25 @@ setInterval(() => {
   if (tab === 'today' && !ed && !red && !$('#view').contains(document.activeElement)) render();
 }, 20000);
 
+/* Enregistrement des réglages (bouton ou automatique à chaque modification) */
+function saveSettings() {
+  const st = S.settings;
+  const deb = $('#s-deb').value, fin = $('#s-fin').value; if (deb && fin && fin < deb) { toast('La fin de contrat doit être après la date d’entrée.'); return false; }
+  st.debut = deb; st.fin = fin;
+  st.contrat = $('#s-ctr').value; st.convention = $('#s-conv').value.trim();
+  st.nom = $('#s-nom').value.trim(); st.poste = $('#s-poste').value.trim(); st.employeur = $('#s-emp').value.trim();
+  st.base = numIn($('#s-base').value) || 35; st.seuil = Math.max(st.base, numIn($('#s-seuil').value) || st.base);
+  st.t1 = numIn($('#s-t1').value); st.t2 = numIn($('#s-t2').value); st.grande = $('#s-grande').checked;
+  st.contingent = numIn($('#s-cont').value) || 220; st.credit = $('#s-credit').checked; st.creditH = numIn($('#s-ch').value) || 7;
+  readSettingsV3();
+  st.updatedAt = new Date().toISOString(); persist(); pushSettings(); return true;
+}
+function keepScroll(f) { const y = window.scrollY; f(); requestAnimationFrame(() => window.scrollTo(0, y)); }
+const isSetField = t => tab === 'settings' && t && t.closest && t.closest('#view') && ((t.id || '').startsWith('s-') || t.name === 's-mode' || t.classList.contains('s-fc') || t.classList.contains('nb-a') || t.classList.contains('nb-z') || t.classList.contains('nb-p'));
+document.addEventListener('change', e => {
+  if (!isSetField(e.target)) return;
+  if (saveSettings()) { if (e.target.name === 's-mode') keepScroll(render); toast('Enregistré'); }
+});
 /* ================= Démarrage ================= */
 render();
 showLock();
