@@ -1624,10 +1624,11 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 4.3</p>`;
+  <p class="note">Mes Heures, version 4.4</p>`;
 }
 
 function render() {
+  flushSet();
   const v = $('#view');
   v.innerHTML = tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'docs' ? `<div class="cols"><div>${vDocs()}</div><div>${htmlNotesFinder()}</div></div>` : vSettings();
   if (tab === 'recap') setTimeout(verifyClosUI, 30);
@@ -2566,10 +2567,21 @@ function saveSettings() {
 }
 function keepScroll(f) { const y = window.scrollY; f(); requestAnimationFrame(() => window.scrollTo(0, y)); }
 const isSetField = t => tab === 'settings' && t && t.closest && t.closest('#view') && ((t.id || '').startsWith('s-') || t.name === 's-mode' || t.classList.contains('s-fc') || t.classList.contains('nb-a') || t.classList.contains('nb-z') || t.classList.contains('nb-p'));
+/* Sur iPhone, quitter un champ en touchant un bouton ne déclenche pas toujours « change » :
+   on enregistre donc aussi pendant la frappe, et juste avant tout changement d'écran. */
+let setTimer = null;
+function flushSet() { if (!setTimer) return; clearTimeout(setTimer); setTimer = null; if ($('#s-cv')) saveSettings(); }
+document.addEventListener('input', e => {
+  if (!isSetField(e.target)) return;
+  clearTimeout(setTimer); setTimer = setTimeout(() => { setTimer = null; if ($('#s-cv')) saveSettings(); }, 600);
+});
 document.addEventListener('change', e => {
   if (!isSetField(e.target)) return;
+  clearTimeout(setTimer); setTimer = null;
   if (saveSettings()) { if (e.target.name === 's-mode') keepScroll(render); toast('Enregistré'); }
 });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushSet(); });
+window.addEventListener('pagehide', flushSet);
 /* ================= Démarrage ================= */
 render();
 showLock();
