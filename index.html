@@ -192,6 +192,12 @@ details.pfx summary{font-weight:600;font-size:14.5px;color:var(--work);cursor:po
 .lockbox{display:flex;flex-direction:column;gap:12px;align-items:center;width:min(300px,86vw);text-align:center}
 .lockbox input{text-align:center;font-size:22px;letter-spacing:6px}
 .tabs button{max-width:130px}
+.jrph{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-bottom:8px}
+.jrth{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+.jrth img{width:100%;height:100%;object-fit:cover}
+.jrth .x{position:absolute;top:4px;right:4px;border:0;border-radius:50%;width:26px;height:26px;background:rgba(0,0,0,.55);color:#fff;font-size:13px}
+.jrfile{display:flex;align-items:center;justify-content:center;cursor:pointer}
+.tabs button{font-size:10.5px}
 .chipb{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 13px;font-size:14px;color:var(--ink)}
 .prm{border-left:3px solid var(--work);padding-left:10px;margin:6px 0 12px}
 .calc{margin:14px 0 4px;padding:12px 14px;border-radius:12px;background:var(--work-soft);font-size:14px;line-height:1.55}
@@ -224,6 +230,7 @@ ol.steps li{margin:4px 0}
   <button data-tab="today" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pointer</button>
   <button data-tab="week"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semaine</button>
   <button data-tab="recap"><svg viewBox="0 0 24 24"><path d="M5 20V11M10 20V5M15 20v-7M20 20V8"/></svg>Récap</button>
+  <button data-tab="journal"><svg viewBox="0 0 24 24"><path d="M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6z"/><path d="M6 3v18M9.5 8h5M9.5 12h5M9.5 16h3"/></svg>Journal</button>
   <button data-tab="docs"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>Documents</button>
   <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Réglages</button>
 </nav>
@@ -299,8 +306,8 @@ const DEF_SET = {nom:'', employeur:'', poste:'', base:35, seuil:43, t1:25, t2:50
 let S = load();
 if ((S.settings.ancGrid || []).some(Array.isArray)) S.settings.ancGrid = S.settings.ancGrid.map(g => Array.isArray(g) ? {y:g[0], j:g[1]} : g);
 function load() {
-  try { const o = JSON.parse(localStorage.getItem('mh_data') || '{}'); return {settings:{...DEF_SET, ...(o.settings||{})}, days:o.days || {}, paie:o.paie || {}, dels:o.dels || {}, docs:o.docs || {}, clos:o.clos || {}}; }
-  catch (e) { return {settings:{...DEF_SET}, days:{}, paie:{}, dels:{}, docs:{}, clos:{}}; }
+  try { const o = JSON.parse(localStorage.getItem('mh_data') || '{}'); return {settings:{...DEF_SET, ...(o.settings||{})}, days:o.days || {}, paie:o.paie || {}, dels:o.dels || {}, docs:o.docs || {}, clos:o.clos || {}, jr:o.jr || {}}; }
+  catch (e) { return {settings:{...DEF_SET}, days:{}, paie:{}, dels:{}, docs:{}, clos:{}, jr:{}}; }
 }
 function persist() {
   try { localStorage.setItem('mh_data', JSON.stringify(S)); }
@@ -946,7 +953,7 @@ const idbPut = (k, v) => idbOp('readwrite', s => s.put(v, k));
 const idbGet = k => idbOp('readonly', s => s.get(k));
 const idbDel = k => idbOp('readwrite', s => s.delete(k));
 const slug = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
-function docName(m) { const ext = m.mime === 'application/pdf' ? 'pdf' : (m.mime || '').includes('png') ? 'png' : 'jpg'; return `${(m.mois || m.date || '').slice(0, 7)}_${slug(DOC_TYPES[m.type] || 'Document')}${m.titre ? '_' + slug(m.titre) : ''}.${ext}`; }
+function docName(m) { if (m.type === 'journal') return `Journal_${m.date || ''}_${(m.jr || '').slice(-5)}_${m.id.slice(-5)}.jpg`; const ext = m.mime === 'application/pdf' ? 'pdf' : (m.mime || '').includes('png') ? 'png' : 'jpg'; return `${(m.mois || m.date || '').slice(0, 7)}_${slug(DOC_TYPES[m.type] || 'Document')}${m.titre ? '_' + slug(m.titre) : ''}.${ext}`; }
 const b64ToBlob = (b64, mime) => { const bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Blob([u], {type:mime}); };
 const blobToB64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
 async function compressImage(file) {
@@ -983,8 +990,8 @@ function mergeDoc(id, r) {
 }
 let docFilter = '';
 function vDocs() {
-  const list = Object.values(S.docs || {}).filter(m => !m.deleted && (!docFilter || m.type === docFilter)).sort((a, b) => (b.mois || b.date || '') < (a.mois || a.date || '') ? -1 : 1);
-  const used = [...new Set(Object.values(S.docs || {}).filter(m => !m.deleted).map(m => m.type))];
+  const list = Object.values(S.docs || {}).filter(m => !m.deleted && m.type !== 'journal' && (!docFilter || m.type === docFilter)).sort((a, b) => (b.mois || b.date || '') < (a.mois || a.date || '') ? -1 : 1);
+  const used = [...new Set(Object.values(S.docs || {}).filter(m => !m.deleted && m.type !== 'journal').map(m => m.type))];
   return `
   <div class="group"><div class="gpad">
     <div style="font-weight:700">Mes documents</div>
@@ -1063,7 +1070,7 @@ async function exportAll() {
     if (m.deleted) continue;
     try { const b = await docBlob(m.id); let n = docName(m); if (used[n]) n = n.replace(/(\.\w+)$/, `_${++used[n]}$1`); else used[n] = 1; zip.file('Documents/' + n, await blobToB64(b), {base64:true}); } catch (e) {}
   }
-  zip.file(`Sauvegarde-MesHeures_${today()}.json`, JSON.stringify({app:'Mes Heures', version:4, exportedAt:new Date().toISOString(), settings:S.settings, days:S.days, paie:S.paie, clos:S.clos, docs:S.docs}, null, 1));
+  zip.file(`Sauvegarde-MesHeures_${today()}.json`, JSON.stringify({app:'Mes Heures', version:4, exportedAt:new Date().toISOString(), settings:S.settings, days:S.days, paie:S.paie, clos:S.clos, docs:S.docs, jr:S.jr}, null, 1));
   const blob = new Blob([await zip.generateAsync({type:'uint8array'})], {type:'application/zip'});
   await deliver(blob, `MesHeures_export_${today()}.zip`, 'application/zip');
 }
@@ -1624,13 +1631,13 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 4.4</p>`;
+  <p class="note">Mes Heures, version 5.0</p>`;
 }
 
 function render() {
   flushSet();
   const v = $('#view');
-  v.innerHTML = tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'docs' ? `<div class="cols"><div>${vDocs()}</div><div>${htmlNotesFinder()}</div></div>` : vSettings();
+  v.innerHTML = tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'docs' ? `<div class="cols"><div>${vDocs()}</div><div>${htmlNotesFinder()}</div></div>` : tab === 'journal' ? vJournal() : vSettings();
   if (tab === 'recap') setTimeout(verifyClosUI, 30);
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
   setSync();
@@ -1736,7 +1743,7 @@ function readSheet() {
   const rp = $('#e-rp').value.trim(); if (rp === '') delete d.repPrix; else d.repPrix = numIn(rp);
   const auto = !!(S.settings.repasAuto && catUnits(d, 'travail') >= 1), on = $('#e-rep').checked; if (on === auto) delete d.rep; else d.rep = on ? 1 : 0;
 }
-function closeSheet() { $('#sheet').classList.add('hidden'); $('#sheet').innerHTML = ''; ed = null; red = null; if (pendingRender) setTimeout(softRender, 50); }
+function closeSheet() { if (jrEd) jrDiscard(); $('#sheet').classList.add('hidden'); $('#sheet').innerHTML = ''; ed = null; red = null; if (pendingRender) setTimeout(softRender, 50); }
 function buildSegs() { // formulaire -> périodes de travail ; renvoie un message d'erreur ou null
   const f = ed.form, d = ed.day, live = ed.ds >= addD(today(), -1);
   const ps = f.pauses.filter(p => p.d || p.f);
@@ -2294,7 +2301,7 @@ async function exportCsv() {
   await deliver(new Blob([csv], {type:'text/csv;charset=utf-8'}), `Heures_${a}_${b}.csv`, 'text/csv');
 }
 async function exportBackup() {
-  const data = JSON.stringify({app:'Mes Heures', version:4, exportedAt:new Date().toISOString(), settings:S.settings, days:S.days, paie:S.paie, clos:S.clos, docs:S.docs}, null, 1);
+  const data = JSON.stringify({app:'Mes Heures', version:4, exportedAt:new Date().toISOString(), settings:S.settings, days:S.days, paie:S.paie, clos:S.clos, docs:S.docs, jr:S.jr}, null, 1);
   await deliver(new Blob([data], {type:'application/json'}), `Sauvegarde-MesHeures_${today()}.json`, 'application/json');
 }
 function importBackup(file) {
@@ -2310,6 +2317,7 @@ function importBackup(file) {
     let pc = false; for (const [k, v] of Object.entries(o.paie || {})) { const l = S.paie[k]; if (!l || (v.updatedAt || '') > (l.updatedAt || '')) { S.paie[k] = v; pc = true; } }
     if (pc) pushPaie();
     for (const [k, v] of Object.entries(o.clos || {})) { const l = S.clos[k]; if (!l || (v.updatedAt || '') > (l.updatedAt || '')) S.clos[k] = v; }
+    for (const [k, v] of Object.entries(o.jr || {})) if (mergeJr(k, v)) pushJr(k);
     persist(); render(); toast(c + ' jour(s) restauré(s)');
   };
   r.readAsText(file);
@@ -2366,13 +2374,17 @@ async function fullSync() {
     for (const [k, v] of Object.entries(rc)) { const l = S.clos[k]; if (!l || (v.updatedAt || '') > (l.updatedAt || '')) { S.clos[k] = v; changed = true; } }
     for (const [k, v] of Object.entries(S.clos)) if (!rc[k] || (v.updatedAt || '') > (rc[k].updatedAt || '')) cUp = true;
     if (cUp) pushClos();
+    const js = await ucol().collection('journal').get(); const rj = {};
+    js.forEach(d => rj[d.id] = d.data());
+    for (const [k, v] of Object.entries(rj)) if (mergeJr(k, v)) changed = true;
+    for (const [k, v] of Object.entries(S.jr)) if (!rj[k] || (v.updatedAt || '') > (rj[k].updatedAt || '')) pushJr(k);
     for (const [id, m] of Object.entries(S.docs)) if (!m.synced && !m.srvAt) pushDoc(id).catch(() => {});
     persist(); fb.err = false; fb.last = new Date(); if (changed) render();
   } catch (e) { fb.err = true; fb.errMsg = (e && (e.code || '') + ' ' + (e.message || '')).trim(); console.error(e); }
   fb.busy = false; setSync();
 }
 let unsubs = [], pendingRender = false;
-function softRender() { if (ed || red || $('#view').contains(document.activeElement)) { pendingRender = true; return; } pendingRender = false; render(); }
+function softRender() { if (ed || red || jrEd || $('#view').contains(document.activeElement)) { pendingRender = true; return; } pendingRender = false; render(); }
 function listen() { // synchronisation instantanée entre appareils
   unsubs.forEach(u => { try { u(); } catch (e) {} }); unsubs = [];
   if (!fb.user) return;
@@ -2389,6 +2401,10 @@ function listen() { // synchronisation instantanée entre appareils
   }, onErr));
   unsubs.push(ucol().collection('docs').onSnapshot(snap => {
     let ch = false; snap.docChanges().forEach(c => { if (c.type === 'removed' || c.doc.metadata.hasPendingWrites) return; if (mergeDoc(c.doc.id, c.doc.data())) ch = true; });
+    if (ch) { persist(); softRender(); }
+  }, onErr));
+  unsubs.push(ucol().collection('journal').onSnapshot(snap => {
+    let ch = false; snap.docChanges().forEach(c => { if (c.type === 'removed' || c.doc.metadata.hasPendingWrites) return; if (mergeJr(c.doc.id, c.doc.data())) ch = true; });
     if (ch) { persist(); softRender(); }
   }, onErr));
   unsubs.push(ucol().collection('meta').doc('clos').onSnapshot(d => {
@@ -2434,6 +2450,15 @@ document.addEventListener('click', async e => {
     case 'edit': openEditor(b.dataset.ds); break;
     case 'other': { const v = $('#otherDay').value; if (v) openEditor(v); break; }
     case 'shut': closeSheet(); break;
+    case 'jrexpress': jrExpress(); break;
+    case 'jrnew': jrOpen(null); break;
+    case 'jropen': jrOpen(b.dataset.id); break;
+    case 'jrnewlink': { const p = S.jr[b.dataset.id]; jrEd.added = []; jrOpen(null, {lien:p.id, personnes:p.personnes, titre:p.titre, type:p.type === 'consigne' ? 'tache' : 'constat'}); break; }
+    case 'jrf': jrFilter = b.dataset.t; render(); break;
+    case 'jrsave': case 'jrsavex': jrSave(); break;
+    case 'jrdel': jrDelete(b.dataset.id); break;
+    case 'jrphdel': if (jrEd && confirm('Retirer cette photo de la fiche ?')) { jrEd.photos = jrEd.photos.filter(p => p !== b.dataset.pid); jrPhotos(); } break;
+    case 'jrphview': try { const m = S.docs[b.dataset.pid] || {id:b.dataset.pid, type:'journal', date:today(), jr:''}; await deliver(await docBlob(b.dataset.pid), docName(m), 'image/jpeg'); } catch (er) { toast('Photo indisponible'); } break;
     case 'addpause': readSheet(); ed.form.pauses.push({d:'', f:''}); renderSheet(); break;
     case 'delpause': readSheet(); ed.form.pauses.splice(+b.dataset.i, 1); renderSheet(); break;
     case 'now': { const i = b.previousElementSibling; if (i) i.value = nowHM(); break; }
@@ -2534,6 +2559,14 @@ document.addEventListener('click', async e => {
     case 'fbforget': if (confirm('Retirer la configuration Firebase ? Vos données restent sur ce téléphone et en ligne.')) { localStorage.removeItem('mh_fbcfg'); location.reload(); } break;
   }
 });
+document.addEventListener('change', e => {
+  if (e.target.id === 'jr-file') { const fs = [...e.target.files]; e.target.value = ''; jrAddFiles(fs); }
+  else if (e.target.id === 'jr-type') { const w = $('#jr-catw'); if (w) w.style.display = e.target.value === 'rappel' ? '' : 'none'; }
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'jr-texte' || e.target.id === 'jr-titre') jrLint();
+  else if (e.target.id === 'jr-q') { jrSearch = e.target.value; const p = e.target.selectionStart; render(); const q = $('#jr-q'); if (q) { q.focus(); try { q.setSelectionRange(p, p); } catch (er) {} } }
+});
 $('#restoreFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#sheet').classList.contains('hidden')) closeSheet(); if (e.key === 'Enter' && e.target.id === 'lk-code') tryUnlock(); if (e.key === 'Enter' && e.target.id === 'ask-v') askClose(true); });
 document.addEventListener('input', e => {
@@ -2582,6 +2615,211 @@ document.addEventListener('change', e => {
 });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushSet(); });
 window.addEventListener('pagehide', flushSet);
+/* ================= Journal de bord ================= */
+const JR_TYPES = {
+  consigne:{l:'Consigne du patron', c:'#3b6fd8'},
+  tache:{l:'Tâche transmise', c:'#2f8f5b'},
+  constat:{l:'Constat', c:'#c2602b'},
+  rappel:{l:'Rappel individuel', c:'#8a4fc9'},
+  obstacle:{l:'Obstacle', c:'#a07a12'},
+  alerte:{l:'Alerte remontée au patron', c:'#c23b3b'},
+  horaire:{l:'Horaire imposé', c:'#1f7a8c'},
+  planning:{l:'Planning annoncé', c:'#4a5568'},
+  tableau:{l:'Photo du tableau du jour', c:'#6b7280'}
+};
+const JR_EXPRESS = ['consigne', 'constat', 'rappel', 'obstacle', 'horaire', 'tableau'];
+const JR_CATS_DEF = ['EPI', 'Présence au poste', 'Bavardages', 'Téléphone', 'Autre'];
+const JR_FIELDS = ['type', 'date', 'heure', 'titre', 'texte', 'personnes', 'temoins', 'cat', 'lien', 'photos', 'aCompleter'];
+let jrEd = null, jrFilter = '', jrSearch = '';
+const jrCats = () => (S.settings.jrCats && S.settings.jrCats.length ? S.settings.jrCats : JR_CATS_DEF);
+const jrList = () => Object.values(S.jr || {}).filter(f => !f.deleted);
+const jrSortKey = f => (f.date || '') + ' ' + (f.heure || '00:00') + ' ' + (f.createdAt || '');
+const jrTag = t => `<span class="tag" style="background:color-mix(in srgb,${(JR_TYPES[t] || {}).c || '#666'} 15%,transparent);color:${(JR_TYPES[t] || {}).c || '#666'}">${esc((JR_TYPES[t] || {}).l || t)}</span>`;
+function jrTitle(f) { return f.titre || (f.texte || '').split('\n')[0].slice(0, 70) || (JR_TYPES[f.type] || {}).l || 'Fiche'; }
+function jrPick(f) { const o = {}; JR_FIELDS.forEach(k => o[k] = clone(f[k] ?? (k === 'photos' ? [] : k === 'aCompleter' ? false : ''))); return o; }
+
+function vJournal() {
+  const all = jrList(), todo = all.filter(f => f.aCompleter).length;
+  const q = jrSearch.trim().toLowerCase();
+  const list = all.filter(f => (!jrFilter || (jrFilter === 'todo' ? f.aCompleter : f.type === jrFilter)) &&
+    (!q || [f.titre, f.texte, f.personnes, f.temoins, f.cat].join(' ').toLowerCase().includes(q))).sort((a, b) => jrSortKey(b) < jrSortKey(a) ? -1 : 1);
+  const used = [...new Set(all.map(f => f.type))];
+  let lastD = '', rows = '';
+  for (const f of list) {
+    if (f.date !== lastD) { lastD = f.date; rows += `<div class="gh" style="padding-top:14px">${f.date ? pd(f.date).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) : 'Sans date'}</div>`; }
+    rows += `<button class="day" style="grid-template-columns:52px 1fr auto" data-act="jropen" data-id="${f.id}">
+      <span class="dn">${esc(f.heure || '')}</span>
+      <span class="dt">${jrTag(f.type)}${f.aCompleter ? ' <span class="tag warn">À compléter</span>' : ''}<br><b>${esc(jrTitle(f))}</b>${f.personnes ? '<br><span class="muted small">' + esc(f.personnes) + '</span>' : ''}</span>
+      <span class="dh small muted">${(f.photos || []).length ? '📷 ' + f.photos.length : ''} ›</span></button>`;
+  }
+  return `
+  <div class="group"><div class="gpad">
+    <div style="font-weight:700">Journal de bord</div>
+    <p class="small muted" style="margin:4px 0 0">Notez sur le moment, complétez plus tard. ${fb.user ? 'Chaque fiche est sauvegardée en ligne.' : '<b>Activez la sauvegarde en ligne (Réglages) pour ne rien perdre.</b>'}</p>
+    <div class="btns two"><button class="btn" data-act="jrexpress">+ Noter vite</button><button class="btn ghost" data-act="jrnew">Fiche complète</button></div>
+  </div></div>
+  ${todo ? `<div class="alert" style="cursor:pointer" data-act="jrf" data-t="todo">${todo} fiche${todo > 1 ? 's' : ''} à compléter</div>` : ''}
+  ${all.length ? `<input type="text" id="jr-q" placeholder="Rechercher (prénom, sujet…)" value="${esc(jrSearch)}" style="margin:4px 0 8px">
+  <div class="chips" style="margin:0 2px 6px"><button class="chipb${!jrFilter ? ' on' : ''}" data-act="jrf" data-t="">Toutes</button>${todo ? `<button class="chipb${jrFilter === 'todo' ? ' on' : ''}" data-act="jrf" data-t="todo">À compléter</button>` : ''}${used.map(t => `<button class="chipb${jrFilter === t ? ' on' : ''}" data-act="jrf" data-t="${t}">${esc(JR_TYPES[t].l)}</button>`).join('')}</div>` : ''}
+  <div class="group">${rows || '<div class="row"><span class="small muted">Aucune fiche pour l’instant. Touchez « + Noter vite » au moment où quelque chose se passe.</span></div>'}</div>
+  <p class="note">Notez des faits (quoi, où, quand, devant qui), jamais des jugements. Photographiez le travail, pas les personnes. Les fiches restent modifiables : chaque modification est gardée dans l’historique.</p>`;
+}
+
+/* Saisie express : photo + type + quelques mots */
+function jrExpress() {
+  if (jrEd) jrDiscard();
+  jrEd = {mode:'express', id:null, photos:[], added:[], type:'constat'};
+  const sh = $('#sheet');
+  sh.innerHTML = `<div class="bgd" data-act="shut"></div><div class="pnl"><div class="grip"></div>
+    <div class="shd"><b>Noter vite</b><button class="linkbtn" data-act="shut">Fermer</button></div>
+    <div class="chips" id="jr-xt">${JR_EXPRESS.map(t => `<label><input type="radio" name="jr-xt" value="${t}" ${t === 'constat' ? 'checked' : ''}><span>${esc(JR_TYPES[t].l)}</span></label>`).join('')}</div>
+    <label class="l" for="jr-xtxt">En quelques mots</label>
+    <input type="text" id="jr-xtxt" placeholder="Ex. rayon fromage pas balisé, demandé à Julie">
+    <label class="l">Photo (facultatif)</label>
+    <div id="jr-ph" class="jrph"></div>
+    <label class="btn ghost jrfile">📷 Prendre ou choisir une photo<input type="file" id="jr-file" accept="image/*" multiple hidden></label>
+    <p class="small muted">Date et heure sont notées automatiquement. Vous compléterez le reste plus tard.</p>
+    <div class="btns"><button class="btn" data-act="jrsavex">Enregistrer</button></div></div>`;
+  sh.classList.remove('hidden');
+}
+
+/* Fiche complète (création ou modification) */
+function jrOpen(id, pre) {
+  if (jrEd) jrDiscard();
+  const f = id ? S.jr[id] : null; pre = pre || {};
+  const base = f ? jrPick(f) : {type:pre.type || 'consigne', date:today(), heure:nowHM(), titre:pre.titre || '', texte:'', personnes:pre.personnes || '', temoins:'', cat:'', lien:pre.lien || '', photos:[], aCompleter:false};
+  jrEd = {mode:'full', id, photos:[...(base.photos || [])], added:[], removed:[]};
+  const others = jrList().filter(x => x.id !== id).sort((a, b) => jrSortKey(b) < jrSortKey(a) ? -1 : 1).slice(0, 60);
+  const sh = $('#sheet');
+  sh.innerHTML = `<div class="bgd" data-act="shut"></div><div class="pnl"><div class="grip"></div>
+    <div class="shd"><b>${f ? 'Fiche' : 'Nouvelle fiche'}</b><button class="linkbtn" data-act="shut">Fermer</button></div>
+    ${f && f.aCompleter ? '<div class="alert">Note rapide à compléter : précisez les personnes, les témoins et le contexte.</div>' : ''}
+    <label class="l" for="jr-type">Type</label>
+    <select id="jr-type">${Object.entries(JR_TYPES).map(([k, v]) => `<option value="${k}" ${base.type === k ? 'selected' : ''}>${v.l}</option>`).join('')}</select>
+    <div class="two">
+      <div><label class="l" for="jr-date">Date des faits</label><input type="date" id="jr-date" value="${esc(base.date)}"></div>
+      <div><label class="l" for="jr-heure">Heure</label><input type="time" id="jr-heure" value="${esc(base.heure)}"></div>
+    </div>
+    <div id="jr-catw" style="${base.type === 'rappel' ? '' : 'display:none'}"><label class="l" for="jr-cat">Sujet du rappel</label>
+      <select id="jr-cat"><option value="">Choisir…</option>${jrCats().map(c => `<option ${base.cat === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div>
+    <label class="l" for="jr-titre">Titre court</label><input type="text" id="jr-titre" value="${esc(base.titre)}" placeholder="Ex. balisage rayon fromage">
+    <label class="l" for="jr-texte">Ce qui s’est passé (faits)</label>
+    <textarea id="jr-texte" placeholder="Quoi, où, quand. Les mots exacts si c’est une consigne.">${esc(base.texte)}</textarea>
+    <div id="jr-check"></div>
+    <label class="l" for="jr-pers">Personne(s) concernée(s)</label><input type="text" id="jr-pers" value="${esc(base.personnes)}" placeholder="Prénoms, séparés par des virgules">
+    <label class="l" for="jr-tem">Témoins présents</label><input type="text" id="jr-tem" value="${esc(base.temoins)}" placeholder="Facultatif">
+    <label class="l" for="jr-lien">Fait suite à la fiche…</label>
+    <select id="jr-lien"><option value="">Aucune</option>${others.map(o => `<option value="${o.id}" ${base.lien === o.id ? 'selected' : ''}>${esc(frNum(o.date || today()) + ' · ' + (JR_TYPES[o.type] || {}).l + ' · ' + jrTitle(o)).slice(0, 90)}</option>`).join('')}</select>
+    <label class="l">Photos (preuves)</label>
+    <div id="jr-ph" class="jrph"></div>
+    <label class="btn ghost jrfile">📷 Ajouter une photo<input type="file" id="jr-file" accept="image/*" multiple hidden></label>
+    <label class="check"><input type="checkbox" id="jr-todo" ${base.aCompleter ? 'checked' : ''}><span>Encore à compléter</span></label>
+    <div class="btns"><button class="btn" data-act="jrsave">Enregistrer la fiche</button></div>
+    ${f ? jrMeta(f) : ''}
+    ${f ? `<div class="btns two"><button class="btn ghost" data-act="jrnewlink" data-id="${f.id}">Ajouter une suite</button><button class="btn danger" data-act="jrdel" data-id="${f.id}">Supprimer</button></div>` : ''}
+  </div>`;
+  sh.classList.remove('hidden');
+  jrPhotos(); jrLint();
+}
+function jrMeta(f) {
+  const prev = f.lien && S.jr[f.lien] && !S.jr[f.lien].deleted ? S.jr[f.lien] : null;
+  const next = jrList().filter(x => x.lien === f.id);
+  const vs = f.versions || [];
+  return `<div class="small muted" style="margin-top:14px">
+    Saisie le ${stampTxt(f.createdAt)}${f.srvAt ? ' (horodatage serveur : ' + stampTxt(f.srvAt) + ')' : ''}${f.updatedAt && f.updatedAt !== f.createdAt ? ' · modifiée le ' + stampTxt(f.updatedAt) : ''}<br>
+    <i>Ces dates de saisie restent dans l’application et n’apparaissent pas dans les documents.</i></div>
+    ${prev || next.length ? `<div style="margin-top:10px"><b class="small">Enchaînement</b>${prev ? `<button class="mline" data-act="jropen" data-id="${prev.id}">↑ Fait suite à : ${esc(frNum(prev.date) + ' · ' + jrTitle(prev))}</button>` : ''}${next.map(n => `<button class="mline" data-act="jropen" data-id="${n.id}">↓ Suite : ${esc(frNum(n.date) + ' · ' + jrTitle(n))}</button>`).join('')}</div>` : ''}
+    ${vs.length ? `<details class="pfx"><summary>Historique (${vs.length} version${vs.length > 1 ? 's' : ''} précédente${vs.length > 1 ? 's' : ''})</summary>${vs.slice().reverse().map(v => `<div class="nrow small"><b>Version du ${stampTxt(v.at)}</b><br>${esc((JR_TYPES[v.data.type] || {}).l || '')} · ${v.data.date ? frNum(v.data.date) : ''} ${esc(v.data.heure || '')}<br>${v.data.titre ? '<b>' + esc(v.data.titre) + '</b><br>' : ''}${esc(v.data.texte || '').replace(/\n/g, '<br>')}${v.data.personnes ? '<br>Personnes : ' + esc(v.data.personnes) : ''}${v.data.temoins ? '<br>Témoins : ' + esc(v.data.temoins) : ''}${(v.data.photos || []).length ? '<br>' + v.data.photos.length + ' photo(s)' : ''}</div>`).join('')}</details>` : ''}`;
+}
+async function jrPhotos() {
+  const w = $('#jr-ph'); if (!w || !jrEd) return;
+  w.innerHTML = jrEd.photos.map(p => `<div class="jrth" data-pid="${p}"><span class="small muted">…</span><button type="button" class="x" data-act="jrphdel" data-pid="${p}" aria-label="Retirer la photo">✕</button></div>`).join('');
+  for (const p of jrEd.photos) {
+    try { const b = await docBlob(p); const el = w.querySelector(`[data-pid="${p}"]`); if (el) { el.querySelector('span').outerHTML = `<img src="${URL.createObjectURL(b)}" alt="" data-act="jrphview" data-pid="${p}">`; } }
+    catch (e) { const el = w.querySelector(`[data-pid="${p}"] span`); if (el) el.textContent = 'indisponible'; }
+  }
+}
+async function jrAddFiles(files) {
+  if (!jrEd) return;
+  for (const f of files) {
+    if (!(f.type || '').startsWith('image/') && !/\.(heic|jpe?g|png)$/i.test(f.name || '')) continue;
+    let blob; try { blob = await compressImage(f); } catch (e) { blob = f; }
+    if (!blob || blob.size > 10 * 1024 * 1024) { toast('Photo trop lourde'); continue; }
+    const id = 'p' + Date.now().toString(36) + uid();
+    try { await idbPut(id, blob); } catch (e) { toast('Photo impossible à enregistrer sur cet appareil'); continue; }
+    jrEd.photos.push(id); jrEd.added.push({id, size:blob.size});
+  }
+  jrPhotos();
+}
+/* Analyse avant enregistrement (règles simples, n’empêche jamais d’enregistrer) */
+const JR_JUGE = ['fainéant', 'faineant', 'feignant', 'nul', 'nulle', 'incapable', 'bon à rien', 'idiot', 'con', 'conne', 'débile', 'stupide', 'paresseu', 'je-m’en-foutiste', 'jemenfoutiste', 'toujours', 'jamais', 'comme d’habitude', "comme d'habitude", 'encore une fois', 'comme toujours', 'mentalité', 'insupportable'];
+const JR_PRIV = ['malade', 'maladie', 'enceinte', 'grossesse', 'dépression', 'depression', 'divorce', 'alcool', 'médicament', 'medicament', 'religion', 'syndicat', 'arrêt maladie', 'handicap'];
+function jrLint() {
+  const w = $('#jr-check'); if (!w) return;
+  const txt = (($('#jr-titre') || {}).value || '') + ' ' + (($('#jr-texte') || {}).value || '');
+  const low = ' ' + txt.toLowerCase().replace(/[.,;:!?()«»"]/g, ' ') + ' ';
+  const hit = l => l.filter(m => low.includes(' ' + m) || (m.length > 6 && low.includes(m)));
+  const j = hit(JR_JUGE), p = hit(JR_PRIV), msg = [];
+  if (j.length) msg.push(`Mot(s) de jugement : <b>${j.map(esc).join(', ')}</b>. Remplacez par un fait observable (quoi, où, à quelle heure).`);
+  if (p.length) msg.push(`Information privée ou sensible : <b>${p.map(esc).join(', ')}</b>. À ne pas noter sur un collègue.`);
+  if (txt.trim() && txt.trim().length < 12) msg.push('Description très courte : précisez quoi et où, si possible.');
+  w.innerHTML = msg.length ? `<div class="alert small">${msg.join('<br>')}</div>` : '';
+}
+function jrSave() {
+  if (!jrEd) return;
+  const now = new Date().toISOString();
+  let data;
+  if (jrEd.mode === 'express') {
+    const t = (document.querySelector('input[name=jr-xt]:checked') || {}).value || 'constat';
+    const txt = $('#jr-xtxt').value.trim();
+    if (!txt && !jrEd.photos.length) return toast('Ajoutez quelques mots ou une photo.');
+    data = {type:t, date:today(), heure:nowHM(), titre:'', texte:txt, personnes:'', temoins:'', cat:'', lien:'', photos:jrEd.photos, aCompleter:true};
+  } else {
+    data = {type:$('#jr-type').value, date:$('#jr-date').value || today(), heure:$('#jr-heure').value, titre:$('#jr-titre').value.trim(), texte:$('#jr-texte').value.trim(),
+      personnes:$('#jr-pers').value.trim(), temoins:$('#jr-tem').value.trim(), cat:data_cat(), lien:$('#jr-lien').value, photos:jrEd.photos, aCompleter:$('#jr-todo').checked};
+    if (data.type === 'rappel' && data.cat && !data.texte) data.texte = data.cat === 'Autre' ? 'Rappel oral.' : 'Rappel oral : ' + data.cat + '.';
+    if (!data.titre && !data.texte && !data.photos.length) return toast('La fiche est vide : ajoutez un titre, une description ou une photo.');
+  }
+  let f = jrEd.id ? S.jr[jrEd.id] : null;
+  if (f) {
+    const old = jrPick(f);
+    if (JSON.stringify(old) === JSON.stringify(jrPick(data))) { jrEd.added = []; closeSheet(); return toast('Aucune modification'); }
+    f.versions = [...(f.versions || []), {at:f.updatedAt || f.createdAt, data:old}];
+    Object.assign(f, data, {updatedAt:now});
+  } else {
+    const id = 'j' + Date.now().toString(36) + uid();
+    f = S.jr[id] = {id, ...data, createdAt:now, updatedAt:now, versions:[]};
+  }
+  for (const a of jrEd.added) if (data.photos.includes(a.id)) { S.docs[a.id] = {id:a.id, type:'journal', jr:f.id, date:data.date, mime:'image/jpeg', size:a.size, n:0, addedAt:now, updatedAt:now}; }
+  jrEd.added = [];
+  persist(); pushJr(f.id);
+  if (fb.user) data.photos.filter(p => S.docs[p] && !S.docs[p].synced).forEach(p => pushDoc(p).catch(() => {}));
+  closeSheet(); tab = 'journal'; render(); toast(f.aCompleter ? 'Noté. À compléter plus tard.' : 'Fiche enregistrée');
+}
+function data_cat() { const w = $('#jr-catw'); return w && w.style.display !== 'none' ? $('#jr-cat').value : ''; }
+function jrDelete(id) {
+  const f = S.jr[id]; if (!f) return;
+  if (!confirm('Supprimer cette fiche ? Elle disparaîtra de la liste et des documents.')) return;
+  const now = new Date().toISOString();
+  f.versions = [...(f.versions || []), {at:f.updatedAt || f.createdAt, data:jrPick(f)}];
+  f.deleted = true; f.updatedAt = now; persist(); pushJr(id); closeSheet(); render(); toast('Fiche supprimée');
+}
+function jrDiscard() { // photos ajoutées puis abandonnées
+  if (jrEd && jrEd.added) jrEd.added.forEach(a => idbDel(a.id).catch(() => {}));
+  jrEd = null;
+}
+function mergeJr(id, r) {
+  const l = S.jr[id]; if (l && (r.updatedAt || '') <= (l.updatedAt || '') && !(r.srvAt && !l.srvAt && r.updatedAt === l.updatedAt)) return false;
+  const o = {...r}; if (o.srvAt && o.srvAt.toDate) o.srvAt = o.srvAt.toDate().toISOString();
+  if (l && JSON.stringify(l) === JSON.stringify(o)) return false;
+  S.jr[id] = o; return true;
+}
+function pushJr(id) {
+  if (!fb.user || !S.jr[id]) return; const f = clone(S.jr[id]);
+  const extra = f.srvAt ? {} : {srvAt:firebase.firestore.FieldValue.serverTimestamp()};
+  delete f.srvAt; track(ucol().collection('journal').doc(id).set({...f, ...extra}, {merge:true}));
+}
+
 /* ================= Démarrage ================= */
 render();
 showLock();
