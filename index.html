@@ -196,6 +196,18 @@ details.pfx summary{font-weight:600;font-size:14.5px;color:var(--work);cursor:po
 .jrth{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
 .jrth img{width:100%;height:100%;object-fit:cover}
 .jrth .x{position:absolute;top:4px;right:4px;border:0;border-radius:50%;width:26px;height:26px;background:rgba(0,0,0,.55);color:#fff;font-size:13px}
+.segv{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;margin:8px 0 4px}
+.segv button{border:0;background:none;border-radius:9px;padding:9px 4px;font-size:14px;font-weight:600;color:var(--muted)}
+.segv button.on{background:var(--work);color:#fff}
+.stb{display:flex;gap:5px}
+.stb button{width:40px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:16px;font-weight:700;color:var(--muted)}
+.stb button.on.fait{background:var(--ok);border-color:var(--ok);color:#fff}
+.stb button.on.pasfait{background:var(--alert);border-color:var(--alert);color:#fff}
+.stb button.on.partiel{background:var(--sup);border-color:var(--sup);color:#fff}
+.stb button.on.attente{background:var(--work-soft);border-color:var(--work);color:var(--work)}
+.lrow{display:grid;grid-template-columns:1fr 110px 40px;gap:6px;margin-bottom:6px}
+.lrow.one{grid-template-columns:1fr 40px}
+.lrow .x{border:0;background:var(--alert-soft);color:var(--alert);border-radius:10px;height:44px}
 .jrfile{display:flex;align-items:center;justify-content:center;cursor:pointer}
 .tabs button{font-size:10.5px}
 .chipb{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 13px;font-size:14px;color:var(--ink)}
@@ -302,7 +314,7 @@ const motifSelect = (attrs, val) => `<select ${attrs}>${Object.entries(MOTIFS).m
 const FERIES = [['jan1','1er janvier'],['paques','Lundi de Pâques'],['mai1','1er mai'],['mai8','8 mai'],['ascension','Ascension'],['pentecote','Lundi de Pentecôte'],['jul14','14 juillet'],['aou15','15 août'],['nov1','Toussaint'],['nov11','11 novembre'],['dec25','Noël']];
 
 /* ================= Données ================= */
-const DEF_SET = {nom:'', employeur:'', poste:'', base:35, seuil:43, t1:25, t2:50, taux:0, contingent:220, grande:false, credit:false, creditH:7, remu:[], debut:'', fin:'', contrat:'CDI', convention:'', mode:'heures', fj:216, fjDebut:'01-01', rachat:10, rttOv:{}, cpUnit:'ouvrables', cpCal:{}, recupAdj:[], fChom:['jan1','paques','mai1','mai8','ascension','pentecote','jul14','aou15','nov1','nov11','dec25'], nuit:[{a:'21:00', z:'22:00', p:5}, {a:'22:00', z:'05:00', p:20}, {a:'05:00', z:'06:00', p:0}], dimReg:30, dimOcc:100, ferPct:100, ancGrid:[{y:10, j:1}, {y:15, j:2}, {y:20, j:3}], maskMotif:true, entretiens:[], alertes:[], fjOv:{}, kmAller:35, trajetMin:35, cv:5, elec:false, repasAuto:true, repasPrix:'', repasEmp:0, repasFoyer:5.45, repasLimite:'', niAnnuel:'', astMontant:0, updatedAt:''};
+const DEF_SET = {nom:'', employeur:'', poste:'', base:35, seuil:43, t1:25, t2:50, taux:0, contingent:220, grande:false, credit:false, creditH:7, remu:[], debut:'', fin:'', contrat:'CDI', convention:'', mode:'heures', fj:216, fjDebut:'01-01', rachat:10, rttOv:{}, cpUnit:'ouvrables', cpCal:{}, recupAdj:[], fChom:['jan1','paques','mai1','mai8','ascension','pentecote','jul14','aou15','nov1','nov11','dec25'], nuit:[{a:'21:00', z:'22:00', p:5}, {a:'22:00', z:'05:00', p:20}, {a:'05:00', z:'06:00', p:0}], dimReg:30, dimOcc:100, ferPct:100, ancGrid:[{y:10, j:1}, {y:15, j:2}, {y:20, j:3}], maskMotif:true, entretiens:[], alertes:[], fjOv:{}, kmAller:35, trajetMin:35, cv:5, elec:false, repasAuto:true, repasPrix:'', repasEmp:0, repasFoyer:5.45, repasLimite:'', niAnnuel:'', astMontant:0, jrPers:[], jrTaches:[], jrCats:[], jrPreuves:{}, jrBoucle:{}, updatedAt:''};
 let S = load();
 if ((S.settings.ancGrid || []).some(Array.isArray)) S.settings.ancGrid = S.settings.ancGrid.map(g => Array.isArray(g) ? {y:g[0], j:g[1]} : g);
 function load() {
@@ -811,6 +823,7 @@ function vWeek() {
       if (dayNotes(d).length) parts.push(`<span class="ndots">${noteDots(d)}</span>`);
       if (al.length) parts.push(`<span class="tag warn">${al.length > 1 ? al.length + ' alertes' : 'alerte'}</span>`);
     }
+    if (jrList().some(f => f.date === ds && f.type === 'horaire')) parts.push('<span class="tag warn">horaire imposé</span>');
     if (empty && ds < today() && inContract(ds) && (st.debut || d)) parts.push('<span class="tag warn">à compléter</span>');
     mid = parts.join(' ') || '<span class="muted">—</span>';
     const sel = d && !d.half && !d.segs.length ? (d.type === 'travail' ? (d.q ? 'travail' : '') : d.type) : '';
@@ -1631,7 +1644,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 5.0</p>`;
+  <p class="note">Mes Heures, version 5.2</p>`;
 }
 
 function render() {
@@ -2451,6 +2464,30 @@ document.addEventListener('click', async e => {
     case 'other': { const v = $('#otherDay').value; if (v) openEditor(v); break; }
     case 'shut': closeSheet(); break;
     case 'jrexpress': jrExpress(); break;
+    case 'jrplan': jrOpen(null, {type:'planning', titre:'Planning de la semaine du ' + frNum(b.dataset.m)}); break;
+    case 'jrexport': jrExportOpen('pdf'); break;
+    case 'jrbilan': jrExportOpen('bilan'); break;
+    case 'jxpdf': jrExportPdf(); break;
+    case 'jxbilan': jrBilanPdf(); break;
+    case 'jrboucle': jrBoucle(); break;
+    case 'jrunboucle': { const st = S.settings; st.jrBoucle = {...(st.jrBoucle || {})}; delete st.jrBoucle[jrDay]; jrSaveLists(st); render(); break; }
+    case 'jrview': jrView = b.dataset.v; render(); window.scrollTo(0, 0); break;
+    case 'jrday': jrDay = addD(jrDay, +b.dataset.d); render(); break;
+    case 'jrcarry': jrCarry(); break;
+    case 'jraddt': jrAddTasks(); break;
+    case 'jrray': jrRay = b.dataset.r; jrAddTasks(); break;
+    case 'jtall': document.querySelectorAll('#jt-p input').forEach(i => i.checked = true); break;
+    case 'jtsave': jrSaveTasks(); break;
+    case 'jrprint': jrPrint(); break;
+    case 'jrtabphoto': { jrExpress(); jrEd.date = jrDay; const r = document.querySelector('input[name=jr-xt][value=tableau]'); if (r) r.checked = true; const t = $('#jr-xtxt'); if (t) t.value = 'Feuille des tâches affichée'; break; }
+    case 'jrst': jrSetStatus(b.dataset.id, b.dataset.p, b.dataset.s); break;
+    case 'jrconstat': { const t = S.jr[b.dataset.id]; jrOpen(null, {type:'constat', lien:t.id, titre:t.titre, personnes:jrUnfinished(t).map(p => jrPName(p, t)).join(', ')}); break; }
+    case 'jrperson': jrPerson(b.dataset.id); break;
+    case 'jrlists': jrListsOpen(); break;
+    case 'jrladd': jrListsRead(); if (b.dataset.k === 'cats') jrLists.cats.push(''); else jrLists[b.dataset.k].push({id:'q' + uid(), nom:'', rayon:jrRay || ''}); jrListsRender(); { const l = [...document.querySelectorAll('.lrow .n')].pop(); if (l) l.focus(); } break;
+    case 'jrlrm': jrListsRead(); { const k = {lp:'pers', lt:'taches', lc:'cats'}[b.dataset.k]; jrLists[k].splice(+b.dataset.i, 1); } jrListsRender(); break;
+    case 'jrlsave': jrListsSave(); break;
+    case 'jrpadd': { const i = $('#jr-pers'); const l = i.value.split(/\s*,\s*/).filter(Boolean); if (!l.some(x => x.toLowerCase() === b.dataset.n.toLowerCase())) l.push(b.dataset.n); i.value = l.join(', '); break; }
     case 'jrnew': jrOpen(null); break;
     case 'jropen': jrOpen(b.dataset.id); break;
     case 'jrnewlink': { const p = S.jr[b.dataset.id]; jrEd.added = []; jrOpen(null, {lien:p.id, personnes:p.personnes, titre:p.titre, type:p.type === 'consigne' ? 'tache' : 'constat'}); break; }
@@ -2560,7 +2597,8 @@ document.addEventListener('click', async e => {
   }
 });
 document.addEventListener('change', e => {
-  if (e.target.id === 'jr-file') { const fs = [...e.target.files]; e.target.value = ''; jrAddFiles(fs); }
+  if (e.target.classList.contains('jrpv') || e.target.id === 'jrpv-note') { jrSavePreuves(); toast('Enregistré'); }
+  else if (e.target.id === 'jr-file') { const fs = [...e.target.files]; e.target.value = ''; jrAddFiles(fs); }
   else if (e.target.id === 'jr-type') { const w = $('#jr-catw'); if (w) w.style.display = e.target.value === 'rappel' ? '' : 'none'; }
 });
 document.addEventListener('input', e => {
@@ -2629,7 +2667,7 @@ const JR_TYPES = {
 };
 const JR_EXPRESS = ['consigne', 'constat', 'rappel', 'obstacle', 'horaire', 'tableau'];
 const JR_CATS_DEF = ['EPI', 'Présence au poste', 'Bavardages', 'Téléphone', 'Autre'];
-const JR_FIELDS = ['type', 'date', 'heure', 'titre', 'texte', 'personnes', 'temoins', 'cat', 'lien', 'photos', 'aCompleter'];
+const JR_FIELDS = ['type', 'date', 'heure', 'titre', 'texte', 'personnes', 'temoins', 'cat', 'lien', 'photos', 'aCompleter', 'limite', 'direction'];
 let jrEd = null, jrFilter = '', jrSearch = '';
 const jrCats = () => (S.settings.jrCats && S.settings.jrCats.length ? S.settings.jrCats : JR_CATS_DEF);
 const jrList = () => Object.values(S.jr || {}).filter(f => !f.deleted);
@@ -2638,7 +2676,8 @@ const jrTag = t => `<span class="tag" style="background:color-mix(in srgb,${(JR_
 function jrTitle(f) { return f.titre || (f.texte || '').split('\n')[0].slice(0, 70) || (JR_TYPES[f.type] || {}).l || 'Fiche'; }
 function jrPick(f) { const o = {}; JR_FIELDS.forEach(k => o[k] = clone(f[k] ?? (k === 'photos' ? [] : k === 'aCompleter' ? false : ''))); return o; }
 
-function vJournal() {
+function vJournal() { return jrHeader() + (jrView === 'jour' ? vJrDay() : jrView === 'pers' ? vJrPers() : vJrFiches()); }
+function vJrFiches() {
   const all = jrList(), todo = all.filter(f => f.aCompleter).length;
   const q = jrSearch.trim().toLowerCase();
   const list = all.filter(f => (!jrFilter || (jrFilter === 'todo' ? f.aCompleter : f.type === jrFilter)) &&
@@ -2657,6 +2696,7 @@ function vJournal() {
     <div style="font-weight:700">Journal de bord</div>
     <p class="small muted" style="margin:4px 0 0">Notez sur le moment, complétez plus tard. ${fb.user ? 'Chaque fiche est sauvegardée en ligne.' : '<b>Activez la sauvegarde en ligne (Réglages) pour ne rien perdre.</b>'}</p>
     <div class="btns two"><button class="btn" data-act="jrexpress">+ Noter vite</button><button class="btn ghost" data-act="jrnew">Fiche complète</button></div>
+    ${htmlJrTools()}
   </div></div>
   ${todo ? `<div class="alert" style="cursor:pointer" data-act="jrf" data-t="todo">${todo} fiche${todo > 1 ? 's' : ''} à compléter</div>` : ''}
   ${all.length ? `<input type="text" id="jr-q" placeholder="Rechercher (prénom, sujet…)" value="${esc(jrSearch)}" style="margin:4px 0 8px">
@@ -2707,6 +2747,7 @@ function jrOpen(id, pre) {
     <textarea id="jr-texte" placeholder="Quoi, où, quand. Les mots exacts si c’est une consigne.">${esc(base.texte)}</textarea>
     <div id="jr-check"></div>
     <label class="l" for="jr-pers">Personne(s) concernée(s)</label><input type="text" id="jr-pers" value="${esc(base.personnes)}" placeholder="Prénoms, séparés par des virgules">
+    ${jrPers().length ? `<div class="chips" style="margin-top:6px">${jrPers().map(p => `<button type="button" class="chipb" data-act="jrpadd" data-n="${esc(p.nom)}">+ ${esc(p.nom)}</button>`).join('')}</div>` : ''}
     <label class="l" for="jr-tem">Témoins présents</label><input type="text" id="jr-tem" value="${esc(base.temoins)}" placeholder="Facultatif">
     <label class="l" for="jr-lien">Fait suite à la fiche…</label>
     <select id="jr-lien"><option value="">Aucune</option>${others.map(o => `<option value="${o.id}" ${base.lien === o.id ? 'selected' : ''}>${esc(frNum(o.date || today()) + ' · ' + (JR_TYPES[o.type] || {}).l + ' · ' + jrTitle(o)).slice(0, 90)}</option>`).join('')}</select>
@@ -2725,7 +2766,10 @@ function jrMeta(f) {
   const prev = f.lien && S.jr[f.lien] && !S.jr[f.lien].deleted ? S.jr[f.lien] : null;
   const next = jrList().filter(x => x.lien === f.id);
   const vs = f.versions || [];
-  return `<div class="small muted" style="margin-top:14px">
+  const sv = f.type === 'tache' && (f.pids || []).length ? `<div style="margin-top:12px"><b class="small">Suivi${f.relance ? ' (relance ' + f.relance + ')' : ''}</b>${f.pids.map(pid => { const x = (f.suivi || {})[pid]; return `<div class="small">${esc(jrPName(pid, f))} : ${JR_ST[jrStatus(f, pid)].i} ${JR_ST[jrStatus(f, pid)].l}${x && x.at ? ' (' + stampTxt(x.at) + ')' : ''}</div>`; }).join('')}
+    ${(f.suiviLog || []).length ? `<details class="pfx"><summary>Historique du suivi (${f.suiviLog.length})</summary>${f.suiviLog.slice().reverse().map(l => `<div class="small">${stampTxt(l.at)} · ${esc(jrPName(l.pid, f))} : ${JR_ST[l.s].l}</div>`).join('')}</details>` : ''}</div>` : '';
+  const hs = f.type === 'horaire' ? `<div class="nrow small" style="margin-top:12px">${esc(jrDaySummary(f.date))}</div>` : '';
+  return sv + hs + `<div class="small muted" style="margin-top:14px">
     Saisie le ${stampTxt(f.createdAt)}${f.srvAt ? ' (horodatage serveur : ' + stampTxt(f.srvAt) + ')' : ''}${f.updatedAt && f.updatedAt !== f.createdAt ? ' · modifiée le ' + stampTxt(f.updatedAt) : ''}<br>
     <i>Ces dates de saisie restent dans l’application et n’apparaissent pas dans les documents.</i></div>
     ${prev || next.length ? `<div style="margin-top:10px"><b class="small">Enchaînement</b>${prev ? `<button class="mline" data-act="jropen" data-id="${prev.id}">↑ Fait suite à : ${esc(frNum(prev.date) + ' · ' + jrTitle(prev))}</button>` : ''}${next.map(n => `<button class="mline" data-act="jropen" data-id="${n.id}">↓ Suite : ${esc(frNum(n.date) + ' · ' + jrTitle(n))}</button>`).join('')}</div>` : ''}
@@ -2773,17 +2817,18 @@ function jrSave() {
     const t = (document.querySelector('input[name=jr-xt]:checked') || {}).value || 'constat';
     const txt = $('#jr-xtxt').value.trim();
     if (!txt && !jrEd.photos.length) return toast('Ajoutez quelques mots ou une photo.');
-    data = {type:t, date:today(), heure:nowHM(), titre:'', texte:txt, personnes:'', temoins:'', cat:'', lien:'', photos:jrEd.photos, aCompleter:true};
+    data = {type:t, date:jrEd.date || today(), heure:nowHM(), titre:'', texte:txt, personnes:'', temoins:'', cat:'', lien:'', photos:jrEd.photos, aCompleter:true};
   } else {
     data = {type:$('#jr-type').value, date:$('#jr-date').value || today(), heure:$('#jr-heure').value, titre:$('#jr-titre').value.trim(), texte:$('#jr-texte').value.trim(),
       personnes:$('#jr-pers').value.trim(), temoins:$('#jr-tem').value.trim(), cat:data_cat(), lien:$('#jr-lien').value, photos:jrEd.photos, aCompleter:$('#jr-todo').checked};
+    if (data.type === 'tache') { const ids = data.personnes.split(/\s*,\s*/).map(n => (jrPers().find(p => p.nom.toLowerCase() === n.toLowerCase()) || {}).id).filter(Boolean); if (ids.length) data.pids = [...new Set(ids)]; }
     if (data.type === 'rappel' && data.cat && !data.texte) data.texte = data.cat === 'Autre' ? 'Rappel oral.' : 'Rappel oral : ' + data.cat + '.';
     if (!data.titre && !data.texte && !data.photos.length) return toast('La fiche est vide : ajoutez un titre, une description ou une photo.');
   }
   let f = jrEd.id ? S.jr[jrEd.id] : null;
   if (f) {
     const old = jrPick(f);
-    if (JSON.stringify(old) === JSON.stringify(jrPick(data))) { jrEd.added = []; closeSheet(); return toast('Aucune modification'); }
+    if (JSON.stringify(old) === JSON.stringify(jrPick({...f, ...data}))) { jrEd.added = []; closeSheet(); return toast('Aucune modification'); }
     f.versions = [...(f.versions || []), {at:f.updatedAt || f.createdAt, data:old}];
     Object.assign(f, data, {updatedAt:now});
   } else {
@@ -2818,6 +2863,328 @@ function pushJr(id) {
   if (!fb.user || !S.jr[id]) return; const f = clone(S.jr[id]);
   const extra = f.srvAt ? {} : {srvAt:firebase.firestore.FieldValue.serverTimestamp()};
   delete f.srvAt; track(ucol().collection('journal').doc(id).set({...f, ...extra}, {merge:true}));
+}
+
+/* ================= Journal : listes, tâches du jour, personnes ================= */
+const JR_ST = {attente:{l:'En attente', i:'⏳'}, fait:{l:'Fait', i:'✓'}, partiel:{l:'Fait en partie', i:'½'}, pasfait:{l:'Pas fait', i:'✗'}};
+let jrView = 'fiches', jrDay = today(), jrRay = '', jrLists = null;
+const jrPers = () => (S.settings.jrPers || []);
+const jrTaches = () => (S.settings.jrTaches || []);
+const jrPName = (pid, f) => { const p = jrPers().find(x => x.id === pid); return p ? p.nom : ((f && f.suivi && f.suivi[pid] && f.suivi[pid].nom) || 'Personne retirée'); };
+const jrRayons = () => [...new Set(jrPers().map(p => p.rayon).concat(jrTaches().map(t => t.rayon)).filter(Boolean))].sort();
+const jrTasksOf = ds => jrList().filter(f => f.type === 'tache' && f.date === ds && f.pids && f.pids.length).sort((a, b) => (a.limite || '99') < (b.limite || '99') ? -1 : (a.createdAt < b.createdAt ? -1 : 1));
+const jrStatus = (f, pid) => ((f.suivi || {})[pid] || {}).s || 'attente';
+const jrUnfinished = f => (f.pids || []).filter(pid => jrStatus(f, pid) !== 'fait');
+function jrSaveLists(st) { st.updatedAt = new Date().toISOString(); persist(); pushSettings(); }
+
+function jrHeader() {
+  const v = [['fiches', 'Fiches'], ['jour', 'Tâches du jour'], ['pers', 'Personnes']];
+  return `<div class="segv">${v.map(([k, l]) => `<button class="${jrView === k ? 'on' : ''}" data-act="jrview" data-v="${k}">${l}</button>`).join('')}</div>`;
+}
+
+/* ---------- Vue « Tâches du jour » ---------- */
+function jrPrevTaskDay(ds) { const d = [...new Set(jrList().filter(f => f.type === 'tache' && f.date < ds && f.pids && f.pids.length).map(f => f.date))].sort(); return d[d.length - 1] || ''; }
+function jrToCarry(ds) {
+  const prev = jrPrevTaskDay(ds); if (!prev) return {prev, list:[]};
+  const done = new Set(jrList().filter(f => f.lien).map(f => f.lien));
+  return {prev, list:jrTasksOf(prev).filter(f => jrUnfinished(f).length && !done.has(f.id))};
+}
+function vJrDay() {
+  const tasks = jrTasksOf(jrDay), carry = jrToCarry(jrDay);
+  let tot = 0, ok = 0; tasks.forEach(f => f.pids.forEach(p => { tot++; if (jrStatus(f, p) === 'fait') ok++; }));
+  const photos = jrList().filter(f => f.type === 'tableau' && f.date === jrDay).length;
+  const lbl = pd(jrDay).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+  return `<div class="nav"><button data-act="jrday" data-d="-1" aria-label="Jour précédent">‹</button><div class="t"><b>${lbl}</b><span>${jrDay === today() ? 'Aujourd’hui' : frNum(jrDay)}${tot ? ' · ' + ok + ' / ' + tot + ' fait' + (ok > 1 ? 's' : '') : ''}</span></div><button data-act="jrday" data-d="1" aria-label="Jour suivant">›</button></div>
+  ${carry.list.length ? `<div class="alert" style="background:var(--sup-soft);color:var(--ink)">${carry.list.length} tâche${carry.list.length > 1 ? 's' : ''} non terminée${carry.list.length > 1 ? 's' : ''} le ${frNum(carry.prev)}.<div class="btns"><button class="btn" data-act="jrcarry">Reporter sur ce jour (relance)</button></div></div>` : ''}
+  <div class="btns two"><button class="btn" data-act="jraddt">+ Tâches</button><button class="btn ghost" data-act="jrprint">Imprimer la feuille</button></div>
+  <div class="btns"><button class="btn ghost" data-act="jrtabphoto">📷 Photo de la feuille affichée${photos ? ' (' + photos + ')' : ''}</button></div>
+  ${tasks.length ? tasks.map(f => `<div class="group">
+    <div class="gpad" style="padding-bottom:6px"><button class="linkbtn" style="text-align:left;color:var(--ink);font-weight:700;font-size:15.5px" data-act="jropen" data-id="${f.id}">${esc(f.titre || 'Tâche')}</button>
+      <div class="small muted">${[f.rayon && esc(f.rayon), f.limite && 'avant ' + esc(f.limite), f.direction && 'demande de la direction'].filter(Boolean).join(' · ')}${f.relance ? ' <span class="tag warn">Relance ' + f.relance + '</span>' : ''}</div></div>
+    ${f.pids.map(pid => { const s = jrStatus(f, pid); return `<div class="row" style="padding:8px 16px"><span>${esc(jrPName(pid, f))}</span><span class="stb">${Object.entries(JR_ST).map(([k, v]) => `<button class="${s === k ? 'on ' + k : ''}" data-act="jrst" data-id="${f.id}" data-p="${pid}" data-s="${k}" title="${v.l}" aria-label="${v.l}">${v.i}</button>`).join('')}</span></div>`; }).join('')}
+    <div class="row" style="padding:6px 16px"><button class="linkbtn small" data-act="jrconstat" data-id="${f.id}">📷 Noter un constat</button></div>
+  </div>`).join('') : `<div class="group"><div class="row"><span class="small muted">Aucune tâche ce jour. Touchez « + Tâches » pour préparer la liste.</span></div></div>`}
+  ${htmlJrBoucle()}
+  <p class="note">⏳ en attente · ✓ fait · ½ fait en partie · ✗ pas fait. Chaque changement est daté et gardé dans l’historique de la tâche.</p>`;
+}
+function jrSetStatus(id, pid, s) {
+  const f = S.jr[id]; if (!f) return; const now = new Date().toISOString();
+  f.suivi = f.suivi || {}; f.suiviLog = f.suiviLog || [];
+  if ((f.suivi[pid] || {}).s === s) return;
+  f.suivi[pid] = {s, at:now, nom:jrPName(pid, f)}; f.suiviLog.push({at:now, pid, s});
+  f.updatedAt = now; persist(); pushJr(id); render();
+}
+function jrCarry() {
+  const {list} = jrToCarry(jrDay); if (!list.length) return;
+  const now = new Date().toISOString();
+  list.forEach(o => {
+    const pids = jrUnfinished(o), id = 'j' + Date.now().toString(36) + uid();
+    S.jr[id] = {id, type:'tache', date:jrDay, heure:nowHM(), titre:o.titre, texte:o.texte, rayon:o.rayon || '', limite:o.limite || '', direction:!!o.direction,
+      pids, personnes:pids.map(p => jrPName(p, o)).join(', '), temoins:'', cat:'', lien:o.id, photos:[], aCompleter:false, relance:(o.relance || 0) + 1,
+      suivi:{}, suiviLog:[], createdAt:now, updatedAt:now, versions:[]};
+    pushJr(id);
+  });
+  persist(); render(); toast(list.length + ' tâche(s) reportée(s) en relance');
+}
+function jrAddTasks() {
+  jrEd = {mode:'tasks', photos:[], added:[]};
+  const sh = $('#sheet'), rs = jrRayons();
+  const consignes = jrList().filter(f => f.type === 'consigne').sort((a, b) => jrSortKey(b) < jrSortKey(a) ? -1 : 1).slice(0, 30);
+  const pers = jrPers().filter(p => !jrRay || p.rayon === jrRay), tks = jrTaches().filter(t => !jrRay || !t.rayon || t.rayon === jrRay);
+  sh.innerHTML = `<div class="bgd" data-act="shut"></div><div class="pnl"><div class="grip"></div>
+    <div class="shd"><b>Tâches du ${frNum(jrDay)}</b><button class="linkbtn" data-act="shut">Fermer</button></div>
+    ${!jrPers().length ? '<div class="alert">Commencez par créer la liste de vos collègues : onglet Journal, « Personnes », « Gérer les listes ».</div>' : ''}
+    ${rs.length ? `<label class="l">Rayon</label><div class="chips"><button class="chipb${!jrRay ? ' on' : ''}" data-act="jrray" data-r="">Tous</button>${rs.map(r => `<button class="chipb${jrRay === r ? ' on' : ''}" data-act="jrray" data-r="${esc(r)}">${esc(r)}</button>`).join('')}</div>` : ''}
+    <label class="l">Tâches</label>
+    <div class="chips" id="jt-t">${tks.map(t => `<label><input type="checkbox" value="${t.id}"><span>${esc(t.nom)}</span></label>`).join('') || '<span class="small muted">Aucune tâche habituelle enregistrée.</span>'}</div>
+    <input type="text" id="jt-autre" placeholder="Autre tâche (facultatif)" style="margin-top:8px">
+    <label class="l">Pour qui</label>
+    ${pers.length ? `<div class="btns"><button class="btn ghost" data-act="jtall">Sélectionner ${jrRay ? 'tout le rayon' : 'toute l’équipe'}</button></div>` : ''}
+    <div class="chips" id="jt-p" style="margin-top:8px">${pers.map(p => `<label><input type="checkbox" value="${p.id}"><span>${esc(p.nom)}</span></label>`).join('')}</div>
+    <div class="two"><div><label class="l" for="jt-lim">À faire avant</label><input type="time" id="jt-lim"></div><div></div></div>
+    <label class="check"><input type="checkbox" id="jt-dir"><span>Demande de la direction</span></label>
+    ${consignes.length ? `<label class="l" for="jt-lien">Liée à la consigne…</label><select id="jt-lien"><option value="">Aucune</option>${consignes.map(c => `<option value="${c.id}">${esc((frNum(c.date) + ' · ' + jrTitle(c)).slice(0, 80))}</option>`).join('')}</select>` : ''}
+    <div class="btns"><button class="btn" data-act="jtsave">Ajouter à la liste du jour</button></div></div>`;
+  sh.classList.remove('hidden');
+}
+function jrSaveTasks() {
+  const ids = [...document.querySelectorAll('#jt-t input:checked')].map(i => i.value);
+  const names = ids.map(id => (jrTaches().find(t => t.id === id) || {}).nom).filter(Boolean);
+  const autre = $('#jt-autre').value.trim(); if (autre) names.push(autre);
+  const pids = [...document.querySelectorAll('#jt-p input:checked')].map(i => i.value);
+  if (!names.length) return toast('Choisissez au moins une tâche.');
+  if (!pids.length) return toast('Choisissez au moins une personne.');
+  const now = new Date().toISOString(), lien = ($('#jt-lien') || {}).value || '';
+  names.forEach(n => {
+    const id = 'j' + Date.now().toString(36) + uid(), t = jrTaches().find(x => x.nom === n);
+    S.jr[id] = {id, type:'tache', date:jrDay, heure:nowHM(), titre:n, texte:'', rayon:(t && t.rayon) || jrRay || '', limite:$('#jt-lim').value, direction:$('#jt-dir').checked,
+      pids, personnes:pids.map(p => jrPName(p)).join(', '), temoins:'', cat:'', lien, photos:[], aCompleter:false, relance:0, suivi:{}, suiviLog:[], createdAt:now, updatedAt:now, versions:[]};
+    pushJr(id);
+  });
+  jrEd = null; persist(); closeSheet(); render(); toast(names.length + ' tâche(s) ajoutée(s)');
+}
+async function jrPrint() {
+  const tasks = jrTasksOf(jrDay); if (!tasks.length) return toast('Aucune tâche à imprimer ce jour.');
+  toast('Préparation de la feuille…');
+  if (!await ensurePdf()) return toast('Connexion internet nécessaire la première fois pour créer un PDF.');
+  const {jsPDF} = window.jspdf, doc = new jsPDF({unit:'mm', format:'a4'});
+  const lbl = pd(jrDay).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.text('Tâches du jour', 14, 18);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.text(lbl.charAt(0).toUpperCase() + lbl.slice(1), 14, 25);
+  const rays = [...new Set(tasks.map(f => f.rayon).filter(Boolean))]; if (rays.length) doc.text('Rayon(s) : ' + rays.join(', '), 14, 31);
+  const body = []; tasks.forEach(f => f.pids.forEach((pid, i) => body.push([i ? '' : f.titre + (f.relance ? '  (relance ' + f.relance + ')' : ''), jrPName(pid, f), i ? '' : (f.limite || ''), i ? '' : (f.direction ? 'Direction' : ''), '', ''])));
+  doc.autoTable({startY:rays.length ? 36 : 31, head:[['Tâche', 'Pour', 'Avant', 'Demande', 'Fait', 'Remarque']], body, theme:'grid',
+    styles:{fontSize:10, cellPadding:2.6, lineColor:[150, 155, 165], lineWidth:.2, minCellHeight:9, valign:'middle'}, headStyles:{fillColor:[35, 70, 160], textColor:255},
+    columnStyles:{0:{cellWidth:58}, 1:{cellWidth:30}, 2:{cellWidth:16}, 3:{cellWidth:22}, 4:{cellWidth:14}, 5:{cellWidth:42}}, margin:{left:14, right:14}});
+  doc.setFontSize(8.5); doc.setTextColor(110, 118, 130); doc.text('Cochez la case « Fait » une fois la tâche terminée, ou indiquez dans « Remarque » ce qui a empêché de la faire.', 14, doc.lastAutoTable.finalY + 7);
+  await deliver(doc.output('blob'), `Taches_${jrDay}.pdf`, 'application/pdf');
+}
+
+/* ---------- Vue « Personnes » ---------- */
+function jrPersonStats(p) {
+  const tasks = jrList().filter(f => f.type === 'tache' && (f.pids || []).includes(p.id));
+  const st = {attente:0, fait:0, partiel:0, pasfait:0}; tasks.forEach(f => st[jrStatus(f, p.id)]++);
+  const nm = p.nom.toLowerCase();
+  const mentions = jrList().filter(f => f.type !== 'tache' && (f.personnes || '').toLowerCase().split(/\s*,\s*/).includes(nm));
+  const rappels = mentions.filter(f => f.type === 'rappel'), wk = addD(today(), -6);
+  return {tasks, st, mentions, rappels, rappels7:rappels.filter(f => f.date >= wk).length, relMax:tasks.reduce((a, f) => Math.max(a, f.relance || 0), 0)};
+}
+function vJrPers() {
+  const ps = jrPers(); if (!ps.length) return `<div class="group"><div class="gpad"><b>Aucune personne enregistrée</b><p class="small muted">Créez la liste de vos collègues (prénom et rayon), ainsi que vos tâches habituelles et les sujets de rappel.</p><div class="btns"><button class="btn" data-act="jrlists">Gérer les listes</button></div></div></div>`;
+  const stats = ps.map(p => ({p, s:jrPersonStats(p)})), avg = stats.reduce((a, x) => a + x.s.rappels7, 0) / stats.length;
+  const unfair = stats.filter(x => x.s.rappels7 >= 3 && x.s.rappels7 >= 2 * avg);
+  const byR = {}; stats.forEach(x => (byR[x.p.rayon || 'Sans rayon'] = byR[x.p.rayon || 'Sans rayon'] || []).push(x));
+  return `${unfair.length ? `<div class="alert">Attention à l’équité : ${unfair.map(x => esc(x.p.nom) + ' a reçu ' + x.s.rappels7 + ' rappels en 7 jours').join(', ')}, nettement plus que les autres. Vérifiez que les mêmes règles s’appliquent à tous.</div>` : ''}
+  ${Object.entries(byR).sort().map(([r, l]) => `<div class="group"><div class="gh">${esc(r)}</div>${l.map(({p, s}) => `<button class="day" style="grid-template-columns:1fr auto" data-act="jrperson" data-id="${p.id}">
+    <span class="dt"><b>${esc(p.nom)}</b><br><span class="muted small">${s.tasks.length} demande${s.tasks.length > 1 ? 's' : ''} · ${s.st.fait} faite${s.st.fait > 1 ? 's' : ''} · ${s.st.pasfait} non faite${s.st.pasfait > 1 ? 's' : ''}${s.rappels.length ? ' · ' + s.rappels.length + ' rappel' + (s.rappels.length > 1 ? 's' : '') : ''}</span></span><span class="dh">›</span></button>`).join('')}</div>`).join('')}
+  <div class="btns"><button class="btn ghost" data-act="jrlists">Gérer les listes</button></div>`;
+}
+function jrPerson(id) {
+  const p = jrPers().find(x => x.id === id); if (!p) return; const s = jrPersonStats(p);
+  const done = s.st.fait + s.st.partiel + s.st.pasfait, pct = done ? Math.round(100 * s.st.fait / done) : 0;
+  const cats = {}; s.rappels.forEach(f => cats[f.cat || 'Autre'] = (cats[f.cat || 'Autre'] || 0) + 1);
+  const hist = s.tasks.map(f => ({f, d:f.date, t:'tache'})).concat(s.mentions.map(f => ({f, d:f.date, t:f.type}))).sort((a, b) => jrSortKey(b.f) < jrSortKey(a.f) ? -1 : 1).slice(0, 80);
+  const sh = $('#sheet');
+  sh.innerHTML = `<div class="bgd" data-act="shut"></div><div class="pnl"><div class="grip"></div>
+    <div class="shd"><b>${esc(p.nom)}</b><button class="linkbtn" data-act="shut">Fermer</button></div>
+    <p class="small muted" style="margin-top:0">${esc(p.rayon || 'Sans rayon')}</p>
+    <div class="group"><div class="stats"><div><b>${s.tasks.length}</b><span>demandes</span></div><div><b>${s.st.fait}</b><span>faites${done ? ' (' + pct + ' %)' : ''}</span></div><div><b>${s.st.pasfait}</b><span>non faites</span></div></div>
+    <div class="row"><span>Faites en partie</span><span class="v">${s.st.partiel}</span></div><div class="row"><span>En attente</span><span class="v">${s.st.attente}</span></div>
+    <div class="row"><span>Relance maximale sur une tâche</span><span class="v">${s.relMax}</span></div>
+    <div class="row"><span>Rappels individuels</span><span class="v">${s.rappels.length}${s.rappels.length ? ' (' + Object.entries(cats).map(([k, n]) => esc(k) + ' ' + n).join(', ') + ')' : ''}</span></div></div>
+    ${Object.values(cats).some(n => n >= 3) ? '<div class="alert">3 rappels ou plus sur un même sujet : pensez à remonter la situation au patron (fiche « Alerte remontée au patron »). La sanction relève de lui.</div>' : ''}
+    <div class="group">${hist.map(({f}) => `<button class="day" style="grid-template-columns:70px 1fr auto" data-act="jropen" data-id="${f.id}"><span class="dn small">${frNum(f.date)}</span><span class="dt">${jrTag(f.type)} ${f.type === 'tache' ? '<b>' + JR_ST[jrStatus(f, p.id)].i + '</b>' : ''}<br>${esc(jrTitle(f))}${f.relance ? ' <span class="muted small">(relance ' + f.relance + ')</span>' : ''}</span><span class="dh">›</span></button>`).join('') || '<div class="row"><span class="small muted">Rien pour l’instant.</span></div>'}</div></div>`;
+  sh.classList.remove('hidden');
+}
+/* ---------- Gestion des listes ---------- */
+function jrListsOpen() {
+  jrLists = {pers:clone(jrPers()), taches:clone(jrTaches()), cats:[...jrCats()]};
+  jrEd = {mode:'lists', photos:[], added:[]}; jrListsRender();
+  $('#sheet').classList.remove('hidden');
+}
+function jrListsRead() {
+  if (!jrLists) return;
+  document.querySelectorAll('[data-lp]').forEach(r => { const o = jrLists.pers[+r.dataset.lp]; if (o) { o.nom = r.querySelector('.n').value.trim(); o.rayon = r.querySelector('.r').value.trim(); } });
+  document.querySelectorAll('[data-lt]').forEach(r => { const o = jrLists.taches[+r.dataset.lt]; if (o) { o.nom = r.querySelector('.n').value.trim(); o.rayon = r.querySelector('.r').value.trim(); } });
+  document.querySelectorAll('[data-lc]').forEach(r => { jrLists.cats[+r.dataset.lc] = r.querySelector('.n').value.trim(); });
+}
+function jrListsRender() {
+  const L = jrLists, rs = jrRayons();
+  const row = (k, i, o, ph) => `<div class="lrow" data-${k}="${i}"><input type="text" class="n" value="${esc(o.nom)}" placeholder="${ph}"><input type="text" class="r" value="${esc(o.rayon || '')}" placeholder="Rayon" list="jr-rays"><button class="x" data-act="jrlrm" data-k="${k}" data-i="${i}" aria-label="Retirer">✕</button></div>`;
+  $('#sheet').innerHTML = `<div class="bgd" data-act="shut"></div><div class="pnl"><div class="grip"></div>
+    <div class="shd"><b>Gérer les listes</b><button class="linkbtn" data-act="shut">Fermer</button></div>
+    <datalist id="jr-rays">${rs.map(r => `<option value="${esc(r)}">`).join('')}</datalist>
+    <label class="l">Personnes (prénom et rayon)</label>${L.pers.map((o, i) => row('lp', i, o, 'Prénom')).join('')}
+    <button class="linkbtn" data-act="jrladd" data-k="pers">+ Ajouter une personne</button>
+    <label class="l">Tâches habituelles</label>${L.taches.map((o, i) => row('lt', i, o, 'Ex. balisage')).join('')}
+    <button class="linkbtn" data-act="jrladd" data-k="taches">+ Ajouter une tâche</button>
+    <label class="l">Sujets des rappels individuels</label>${L.cats.map((c, i) => `<div class="lrow one" data-lc="${i}"><input type="text" class="n" value="${esc(c)}"><button class="x" data-act="jrlrm" data-k="lc" data-i="${i}" aria-label="Retirer">✕</button></div>`).join('')}
+    <button class="linkbtn" data-act="jrladd" data-k="cats">+ Ajouter un sujet</button>
+    <p class="small muted">Retirer une personne ne supprime rien dans les fiches déjà enregistrées.</p>
+    <div class="btns"><button class="btn" data-act="jrlsave">Enregistrer les listes</button></div></div>`;
+}
+function jrListsSave() {
+  jrListsRead(); const st = S.settings;
+  st.jrPers = jrLists.pers.filter(o => o.nom); st.jrTaches = jrLists.taches.filter(o => o.nom); st.jrCats = jrLists.cats.filter(Boolean);
+  jrSaveLists(st); jrLists = null; jrEd = null; closeSheet(); render(); toast('Listes enregistrées');
+}
+
+/* ================= Journal : horaires, preuves, journée bouclée, exports ================= */
+const JR_PREUVES = [['alarme', 'Code d’alarme personnel (heures d’ouverture et de fermeture)'], ['caisse', 'Clôtures de caisse ou de coffre faites ou signées'], ['plannings', 'Plannings des employés affichés (photo)'], ['photos', 'Photos horodatées de l’iPhone (rayon, magasin fermé…)'], ['badge', 'Badgeuse ou registre de présence']];
+(function jrPurge() { // conservation : 3 ans
+  const lim = addD(today(), -1096), now = new Date().toISOString(); let n = 0;
+  for (const f of Object.values(S.jr || {})) if (!f.deleted && f.date && f.date < lim) { f.deleted = true; f.purged = true; f.updatedAt = now; n++; }
+  if (n) persist();
+})();
+function jrDaySummary(ds) {
+  const d = S.days[ds]; if (!d) return 'Aucun pointage ce jour dans Mes Heures.';
+  const bd = bounds(ds), al = dayAlerts(ds), p = [];
+  if (bd && bd.st && bd.en) p.push(`de ${pad(bd.st.getHours())}:${pad(bd.st.getMinutes())} à ${pad(bd.en.getHours())}:${pad(bd.en.getMinutes())}, amplitude ${fmt((bd.en - bd.st) / 60000)}`);
+  p.push('travail effectif ' + fmt(dayEff(d)));
+  return 'Journée pointée : ' + p.join(', ') + (al.length ? '. Alertes : ' + al.join(' ; ') : '') + '.';
+}
+function jrWeekPlanned(mon) { const sun = addD(mon, 6); return jrList().some(f => f.type === 'planning' && f.date >= addD(mon, -7) && f.date <= sun && (f.titre || '').includes(frNum(mon))) || jrList().some(f => f.type === 'planning' && f.date >= mon && f.date <= sun); }
+function htmlJrTools() {
+  const mon = monday(today()), pv = S.settings.jrPreuves || {}, nP = JR_PREUVES.filter(([k]) => pv[k]).length;
+  return `${!jrWeekPlanned(mon) ? `<button class="mline" data-act="jrplan" data-m="${mon}">📅 Noter le planning annoncé pour la semaine du ${frNum(mon)}</button>` : ''}
+  <div class="btns two"><button class="btn ghost" data-act="jrexport">Exporter en PDF</button><button class="btn ghost" data-act="jrbilan">Bilan pour le patron</button></div>
+  <details class="pfx"><summary>Preuves existantes au magasin (${nP} / ${JR_PREUVES.length})</summary>
+    <p class="small muted">Cochez ce qui existe : en cas de litige, un avocat pourra demander ces relevés à l’employeur. Ne notez jamais un code ici.</p>
+    ${JR_PREUVES.map(([k, l]) => `<label class="check"><input type="checkbox" class="jrpv" data-k="${k}" ${pv[k] ? 'checked' : ''}><span>${l}</span></label>`).join('')}
+    <label class="l" for="jrpv-note">Autre preuve</label><input type="text" id="jrpv-note" value="${esc(pv.note || '')}" placeholder="Ex. cahier de réception signé">
+  </details>`;
+}
+function jrSavePreuves() {
+  const st = S.settings, pv = {...(st.jrPreuves || {})};
+  document.querySelectorAll('.jrpv').forEach(i => pv[i.dataset.k] = i.checked);
+  const n = $('#jrpv-note'); if (n) pv.note = n.value.trim();
+  st.jrPreuves = pv; jrSaveLists(st);
+}
+/* Journée bouclée */
+function htmlJrBoucle() {
+  const at = (S.settings.jrBoucle || {})[jrDay];
+  if (at) return `<p class="note" style="padding-top:8px">✓ Journée bouclée le ${stampTxt(at)}. <button class="linkbtn small" data-act="jrunboucle">Rouvrir</button></p>`;
+  return `<div class="btns"><button class="btn ghost" data-act="jrboucle">Journée bouclée</button></div>`;
+}
+function jrBoucle() {
+  const tasks = jrTasksOf(jrDay); let att = 0; tasks.forEach(f => f.pids.forEach(p => { if (jrStatus(f, p) === 'attente') att++; }));
+  const todo = jrList().filter(f => f.aCompleter && f.date === jrDay).length, photo = jrList().some(f => f.type === 'tableau' && f.date === jrDay);
+  const w = [att && att + ' statut(s) encore « en attente »', todo && todo + ' fiche(s) à compléter', tasks.length && !photo && 'pas de photo de la feuille affichée'].filter(Boolean);
+  if (w.length && !confirm('Avant de boucler la journée :\n- ' + w.join('\n- ') + '\n\nBoucler quand même ?')) return;
+  const st = S.settings; st.jrBoucle = {...(st.jrBoucle || {}), [jrDay]:new Date().toISOString()}; jrSaveLists(st); render(); toast('Journée bouclée');
+}
+/* Exports */
+function jrExportOpen(mode) {
+  jrEd = {mode:'export', photos:[], added:[]};
+  const m0 = today().slice(0, 8) + '01', mon = monday(today());
+  $('#sheet').innerHTML = `<div class="bgd" data-act="shut"></div><div class="pnl"><div class="grip"></div>
+    <div class="shd"><b>${mode === 'bilan' ? 'Bilan pour le patron' : 'Exporter le journal'}</b><button class="linkbtn" data-act="shut">Fermer</button></div>
+    ${mode === 'bilan' ? `<p class="small muted">Une page factuelle sur la semaine : tâches demandées et leur suivi, consignes de la direction, obstacles, alertes, horaires imposés et votre temps de travail. Les rappels individuels n’y figurent pas.</p>
+      <label class="l" for="jx-w">Semaine contenant le</label><input type="date" id="jx-w" value="${mon}">
+      <div class="btns"><button class="btn" data-act="jxbilan">Créer le bilan (PDF)</button></div>` :
+    `<div class="two"><div><label class="l" for="jx-a">Du</label><input type="date" id="jx-a" value="${m0}"></div><div><label class="l" for="jx-b">Au</label><input type="date" id="jx-b" value="${today()}"></div></div>
+      <label class="l" for="jx-p">Personne</label><select id="jx-p"><option value="">Toutes</option>${jrPers().map(p => `<option value="${p.id}">${esc(p.nom)}</option>`).join('')}</select>
+      <label class="l" for="jx-t">Type de fiche</label><select id="jx-t"><option value="">Tous</option>${Object.entries(JR_TYPES).map(([k, v]) => `<option value="${k}">${v.l}</option>`).join('')}</select>
+      <label class="check"><input type="checkbox" id="jx-ph" checked><span>Inclure les photos</span></label>
+      <p class="small muted">Le PDF reprend les faits, les personnes, les témoins, l’enchaînement et le suivi. Les dates de saisie n’y figurent pas.</p>
+      <div class="btns"><button class="btn" data-act="jxpdf">Créer le PDF</button></div>`}</div>`;
+  $('#sheet').classList.remove('hidden');
+}
+function jrPdfWriter(doc) {
+  let y = 20; const W = 182, X = 14;
+  const need = h => { if (y + h > 280) { doc.addPage(); y = 18; } };
+  const line = (t, o = {}) => { doc.setFont('helvetica', o.b ? 'bold' : 'normal'); doc.setFontSize(o.s || 9.5); doc.setTextColor(...(o.c || [20, 24, 32]));
+    doc.splitTextToSize(String(t), W - (o.ind || 0)).forEach(l => { need(o.s ? o.s * .5 : 5); doc.text(l, X + (o.ind || 0), y); y += (o.s || 9.5) * .5; }); };
+  return {line, need, gap:h => { y += h; }, get y() { return y; }, set y(v) { y = v; }};
+}
+async function jrImg(id) { try { const b = await docBlob(id); return 'data:image/jpeg;base64,' + await blobToB64(b); } catch (e) { return null; } }
+function jrMatchPerson(f, pid) { if (!pid) return true; const p = jrPers().find(x => x.id === pid); return (f.pids || []).includes(pid) || (p && (f.personnes || '').toLowerCase().split(/\s*,\s*/).includes(p.nom.toLowerCase())); }
+async function jrExportPdf() {
+  const a = $('#jx-a').value, b = $('#jx-b').value, pid = $('#jx-p').value, t = $('#jx-t').value, ph = $('#jx-ph').checked;
+  const list = jrList().filter(f => f.date >= a && f.date <= b && (!t || f.type === t) && jrMatchPerson(f, pid)).sort((x, y2) => jrSortKey(x) < jrSortKey(y2) ? -1 : 1);
+  if (!list.length) return toast('Aucune fiche pour ces critères.');
+  toast('Préparation du PDF…'); if (!await ensurePdf()) return toast('Connexion internet nécessaire la première fois pour créer un PDF.');
+  const {jsPDF} = window.jspdf, doc = new jsPDF({unit:'mm', format:'a4'}), w = jrPdfWriter(doc), st = S.settings;
+  const pn = pid ? (jrPers().find(x => x.id === pid) || {}).nom : '';
+  w.line('Journal de bord', {b:true, s:15}); w.gap(1);
+  [st.nom && 'Rédigé par : ' + st.nom + (st.poste ? ', ' + st.poste : ''), st.employeur && 'Employeur : ' + st.employeur, `Période : du ${frNum(a)} au ${frNum(b)}`, pn && 'Personne : ' + pn, t && 'Type : ' + JR_TYPES[t].l, list.length + ' fiche(s)'].filter(Boolean).forEach(l => w.line(l));
+  w.gap(4);
+  for (const f of list) {
+    w.need(18); doc.setDrawColor(210, 214, 222); doc.line(14, w.y - 3, 196, w.y - 3);
+    w.line(`${frNum(f.date)}${f.heure ? ' à ' + f.heure : ''} — ${(JR_TYPES[f.type] || {}).l || f.type}${f.cat ? ' (' + f.cat + ')' : ''}`, {b:true, s:10.5});
+    if (f.titre) w.line(f.titre, {b:true});
+    if (f.texte) w.line(f.texte);
+    const meta = [f.personnes && 'Personne(s) : ' + f.personnes, f.temoins && 'Témoins : ' + f.temoins, f.limite && 'À faire avant : ' + f.limite, f.direction && 'Demande de la direction', f.relance && 'Relance n° ' + f.relance].filter(Boolean);
+    if (meta.length) w.line(meta.join(' · '), {c:[70, 78, 92]});
+    const prev = f.lien && S.jr[f.lien]; if (prev && !prev.deleted) w.line('Fait suite à : ' + frNum(prev.date) + ' — ' + (JR_TYPES[prev.type] || {}).l + ' — ' + jrTitle(prev), {c:[70, 78, 92]});
+    if (f.type === 'tache' && (f.pids || []).length) w.line('Suivi : ' + f.pids.map(p => { const x = (f.suivi || {})[p]; return jrPName(p, f) + ' : ' + JR_ST[jrStatus(f, p)].l.toLowerCase() + (x && x.at ? ' (constaté le ' + stampTxt(x.at) + ')' : ''); }).join(' ; '), {c:[70, 78, 92]});
+    if (f.type === 'horaire') w.line(jrDaySummary(f.date), {c:[70, 78, 92]});
+    if (ph && (f.photos || []).length) {
+      let col = 0; for (const id of f.photos) {
+        const img = await jrImg(id); if (!img) continue;
+        if (col === 0) w.need(46);
+        try { const pr = doc.getImageProperties(img), h = Math.min(44, 58 * pr.height / pr.width); doc.addImage(img, 'JPEG', 14 + col * 61, w.y, 58, h); } catch (e) {}
+        col++; if (col === 3) { col = 0; w.gap(47); }
+      }
+      if (col) w.gap(47);
+    }
+    w.gap(5);
+  }
+  pdfFooter(doc, 'Journal de bord — Mes Heures');
+  closeSheet(); await deliver(doc.output('blob'), `Journal_${a}_${b}${pn ? '_' + slug(pn) : ''}.pdf`, 'application/pdf');
+}
+async function jrBilanPdf() {
+  const mon = monday($('#jx-w').value || today()), sun = addD(mon, 6);
+  toast('Préparation du bilan…'); if (!await ensurePdf()) return toast('Connexion internet nécessaire la première fois pour créer un PDF.');
+  const st = S.settings, inW = f => f.date >= mon && f.date <= sun, L = jrList().filter(inW).sort((x, y2) => jrSortKey(x) < jrSortKey(y2) ? -1 : 1);
+  const {doc, y} = pdfBase('Bilan de la semaine', [`Semaine du ${frNum(mon)} au ${frNum(sun)}`]);
+  const blue = [35, 70, 160], T = (title, head, body, y0) => {
+    let yy = (y0 || doc.lastAutoTable.finalY + 9); if (yy > 265) { doc.addPage(); yy = 18; }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(20, 24, 32); doc.text(title, 14, yy);
+    if (!body.length) { doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(110, 118, 130); doc.text('Rien à signaler.', 14, yy + 6); doc.autoTable({startY:yy + 8, body:[], margin:{left:14}}); return; }
+    doc.autoTable({startY:yy + 3, head:[head], body, margin:{left:14, right:14, bottom:16}, styles:{fontSize:8.5, cellPadding:1.8, lineColor:[220, 224, 230], lineWidth:.1}, headStyles:{fillColor:blue, textColor:255}});
+  };
+  const tasks = L.filter(f => f.type === 'tache' && (f.pids || []).length), tb = [];
+  tasks.forEach(f => f.pids.forEach((p, i) => tb.push([i ? '' : frNum(f.date), i ? '' : f.titre + (f.direction ? ' (direction)' : ''), jrPName(p, f), JR_ST[jrStatus(f, p)].l, i ? '' : (f.relance ? String(f.relance) : '')])));
+  T('1. Tâches demandées et suivi', ['Date', 'Tâche', 'Pour', 'Statut', 'Relance'], tb, y + 4);
+  const per = {}; tasks.forEach(f => f.pids.forEach(p => { const n = jrPName(p, f), s = jrStatus(f, p); per[n] = per[n] || {d:0, fait:0, partiel:0, pasfait:0, attente:0}; per[n].d++; per[n][s]++; }));
+  T('2. Synthèse par personne', ['Personne', 'Demandes', 'Faites', 'En partie', 'Non faites', 'En attente'], Object.entries(per).sort().map(([n, x]) => [n, x.d, x.fait, x.partiel, x.pasfait, x.attente]));
+  T('3. Consignes reçues de la direction', ['Date', 'Consigne'], L.filter(f => f.type === 'consigne').map(f => [frNum(f.date) + (f.heure ? ' ' + f.heure : ''), [f.titre, f.texte].filter(Boolean).join(' — ')]));
+  T('4. Obstacles signalés', ['Date', 'Obstacle'], L.filter(f => f.type === 'obstacle').map(f => [frNum(f.date), [f.titre, f.texte].filter(Boolean).join(' — ')]));
+  T('5. Alertes remontées à la direction', ['Date', 'Alerte', 'Personne(s)'], L.filter(f => f.type === 'alerte').map(f => [frNum(f.date), [f.titre, f.texte].filter(Boolean).join(' — '), f.personnes || '']));
+  T('6. Horaires imposés et planning annoncé', ['Date', 'Type', 'Détail'], L.filter(f => f.type === 'horaire' || f.type === 'planning').map(f => [frNum(f.date), JR_TYPES[f.type].l, [f.titre, f.texte].filter(Boolean).join(' — ')]));
+  const ws = weekStats(mon), wb = []; let j10 = 0, a13 = 0, r11 = 0, nd = 0;
+  ws.days.forEach(({ds, d, e}) => {
+    if (!d || !inContract(ds) || !e) return; nd++; const bd = bounds(ds), am = bd && bd.en ? (bd.en - bd.st) / 60000 : 0, al = dayAlerts(ds);
+    if (e > 600) j10++; if (am > 780) a13++; if (al.some(x => /moins de 11 h/.test(x))) r11++;
+    wb.push([pd(ds).toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'numeric'}), bd && bd.st ? pad(bd.st.getHours()) + ':' + pad(bd.st.getMinutes()) : '', bd && bd.en ? pad(bd.en.getHours()) + ':' + pad(bd.en.getMinutes()) : '', am ? fmt(am) : '', fmt(e), al.join(' ; ')]);
+  });
+  T('7. Mon temps de travail', ['Jour', 'Début', 'Fin', 'Amplitude', 'Travail', 'Observations'], wb);
+  const rest = weekRest(mon);
+  const sy = doc.lastAutoTable.finalY + 6; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(20, 24, 32);
+  doc.text(doc.splitTextToSize(`${nd} jour(s) travaillé(s), ${fmt(ws.eff)} de travail effectif. Journées de plus de 10 h : ${j10}. Amplitudes de plus de 13 h : ${a13}. Repos quotidien de moins de 11 h : ${r11}. Plus long repos continu de la semaine : ${fmt(rest)}${rest < 2100 ? ' (moins de 35 h)' : ''}.`, 182), 14, sy > 275 ? 275 : sy);
+  pdfFooter(doc, 'Bilan hebdomadaire — Mes Heures');
+  closeSheet(); await deliver(doc.output('blob'), `Bilan_semaine_${mon}.pdf`, 'application/pdf');
 }
 
 /* ================= Démarrage ================= */
