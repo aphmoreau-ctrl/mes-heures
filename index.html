@@ -1876,7 +1876,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 9.0</p>`;
+  <p class="note">Mes Heures, version 9.1</p>`;
 }
 
 function render() {
@@ -2563,19 +2563,29 @@ async function exportBackup() {
 }
 function importBackup(file) {
   const r = new FileReader();
-  r.onload = () => {
+  r.onload = async () => {
     let o; try { o = JSON.parse(r.result); } catch (e) { return toast('Ce fichier n’est pas une sauvegarde Mes Heures.'); }
     if (!o || typeof o.days !== 'object') return toast('Ce fichier n’est pas une sauvegarde Mes Heures.');
-    const n = Object.keys(o.days).length;
-    if (!confirm(`Restaurer ${n} jour(s) ? Les journées plus récentes déjà présentes sur ce téléphone sont conservées.`)) return;
+    const n = Object.keys(o.days).length, nj2 = Object.keys(o.jr || {}).length;
+    if (!confirm(n ? `Restaurer ${n} jour(s) ? Les journées plus récentes déjà présentes sur ce téléphone sont conservées.` : `Ajouter ${nj2} fiche(s) au Journal${o.photos ? ' avec leurs photos' : ''} ? Rien d’autre n’est modifié.`)) return;
     let c = 0;
     for (const [ds, d] of Object.entries(o.days)) { if (d.deleted) continue; if (mergeDay(ds, d)) { c++; pushDay(ds); } }
     if (o.settings && (o.settings.updatedAt || '') > (S.settings.updatedAt || '')) { S.settings = {...DEF_SET, ...o.settings}; pushSettings(); }
     let pc = false; for (const [k, v] of Object.entries(o.paie || {})) { const l = S.paie[k]; if (!l || (v.updatedAt || '') > (l.updatedAt || '')) { S.paie[k] = v; pc = true; } }
     if (pc) pushPaie();
     for (const [k, v] of Object.entries(o.clos || {})) { const l = S.clos[k]; if (!l || (v.updatedAt || '') > (l.updatedAt || '')) S.clos[k] = v; }
-    for (const [k, v] of Object.entries(o.jr || {})) if (mergeJr(k, v)) pushJr(k);
-    persist(); render(); toast(c + ' jour(s) restauré(s)');
+    const now = new Date().toISOString();
+    for (const [id, p] of Object.entries(o.photos || {})) { // photos jointes au fichier (ajout au Journal)
+      if (S.docs[id]) continue;
+      try { const bin = atob(p.b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+        const blob = new Blob([u], {type:p.mime || 'image/jpeg'}); await idbPut(id, blob);
+        S.docs[id] = {id, type:'journal', jr:p.jr || '', date:p.date || today(), mime:p.mime || 'image/jpeg', size:blob.size, n:0, addedAt:now, updatedAt:now};
+        if (fb.user) pushDoc(id).catch(() => {}); } catch (er) {}
+    }
+    let fj = 0; for (const [k, v] of Object.entries(o.jr || {})) if (mergeJr(k, v)) { pushJr(k); fj++; }
+    for (const [k, pt] of Object.entries(o.jrPatch || {})) { const f = S.jr[k]; if (!f || f.deleted) continue; // complète une fiche existante, avec historique
+      f.versions = [...(f.versions || []), {at:f.updatedAt || f.createdAt, data:jrPick(f)}]; Object.assign(f, pt, {updatedAt:now}); pushJr(k); fj++; }
+    persist(); render(); toast(n ? c + ' jour(s) restauré(s)' : fj + ' fiche(s) ajoutée(s) au Journal');
   };
   r.readAsText(file);
 }
@@ -3061,8 +3071,8 @@ const JR_PRIV = ['malade', 'maladie', 'enceinte', 'grossesse', 'dépression', 'd
 function jrLint() {
   const w = $('#jr-check'); if (!w) return;
   const txt = (($('#jr-titre') || {}).value || '') + ' ' + (($('#jr-texte') || {}).value || '');
-  const low = ' ' + txt.toLowerCase().replace(/[.,;:!?()«»"]/g, ' ') + ' ';
-  const hit = l => l.filter(m => low.includes(' ' + m) || (m.length > 6 && low.includes(m)));
+  const low = ' ' + txt.replace(/«[^»]*»/g, ' ').toLowerCase().replace(/[.,;:!?()«»"]/g, ' ') + ' ';
+  const hit = l => l.filter(m => m.length <= 6 ? new RegExp('(^|[^a-zà-ÿ])' + m.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-zà-ÿ])').test(low) : low.includes(m));
   const j = hit(JR_JUGE), p = hit(JR_PRIV), msg = [];
   if (j.length) msg.push(`Mot(s) de jugement : <b>${j.map(esc).join(', ')}</b>. Remplacez par un fait observable (quoi, où, à quelle heure).`);
   if (p.length) msg.push(`Information privée ou sensible : <b>${p.map(esc).join(', ')}</b>. À ne pas noter sur un collègue.`);
