@@ -46,6 +46,12 @@ button{cursor:pointer}
 main{max-width:620px;margin:0 auto;padding:4px 16px calc(96px + env(safe-area-inset-bottom,0px))}
 
 /* Onglets */
+.spc{display:flex;gap:3px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:3px}
+.spc button{border:0;background:none;padding:7px 13px;border-radius:8px;font-weight:700;font-size:15px;color:var(--muted)}
+.spc button.on{background:var(--work);color:#fff}
+.tabs.hidden{display:none}
+body.spj{--work:#0f766e;--work-soft:#d4eeea}
+@media (prefers-color-scheme:dark){ body.spj{--work:#4fc4b6;--work-soft:#12312d} }
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;justify-content:center;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 .tabs button{flex:1;max-width:155px;border:0;background:none;padding:9px 0 8px;color:var(--muted);font-size:11.5px;display:flex;flex-direction:column;align-items:center;gap:3px}
 .tabs svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -234,15 +240,19 @@ ol.steps li{margin:4px 0}
 </head>
 <body>
 <header class="top">
-  <h1>Mes Heures</h1>
+  <div class="spc" role="tablist" aria-label="Espace"><button data-sp="heures" class="on">Mes heures</button><button data-sp="journal">Journal</button></div>
   <span id="sync" class="sync">Sur l'appareil</span>
 </header>
 <main id="view"></main>
-<nav class="tabs" aria-label="Navigation">
+<nav class="jtabs tabs hidden" aria-label="Journal">
+  <button data-jv="fiches" class="on"><svg viewBox="0 0 24 24"><path d="M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6z"/><path d="M6 3v18M9.5 8h5M9.5 12h5M9.5 16h3"/></svg>Fiches</button>
+  <button data-jv="jour"><svg viewBox="0 0 24 24"><path d="M4 6h3M4 12h3M4 18h3M10 6h10M10 12h10M10 18h10"/></svg>Tâches du jour</button>
+  <button data-jv="pers"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.6 3.2-5.5 6-5.5s5.2 1.9 6 5.5"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.6c2.4.2 4.2 1.9 5 5.4"/></svg>Personnes</button>
+</nav>
+<nav class="htabs tabs" aria-label="Navigation">
   <button data-tab="today" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pointer</button>
   <button data-tab="week"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semaine</button>
   <button data-tab="recap"><svg viewBox="0 0 24 24"><path d="M5 20V11M10 20V5M15 20v-7M20 20V8"/></svg>Récap</button>
-  <button data-tab="journal"><svg viewBox="0 0 24 24"><path d="M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6z"/><path d="M6 3v18M9.5 8h5M9.5 12h5M9.5 16h3"/></svg>Journal</button>
   <button data-tab="docs"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>Documents</button>
   <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Réglages</button>
 </nav>
@@ -314,7 +324,7 @@ const motifSelect = (attrs, val) => `<select ${attrs}>${Object.entries(MOTIFS).m
 const FERIES = [['jan1','1er janvier'],['paques','Lundi de Pâques'],['mai1','1er mai'],['mai8','8 mai'],['ascension','Ascension'],['pentecote','Lundi de Pentecôte'],['jul14','14 juillet'],['aou15','15 août'],['nov1','Toussaint'],['nov11','11 novembre'],['dec25','Noël']];
 
 /* ================= Données ================= */
-const DEF_SET = {nom:'', employeur:'', poste:'', base:35, seuil:43, t1:25, t2:50, taux:0, contingent:220, grande:false, credit:false, creditH:7, remu:[], debut:'', fin:'', contrat:'CDI', convention:'', mode:'heures', fj:216, fjDebut:'01-01', rachat:10, rttOv:{}, cpUnit:'ouvrables', cpCal:{}, recupAdj:[], fChom:['jan1','paques','mai1','mai8','ascension','pentecote','jul14','aou15','nov1','nov11','dec25'], nuit:[{a:'21:00', z:'22:00', p:5}, {a:'22:00', z:'05:00', p:20}, {a:'05:00', z:'06:00', p:0}], dimReg:30, dimOcc:100, ferPct:100, ancGrid:[{y:10, j:1}, {y:15, j:2}, {y:20, j:3}], maskMotif:true, entretiens:[], alertes:[], fjOv:{}, kmAller:35, trajetMin:35, cv:5, elec:false, repasAuto:true, repasPrix:'', repasEmp:0, repasFoyer:5.45, repasLimite:'', niAnnuel:'', astMontant:0, jrPers:[], jrTaches:[], jrCats:[], jrPreuves:{}, jrBoucle:{}, updatedAt:''};
+const DEF_SET = {nom:'', employeur:'', poste:'', base:35, seuil:43, t1:25, t2:50, taux:0, contingent:220, grande:false, credit:false, creditH:7, remu:[], debut:'', fin:'', contrat:'CDI', convention:'', mode:'heures', fj:216, fjDebut:'01-01', rachat:15, rttOv:{}, cpUnit:'ouvrables', cpCal:{}, recupAdj:[], fChom:['jan1','paques','mai1','mai8','ascension','pentecote','jul14','aou15','nov1','nov11','dec25'], nuit:[{a:'21:00', z:'22:00', p:5}, {a:'22:00', z:'05:00', p:20}, {a:'05:00', z:'06:00', p:0}], dimReg:30, dimOcc:100, ferPct:100, ancGrid:[{y:10, j:1}, {y:15, j:2}, {y:20, j:3}], maskMotif:true, entretiens:[], alertes:[], fjOv:{}, kmAller:35, trajetMin:35, cv:5, elec:false, repasAuto:true, repasPrix:'', repasEmp:0, repasFoyer:5.45, repasLimite:'', niAnnuel:'', astMontant:0, jrPers:[], jrTaches:[], jrCats:[], jrPreuves:{}, jrBoucle:{}, updatedAt:''};
 let S = load();
 if ((S.settings.ancGrid || []).some(Array.isArray)) S.settings.ancGrid = S.settings.ancGrid.map(g => Array.isArray(g) ? {y:g[0], j:g[1]} : g);
 function load() {
@@ -403,7 +413,7 @@ function bounds(ds) {
   const d = S.days[ds]; if (!d || !d.segs.length) return null;
   const ss = sorted(d); return {st:dt(ds, ss[0].d), en:segEnd(ds, ss[ss.length-1])};
 }
-function weekRest(mon) { // plus long repos continu (en minutes) touchant la semaine
+function weekRestOld(mon) { // ancien calcul (remplacé en v6)
   const iv = [];
   for (let i = -2; i < 9; i++) { const ds = addD(mon, i), d = S.days[ds]; if (!d) continue; workIntervals(d).forEach(x => iv.push(x)); }
   iv.sort((a, b) => a[0] - b[0]);
@@ -437,7 +447,8 @@ function dayAlerts(ds, now) {
   const b = bounds(ds);
   if (b && b.en && (b.en - b.st)/60000 > 780) out.push('Amplitude de ' + fmt((b.en - b.st)/60000) + ' (plus de 13 h)');
   const p = bounds(addD(ds, -1));
-  if (b && p && p.en) { const r = (b.st - p.en)/60000; if (r < 660) out.push('Repos de ' + fmt(r) + ' depuis la veille (moins de 11 h)'); }
+  if (b && p && p.en) { const r = (b.st - p.en)/60000, rq = reqDaily(); if (r < rq) out.push('Repos de ' + fmt(r) + ' depuis la veille (moins de ' + hTxt(rq) + (forfait && r < 660 ? ' ; sous le minimum légal de 11 h' : '') + ')'); }
+  if (forfait && (d.half || (d.q && d.q < 1)) && dayWorkUnits(ds) === 1) out.push('Compté comme journée entière (avenant n° 52 : une demi-journée finit au plus tard à 13 h 30 et est suivie de 18 h de repos)');
   return out.concat(itvAlerts(ds));
 }
 function srcTxt(d) {
@@ -721,6 +732,7 @@ function mergeDay(ds, r) { // fusion d'une journée reçue ; true si la donnée 
 }
 
 /* ================= Rendu ================= */
+let space = (() => { try { return localStorage.getItem('mh_space') || 'heures'; } catch (e) { return 'heures'; } })();
 let tab = 'today', weekMon = monday(today()), rMonth = {y:new Date().getFullYear(), m:new Date().getMonth()};
 let exFrom = null, exTo = null;
 
@@ -804,7 +816,7 @@ function vToday() {
 
 function vWeek() {
   const now = new Date(), w = weekStats(weekMon, now), st = S.settings, forfait = st.mode === 'forfait';
-  const cur = weekMon === monday(today()), rest = weekRest(weekMon);
+  const cur = weekMon === monday(today()), rw = restWeek(weekMon), wf = forfait ? weekForfait(weekMon) : null;
   const QK = [['travail', 'Travail'], ['repos', 'Repos'], ['rtt', 'RTT'], ['conge', 'Congé']];
   const rows = w.days.map(({ds, d, e}) => {
     const wd = pd(ds).getDay(); const al = dayAlerts(ds, now), fk = ferieKey(ds);
@@ -845,7 +857,8 @@ function vWeek() {
   </div>
   ${cur ? '' : '<div style="text-align:center"><button class="linkbtn" data-act="wnow">Revenir à cette semaine</button></div>'}
   ${w.over48 ? '<div class="alert">Plus de 48 h travaillées cette semaine' + (forfait ? ' (indicatif en forfait jours).' : ' (durée maximale légale).') + '</div>' : ''}
-  ${rest < 2100 && weekMon <= today() ? `<div class="alert">Repos hebdomadaire le plus long : ${fmt(rest)} (35 h consécutives requises).</div>` : ''}
+  ${restBad(rw) ? `<div class="alert">Plus long repos de la semaine : ${esc(restTxt(rw))}. ${hTxt(rw.need)} consécutives requises.</div>` : rw.state === 'encours' ? `<div class="alert" style="background:var(--sup-soft);color:var(--ink)">${esc(restTxt(rw))}.</div>` : rw.state === 'inconnu' ? `<div class="alert" style="background:var(--sup-soft);color:var(--ink)">Repos hebdomadaire ${esc(restTxt(rw))}.</div>` : rw.state === 'ok' ? `<p class="note" style="text-align:center">Repos hebdomadaire : ${esc(restTxt(rw))} ✓</p>` : ''}
+  ${wf && wf.missHalf ? `<div class="alert">${wf.units.toString().replace('.', ',')} jours travaillés : ${wf.missHalf} demi-journée${wf.missHalf > 1 ? 's' : ''} de repos à récupérer avant le ${frNum(wf.deadline)} (avenant n° 52).</div>` : ''}
   <div class="cols"><div>
   <div class="group">${rows}</div>
   <div class="btns two"><button class="btn ghost" data-act="period">Poser une période</button><button class="btn ghost" data-act="copyweek">Copier la semaine précédente</button></div>
@@ -860,7 +873,8 @@ function vWeek() {
     <div class="row sup"><span>Heures sup. à +${st.t1} %${forfait ? ' (théoriques)' : ''}</span><span class="v num">${fmt(w.s25)}</span></div>
     <div class="row sup"><span>Heures sup. à +${st.t2} %${forfait ? ' (théoriques)' : ''}</span><span class="v num">${fmt(w.s50)}</span></div>
     ${w.taux > 0 ? `<div class="row"><span>Valeur brute des heures sup. (taux ${eur(w.taux)})</span><span class="v num">${eur(w.amount)}</span></div>` : ''}
-    <div class="row"><span>Plus long repos de la semaine</span><span class="v num">${rest >= 99999 ? '—' : fmt(rest)}</span></div>
+    <div class="row${restBad(rw) ? ' sup' : ''}"><span>Plus long repos de la semaine</span><span class="v num">${rw.state === 'nowork' ? '—' : rw.state === 'encours' ? 'en cours' : rw.state === 'inconnu' ? 'non calculable' : fmt(rw.min) + (rw.min >= rw.need ? ' ✓' : ' ✗')}</span></div>
+    ${wf ? `<div class="row${wf.missHalf ? ' sup' : ''}"><span>Demi-journées de repos à récupérer</span><span class="v num">${wf.missHalf}</span></div>` : ''}
   </div>
   ${forfait ? '<p class="note">En forfait jours, les heures sont gardées « au cas où » : elles servent si le forfait était écarté.</p>' : ''}
   </div></div>`;
@@ -1293,10 +1307,13 @@ function htmlForfait() {
       ${f.jour ? `<div class="row sup"><span>Valeur (1 jour = ${eur(f.jour)}, +${st.rachat} %)</span><span class="v num">${eur(f.overVal)}</span></div>` : ''}` : ''}
     <div class="gh" style="padding-top:10px">RTT / repos forfait</div>
     <div class="row"><span>Droit sur la période${f.rd.ov ? ' (chiffre employeur)' : f.rd.prorata ? ' (calcul, prorata)' : ' (calcul)'}</span><span class="v num">${nj(f.rd.n)}</span></div>
+    <div class="row"><span>Acquis à ce jour (au fil des mois)</span><span class="v num">${nj(rttAcquis(f))}</span></div>
     <div class="row"><span>Pris</span><span class="v num">${nj(f.rttP)}</span></div>
     <div class="row"><span>Posés à venir</span><span class="v num">${nj(f.rttF)}</span></div>
     <div class="row ${f.rttRest < 0 ? 'sup' : ''}"><span>Restant à poser</span><span class="v num">${nj(f.rttRest)}</span></div>
-    ${!f.rd.ov ? `<p class="note">Calcul : ${f.rd.wd} jours de semaine − ${f.rd.fer} fériés chômés − 25 jours de congés − ${f.fj} jours de forfait. Si votre employeur donne un autre chiffre, saisissez-le dans Réglages.</p>` : ''}
+    ${!f.rd.ov ? `<p class="note">Calcul sur l’année : ${f.rd.wd} jours de semaine − ${f.rd.fer} fériés chômés − 25 jours de congés − ${+st.fj || 216} jours de forfait = ${f.rd.calc}${f.rd.prorata ? ', au prorata de votre entrée : ' + nj(f.rd.n) : ''}. Si votre employeur donne un autre chiffre, saisissez-le dans Réglages.</p>` : ''}
+    ${(st.fChom || []).length !== 7 ? `<div class="alert" style="margin:6px 16px 10px">Votre réglage compte ${(st.fChom || []).length} jour${(st.fChom || []).length > 1 ? 's' : ''} férié${(st.fChom || []).length > 1 ? 's' : ''} chômé${(st.fChom || []).length > 1 ? 's' : ''} ; l’avenant n° 52 en prévoit 7 (1er mai + 6). Choisissez-les dans Réglages, les RTT en dépendent.</div>` : ''}
+    <details class="pfx" style="padding:0 16px 12px"><summary>Jours travaillés, mois par mois</summary>${(() => { const o = {}; for (let ds = f.p.start; ds <= today() && ds <= f.p.end; ds = addD(ds, 1)) { const d = S.days[ds]; if (d && inContract(ds)) { const k = ds.slice(0, 7); o[k] = (o[k] || 0) + catUnits(d, 'travail'); } } return Object.entries(o).map(([k, v]) => `<div class="small">${moisNom(+k.slice(0, 4), +k.slice(5) - 1)} : ${nj(v)}</div>`).join(''); })()}<p class="small muted">Forfait : 216 jours par an journée de solidarité comprise (avenant n° 52), au prorata de l’entrée. Les jours travaillés au-delà sont payés en plus, majorés d’au moins 15 %, dans la limite de 229 jours.</p></details>
   </div>`;
 }
 function htmlCompteurs() {
@@ -1305,16 +1322,19 @@ function htmlCompteurs() {
   if (!c) cp = '<div class="row"><span class="small muted">Indiquez votre date d’entrée ou recopiez vos soldes du bulletin (Réglages, Congés) pour suivre vos congés.</span></div>';
   else cp = `
     <div class="row"><span>Congés N-1 à prendre</span><span class="v num">${nj(c.n1)}</span></div>
-    <div class="row"><span>Congés N en cours d’acquisition</span><span class="v num">${nj(c.n)}</span></div>
+    <div class="row"><span>Congés N acquis (mois terminés)</span><span class="v num">${nj(c.n)}</span></div>
+    ${inContract(today()) ? `<div class="row"><span>En cours ce mois-ci (provisoire)</span><span class="v num">+ ${nj(cpEnCours())}</span></div>
+    <div class="row"><span>Total N à ce jour</span><span class="v num"><b>${nj(c.n + cpEnCours())}</b></span></div>` : ''}
     ${c.anc ? `<div class="row"><span>Congés d’ancienneté restants</span><span class="v num">${nj(c.anc)}</span></div>` : ''}
     ${c.frac ? `<div class="row"><span>Jours de fractionnement restants</span><span class="v num">${nj(c.frac)}</span></div>` : ''}
     ${c.fut ? `<div class="row"><span>Congés posés à venir</span><span class="v num">${nj(c.fut)}</span></div>` : ''}
     ${c.lost ? `<div class="row sup"><span>Non pris à la clôture d’une période</span><span class="v num">${nj(c.lost)}</span></div>` : ''}
-    <p class="note">Jours ${c.unit}. ${c.calDate ? 'Calé sur le bulletin au ' + frNum(c.calDate) + '.' : 'Pas encore calé sur un bulletin : recopiez vos soldes dans Réglages.'}</p>`;
+    <p class="note">Jours ${c.unit}. Les congés N (du 1er juin au 31 mai) se prennent en principe à partir du 1er juin suivant. ${c.calDate ? 'Calé sur le bulletin au ' + frNum(c.calDate) + '.' : 'Pas encore calé sur un bulletin : recopiez vos soldes dans Réglages.'}</p>
+    <details class="pfx" style="padding:0 16px 12px"><summary>Détail du calcul</summary><p class="small muted">${c.unit === 'ouvrés' ? '25/12' : '2,5'} jours par mois, au prorata des jours sous contrat (hors congé sans solde ; l’arrêt maladie acquiert 2 jours ouvrables par mois). Un mois est acquis à son dernier jour.</p>${cpMonths().map(x => `<div class="small">${moisNom(x.y, x.m)} : ${nj(x.v)}${x.cur ? ' (en cours)' : ''}</div>`).join('')}</details>`;
   return `<div class="group">
     <div class="gh">Congés et repos</div>
     ${cp}
-    ${r.acq || r.pris ? `<div class="row"><span>Récupérations : acquises / prises / restantes</span><span class="v num">${nj(r.acq)} / ${nj(r.pris)} / ${nj(r.rest)}</span></div>` : ''}
+    ${S.settings.mode !== 'forfait' && (r.acq || r.pris) ? `<div class="row"><span>Récupérations : acquises / prises / restantes</span><span class="v num">${nj(r.acq)} / ${nj(r.pris)} / ${nj(r.rest)}</span></div>` : ''}
   </div>`;
 }
 function htmlMaj(ms) {
@@ -1365,7 +1385,7 @@ function htmlSettingsV3() {
       <div><label class="l" for="s-fj">Jours du forfait</label><input type="text" inputmode="decimal" id="s-fj" value="${st.fj}"></div>
       <div><label class="l" for="s-fjd">Début de période (jour-mois)</label><input type="text" id="s-fjd" value="${(st.fjDebut || '01-01').split('-').reverse().join('/')}" placeholder="01/01"></div>
       <div><label class="l" for="s-rttov">RTT de la période (employeur)</label><input type="text" inputmode="decimal" id="s-rttov" value="${ov ?? ''}" placeholder="auto"></div>
-      <div><label class="l" for="s-rach">Majoration jours en plus (%)</label><input type="text" inputmode="decimal" id="s-rach" value="${st.rachat}"></div>
+      <div><label class="l" for="s-rach">Majoration jours en plus (%, au moins 15)</label><input type="text" inputmode="decimal" id="s-rach" value="${st.rachat}"></div>
       <div><label class="l" for="s-fjov">Jours du forfait cette période (employeur)</label><input type="text" inputmode="decimal" id="s-fjov" value="${(st.fjOv || {})[p.start] ?? ''}" placeholder="auto"></div>
     </div>
     <p class="small muted">Année d’entrée ou de départ : le forfait et les RTT sont calculés au prorata. Si votre employeur donne d’autres chiffres, saisissez-les.</p>
@@ -1498,6 +1518,7 @@ function vRecap() {
   <div class="cols"><div>
   ${forfait ? htmlForfait() : ''}
   ${htmlCompteurs()}
+  ${htmlRepos()}
   ${forfait ? '<div class="gh" style="padding:14px 4px 0">Heures réelles, base 35 h (si le forfait était écarté)</div>' : ''}
   <div class="group">
     <div class="row"><span>Heures travaillées dans le mois</span><span class="v num">${fmt(ms.effM)}</span></div>
@@ -1644,15 +1665,21 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 5.2</p>`;
+  <p class="note">Mes Heures, version 6.0</p>`;
 }
 
 function render() {
   flushSet();
-  const v = $('#view');
-  v.innerHTML = tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'docs' ? `<div class="cols"><div>${vDocs()}</div><div>${htmlNotesFinder()}</div></div>` : tab === 'journal' ? vJournal() : vSettings();
-  if (tab === 'recap') setTimeout(verifyClosUI, 30);
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  if (!S.settings.mig6 && Object.keys(S.days).length) mig6();
+  const v = $('#view'), isJ = space === 'journal';
+  if (tab === 'journal') tab = 'today';
+  document.body.classList.toggle('spj', isJ);
+  document.querySelectorAll('.spc button').forEach(b => b.classList.toggle('on', b.dataset.sp === space));
+  $('.htabs').classList.toggle('hidden', isJ); $('.jtabs').classList.toggle('hidden', !isJ);
+  document.querySelectorAll('.jtabs button').forEach(b => b.classList.toggle('on', b.dataset.jv === jrView));
+  v.innerHTML = isJ ? vJournal() : tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'docs' ? `<div class="cols"><div>${vDocs()}</div><div>${htmlNotesFinder()}</div></div>` : tab === 'journal' ? vJournal() : vSettings();
+  if (!isJ && tab === 'recap') setTimeout(verifyClosUI, 30);
+  document.querySelectorAll('.htabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
   setSync();
 }
 
@@ -2141,7 +2168,7 @@ async function exportPdf() {
   // Alertes
   const alerts = [];
   days.forEach(ds => dayAlerts(ds).forEach(t => alerts.push([frDay(ds) + ' ' + frNum(ds), t])));
-  weeks.forEach(w => { if (w.over48) alerts.push([`S${isoWeek(w.mon)}`, 'Plus de 48 h travaillées dans la semaine' + (fo ? ' (indicatif en forfait jours)' : '')]); const r = weekRest(w.mon); if (r < 2100 && w.mon <= today()) alerts.push([`S${isoWeek(w.mon)}`, `Repos hebdomadaire le plus long : ${fmt(r)} (35 h consécutives requises)`]); });
+  weeks.forEach(w => { if (w.over48) alerts.push([`S${isoWeek(w.mon)}`, 'Plus de 48 h travaillées dans la semaine' + (fo ? ' (indicatif en forfait jours)' : '')]); const r = restWeek(w.mon); if (restBad(r)) alerts.push([`S${isoWeek(w.mon)}`, `Plus long repos continu : ${restTxt(r)} (${hTxt(r.need)} consécutives requises)`]); });
   if (alerts.length) {
     ys = sect('Dépassements des durées maximales et repos');
     T({startY:ys, head:[['Date', 'Constat']], body:alerts, headStyles:{fillColor:[184, 50, 42], textColor:255}, columnStyles:{0:{cellWidth:34}}});
@@ -2173,7 +2200,7 @@ async function exportSuivi(y, m) {
   [`Mois : ${moisNom(y, m)}`, st.nom && 'Salarié : ' + st.nom, st.poste && 'Poste : ' + st.poste, st.employeur && 'Employeur : ' + st.employeur,
    st.convention && 'Convention collective : ' + st.convention, `Forfait : ${f.fj} jours par an (période du ${frNum(f.p.start)} au ${frNum(f.p.end)})`].filter(Boolean).forEach(l => { doc.text(l, 14, y0); y0 += 4.8; });
   doc.setFontSize(7.8); doc.setTextColor(...grey);
-  const intro = doc.splitTextToSize('Document tenu par le salarié : décompte des journées et demi-journées (travail, repos, congé payé, autre absence), contrôle du repos quotidien (11 h consécutives) et hebdomadaire (35 h consécutives), et appréciation de la charge de travail.', 182);
+  const intro = doc.splitTextToSize('Document tenu par le salarié : décompte des journées et demi-journées (travail, repos, congé payé, autre absence), contrôle du repos quotidien (' + hTxt(reqDaily()) + ' consécutives) et hebdomadaire (' + hTxt(reqWeekly()) + ' consécutives), et appréciation de la charge de travail.', 182);
   doc.text(intro, 14, y0 + 1); y0 += intro.length*3.4 + 3; doc.setTextColor(0);
   const catOf = t => { const c = tCat(t); if (!c) return ''; const lab = CATS[c]; return (c === 'repos' || c === 'conge') && t !== 'repos' && t !== 'conge' ? `${lab} (${tLabel(t).replace(' / repos forfait', '')})` : lab; };
   const body = []; let wU = 0, rU = 0, cU = 0, aU = 0;
@@ -2185,7 +2212,7 @@ async function exportSuivi(y, m) {
     if (d && ds <= ref) { wU += catUnits(d, 'travail'); rU += catUnits(d, 'repos'); cU += catUnits(d, 'conge'); aU += catUnits(d, 'autre'); }
     const b = bounds(ds), pv = bounds(addD(ds, -1));
     const amp = b && b.en ? `${pad(b.st.getHours())}:${pad(b.st.getMinutes())} – ${pad(b.en.getHours())}:${pad(b.en.getMinutes())}` : '';
-    let rest = ''; if (b && pv && pv.en) { const r = (b.st - pv.en)/60000; rest = fmt(r) + (r < 660 ? ' (moins de 11 h)' : ''); }
+    let rest = ''; if (b && pv && pv.en) { const r = (b.st - pv.en)/60000; rest = fmt(r) + (r < reqDaily() ? ' (moins de ' + hTxt(reqDaily()) + ')' : ''); }
     const obs = dayAlerts(ds).filter(t => !/^Repos de/.test(t) && !/^Plus de 10 h/.test(t)).join(' ; ');
     body.push([wd, am, pmv, amp, rest, obs]);
   }
@@ -2193,10 +2220,10 @@ async function exportSuivi(y, m) {
     styles:{fontSize:7.6, cellPadding:1.5, lineColor:[220, 224, 230], lineWidth:.1}, headStyles:{fillColor:blue, textColor:255},
     columnStyles:{0:{cellWidth:24}, 1:{cellWidth:30}, 2:{cellWidth:30}, 3:{cellWidth:24}, 4:{cellWidth:30}},
     didParseCell:h => { if (h.section === 'body') { const w = pd(addD(first, h.row.index)).getDay(); if (w === 0 || w === 6) h.cell.styles.fillColor = [246, 247, 249]; if (h.column.index === 4 && /moins/.test(h.cell.raw)) { h.cell.styles.textColor = [184, 50, 42]; h.cell.styles.fontStyle = 'bold'; } } }});
-  const wk = []; for (let mon = monday(first); mon <= last; mon = addD(mon, 7)) { const r = weekRest(mon); wk.push([`S${isoWeek(mon)}`, `${frNum(mon)} – ${frNum(addD(mon, 6))}`, r >= 99999 ? 'aucun travail' : fmt(r), mon > ref ? '' : (r >= 2100 ? 'Oui' : 'Non')]); }
+  const wk = []; for (let mon = monday(first); mon <= last; mon = addD(mon, 7)) { const r = restWeek(mon); wk.push([`S${isoWeek(mon)}`, `${frNum(mon)} – ${frNum(addD(mon, 6))}`, restTxt(r, true), r.state === 'ok' ? 'Oui' : r.state === 'court' ? 'Non' : '—']); }
   let yy = doc.lastAutoTable.finalY + 8; if (yy > 250) { doc.addPage(); yy = 18; }
   doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.text('Repos hebdomadaire', 14, yy);
-  doc.autoTable({startY:yy + 3, head:[['Semaine', 'Du – au', 'Plus long repos continu', '35 h respectées']], body:wk, margin:M, styles:{fontSize:8, cellPadding:1.6}, headStyles:{fillColor:blue, textColor:255}});
+  doc.autoTable({startY:yy + 3, head:[['Semaine', 'Du – au', 'Plus long repos continu', hTxt(reqWeekly()) + ' respectées']], body:wk, margin:M, styles:{fontSize:8, cellPadding:1.6}, headStyles:{fillColor:blue, textColor:255}});
   yy = doc.lastAutoTable.finalY + 8; if (yy > 240) { doc.addPage(); yy = 18; }
   doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.text('Récapitulatif', 14, yy);
   doc.autoTable({startY:yy + 3, theme:'plain', margin:M, styles:{fontSize:9, cellPadding:1.4}, columnStyles:{0:{cellWidth:120}, 1:{fontStyle:'bold', halign:'right'}},
@@ -2238,15 +2265,15 @@ async function exportBilan() {
   for (let ds = a; ds <= b; ds = addD(ds, 1)) {
     const d = S.days[ds]; if (!d || !inContract(ds)) continue; const e = dayEff(d); eff += e; if (e > 600) j10++;
     const bd = bounds(ds); if (bd && bd.en) { const am = (bd.en - bd.st)/60000; ampTot += am; nbJ++; if (am > 780) amp13++; }
-    if (dayAlerts(ds).some(t => /moins de 11 h/.test(t))) rest11++;
+    if (dayAlerts(ds).some(t => /depuis la veille \(moins de/.test(t))) rest11++;
   }
-  let w35 = 0, w48 = 0, s25 = 0, s50 = 0; for (let m = monday(a); m <= b; m = addD(m, 7)) { const w = weekStats(m); if (w.over48) w48++; s25 += w.s25; s50 += w.s50; if (weekRest(m) < 2100) w35++; }
+  let w35 = 0, w48 = 0, s25 = 0, s50 = 0; for (let m = monday(a); m <= b; m = addD(m, 7)) { const w = weekStats(m); if (w.over48) w48++; s25 += w.s25; s50 += w.s50; if (restBad(restWeek(m))) w35++; }
   const mj = majStats(a, b), fs = fiscalStats(a, b), body = [];
   if (forfait) { const f = fjStats(b); body.push(['Jours travaillés / forfait', `${nj(f.worked)} / ${f.fj}`], ['Jours restant à travailler', nj(f.rest)], ['Jours au-delà du forfait', nj(f.over) + (f.overVal ? ' (' + eur(f.overVal) + ')' : '')], ['RTT : droit / pris / à venir / restants', `${nj(f.rd.n)} / ${nj(f.rttP)} / ${nj(f.rttF)} / ${nj(f.rttRest)}`]); }
   const c = cpStats(b); if (c) body.push(['Congés payés N-1 / N', `${nj(c.n1)} / ${nj(c.n)}`]);
   body.push(['Heures de travail effectif', fmt(eff)], ['Amplitude moyenne d’une journée', nbJ ? fmt(ampTot / nbJ) : '—'],
-    ['Journées de plus de 10 h', String(j10)], ['Journées d’amplitude supérieure à 13 h', String(amp13)], ['Repos quotidien inférieur à 11 h', String(rest11)],
-    ['Semaines sans 35 h de repos consécutives', String(w35)], ['Semaines de plus de 48 h', String(w48)],
+    ['Journées de plus de 10 h', String(j10)], ['Journées d’amplitude supérieure à 13 h', String(amp13)], ['Repos quotidien inférieur à ' + hTxt(reqDaily()), String(rest11)],
+    ['Semaines sans ' + hTxt(reqWeekly()) + ' de repos consécutives', String(w35)], ['Semaines de plus de 48 h', String(w48)],
     [`Heures sup. ${forfait ? 'théoriques (base 35 h) ' : ''}à +${st.t1} % / +${st.t2} %`, `${fmt(s25)} / ${fmt(s50)}`],
     ['Heures de nuit / dimanche / fériés', `${fmt(mj.nuitTot)} / ${fmt(mj.dim)} / ${fmt(mj.fer)}`],
     ['Interventions hors horaires', `${mj.itv} (${fmt(mj.itvMin)})`], ['Appels et messages hors temps de travail', String(mj.sol)], ['Astreintes', String(mj.ast)],
@@ -2453,7 +2480,11 @@ function fbErr(e) {
 
 /* ================= Événements ================= */
 document.addEventListener('click', async e => {
-  const tb = e.target.closest('.tabs button');
+  const spb = e.target.closest('[data-sp]');
+  if (spb) { space = spb.dataset.sp; try { localStorage.setItem('mh_space', space); } catch (er) {} render(); window.scrollTo(0, 0); return; }
+  const jb = e.target.closest('[data-jv]');
+  if (jb) { jrView = jb.dataset.jv; render(); window.scrollTo(0, 0); return; }
+  const tb = e.target.closest('.htabs button');
   if (tb) { tab = tb.dataset.tab; render(); window.scrollTo(0, 0); return; }
   const b = e.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act;
@@ -2663,9 +2694,10 @@ const JR_TYPES = {
   alerte:{l:'Alerte remontée au patron', c:'#c23b3b'},
   horaire:{l:'Horaire imposé', c:'#1f7a8c'},
   planning:{l:'Planning annoncé', c:'#4a5568'},
-  tableau:{l:'Photo du tableau du jour', c:'#6b7280'}
+  tableau:{l:'Photo du tableau du jour', c:'#6b7280'},
+  evenement:{l:'Événement / incident', c:'#9a3412'}
 };
-const JR_EXPRESS = ['consigne', 'constat', 'rappel', 'obstacle', 'horaire', 'tableau'];
+const JR_EXPRESS = ['consigne', 'constat', 'evenement', 'rappel', 'obstacle', 'horaire', 'tableau'];
 const JR_CATS_DEF = ['EPI', 'Présence au poste', 'Bavardages', 'Téléphone', 'Autre'];
 const JR_FIELDS = ['type', 'date', 'heure', 'titre', 'texte', 'personnes', 'temoins', 'cat', 'lien', 'photos', 'aCompleter', 'limite', 'direction'];
 let jrEd = null, jrFilter = '', jrSearch = '';
@@ -2676,7 +2708,7 @@ const jrTag = t => `<span class="tag" style="background:color-mix(in srgb,${(JR_
 function jrTitle(f) { return f.titre || (f.texte || '').split('\n')[0].slice(0, 70) || (JR_TYPES[f.type] || {}).l || 'Fiche'; }
 function jrPick(f) { const o = {}; JR_FIELDS.forEach(k => o[k] = clone(f[k] ?? (k === 'photos' ? [] : k === 'aCompleter' ? false : ''))); return o; }
 
-function vJournal() { return jrHeader() + (jrView === 'jour' ? vJrDay() : jrView === 'pers' ? vJrPers() : vJrFiches()); }
+function vJournal() { return (jrView === 'jour' ? vJrDay() : jrView === 'pers' ? vJrPers() : vJrFiches()); }
 function vJrFiches() {
   const all = jrList(), todo = all.filter(f => f.aCompleter).length;
   const q = jrSearch.trim().toLowerCase();
@@ -2839,7 +2871,7 @@ function jrSave() {
   jrEd.added = [];
   persist(); pushJr(f.id);
   if (fb.user) data.photos.filter(p => S.docs[p] && !S.docs[p].synced).forEach(p => pushDoc(p).catch(() => {}));
-  closeSheet(); tab = 'journal'; render(); toast(f.aCompleter ? 'Noté. À compléter plus tard.' : 'Fiche enregistrée');
+  closeSheet(); render(); toast(f.aCompleter ? 'Noté. À compléter plus tard.' : 'Fiche enregistrée');
 }
 function data_cat() { const w = $('#jr-catw'); return w && w.style.display !== 'none' ? $('#jr-cat').value : ''; }
 function jrDelete(id) {
@@ -3176,17 +3208,192 @@ async function jrBilanPdf() {
   const ws = weekStats(mon), wb = []; let j10 = 0, a13 = 0, r11 = 0, nd = 0;
   ws.days.forEach(({ds, d, e}) => {
     if (!d || !inContract(ds) || !e) return; nd++; const bd = bounds(ds), am = bd && bd.en ? (bd.en - bd.st) / 60000 : 0, al = dayAlerts(ds);
-    if (e > 600) j10++; if (am > 780) a13++; if (al.some(x => /moins de 11 h/.test(x))) r11++;
+    if (e > 600) j10++; if (am > 780) a13++; if (al.some(x => /depuis la veille \(moins de/.test(x))) r11++;
     wb.push([pd(ds).toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'numeric'}), bd && bd.st ? pad(bd.st.getHours()) + ':' + pad(bd.st.getMinutes()) : '', bd && bd.en ? pad(bd.en.getHours()) + ':' + pad(bd.en.getMinutes()) : '', am ? fmt(am) : '', fmt(e), al.join(' ; ')]);
   });
   T('7. Mon temps de travail', ['Jour', 'Début', 'Fin', 'Amplitude', 'Travail', 'Observations'], wb);
-  const rest = weekRest(mon);
+  const rr = restWeek(mon);
   const sy = doc.lastAutoTable.finalY + 6; doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(20, 24, 32);
-  doc.text(doc.splitTextToSize(`${nd} jour(s) travaillé(s), ${fmt(ws.eff)} de travail effectif. Journées de plus de 10 h : ${j10}. Amplitudes de plus de 13 h : ${a13}. Repos quotidien de moins de 11 h : ${r11}. Plus long repos continu de la semaine : ${fmt(rest)}${rest < 2100 ? ' (moins de 35 h)' : ''}.`, 182), 14, sy > 275 ? 275 : sy);
+  doc.text(doc.splitTextToSize(`${nd} jour(s) travaillé(s), ${fmt(ws.eff)} de travail effectif. Journées de plus de 10 h : ${j10}. Amplitudes de plus de 13 h : ${a13}. Repos quotidien de moins de ${hTxt(reqDaily())} : ${r11}. Repos hebdomadaire : ${restTxt(rr)}${restBad(rr) ? ' (moins de ' + hTxt(rr.need) + ')' : ''}.`, 182), 14, sy > 275 ? 275 : sy);
   pdfFooter(doc, 'Bilan hebdomadaire — Mes Heures');
   closeSheet(); await deliver(doc.output('blob'), `Bilan_semaine_${mon}.pdf`, 'application/pdf');
 }
 
+/* ================= Repos : moteur v6 (réel, vérifiable) =================
+   Règles : repos quotidien 12 h en forfait jours (avenant n° 52 IDCC 2216), 11 h minimum légal ;
+   repos hebdomadaire 36 h consécutives en forfait (24 h + 12 h), 35 h sinon ;
+   forfait : 1 journée entière + 1 journée ou 2 demi-journées par semaine, demi-journées manquantes à prendre sous 3 mois ;
+   2 journées entières de repos au moins 20 semaines par an (prorata).
+   Un jour non renseigné n'est JAMAIS compté comme du repos. */
+const reqDaily = () => S.settings.mode === 'forfait' ? 720 : 660;
+const reqWeekly = () => S.settings.mode === 'forfait' ? 2160 : 2100;
+const hTxt = m => (m / 60) + ' h';
+const known = ds => !!S.days[ds] || !inContract(ds);
+function allIntervals(a, b) { // périodes de travail des jours a..b, fusionnées
+  const iv = [];
+  for (let ds = a; ds <= b; ds = addD(ds, 1)) { const d = S.days[ds]; if (d) workIntervals(d).forEach(x => iv.push(x)); }
+  iv.sort((x, y) => x[0] - y[0]);
+  const m = []; for (const x of iv) { const l = m[m.length - 1]; if (l && x[0] <= l[1]) { if (x[1] > l[1]) l[1] = x[1]; } else m.push([x[0], x[1]]); }
+  return m;
+}
+function gapKnown(e, s) { // tous les jours touchés par le repos sont renseignés ?
+  const miss = []; for (let ds = ymd(e); ds <= ymd(s); ds = addD(ds, 1)) if (!known(ds)) miss.push(ds); return miss;
+}
+function restWeek(mon, nowArg) {
+  const now = nowArg || new Date(), need = reqWeekly(), ws = dt(mon, '00:00'), we = dt(addD(mon, 7), '00:00');
+  const iv = allIntervals(addD(mon, -4), addD(mon, 10));
+  const r = {mon, need, min:0, from:null, to:null, state:'nowork', missing:[], open:null};
+  if (!iv.some(x => x[1] > ws && x[0] < we)) {
+    const unk = []; for (let i = 0; i < 7; i++) { const ds = addD(mon, i); if (ds <= today() && !known(ds)) unk.push(ds); }
+    if (unk.length) { r.state = 'inconnu'; r.missing = unk; } return r;
+  }
+  for (let i = 0; i + 1 < iv.length; i++) {
+    const e = iv[i][1], s = iv[i + 1][0], mid = new Date((e.getTime() + s.getTime()) / 2);
+    if (mid < ws || mid >= we) continue;
+    const miss = gapKnown(e, s); if (miss.length) { r.missing.push(...miss); continue; }
+    const g = Math.round((s - e) / 60000); if (g > r.min) { r.min = g; r.from = e; r.to = s; }
+  }
+  const last = iv[iv.length - 1][1];
+  if (last < we && last >= new Date(ws.getTime() - 2 * 864e5)) { // repos ouvert après la dernière période connue
+    const miss = gapKnown(last, now < we ? now : new Date(we.getTime() - 1)).filter(ds => ds <= today());
+    if (!miss.length) r.open = {from:last, min:Math.round((Math.min(now, Math.max(now, last)) - last) / 60000)};
+    else r.missing.push(...miss);
+  }
+  r.missing = [...new Set(r.missing)].sort();
+  if (r.min >= need) r.state = 'ok';
+  else if (r.open && r.open.min >= need) { r.state = 'ok'; r.min = r.open.min; r.from = r.open.from; r.to = null; }
+  else if (r.open && now < new Date(r.open.from.getTime() + 7 * 864e5)) r.state = 'encours';
+  else if (r.missing.length) r.state = 'inconnu';
+  else r.state = r.min ? 'court' : 'court';
+  return r;
+}
+function weekRest(mon) { const r = restWeek(mon); return r.state === 'nowork' ? 99999 : (r.state === 'ok' || r.state === 'court') ? r.min : (r.open ? Math.max(r.min, r.open.min) : r.min); }
+const restBad = r => r.state === 'court';
+function restTxt(r, short) {
+  const H = x => pad(x.getHours()) + ':' + pad(x.getMinutes()), D = x => x.toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'numeric'});
+  if (r.state === 'nowork') return 'aucun travail';
+  if (r.state === 'inconnu') return 'non calculable : ' + r.missing.map(frNum).join(', ') + ' non renseigné' + (r.missing.length > 1 ? 's' : '');
+  if (r.state === 'encours') { const lim = new Date(r.open.from.getTime() + r.need * 60000); return `repos en cours depuis ${D(r.open.from)} ${H(r.open.from)}` + (short ? '' : ` : ${hTxt(r.need)} atteintes si reprise au plus tôt ${D(lim)} ${H(lim)}`) + (r.min ? ` (plus long repos terminé : ${fmt(r.min)})` : ''); }
+  return fmt(r.min) + (r.from && !short ? ` (${D(r.from)} ${H(r.from)} → ${r.to ? D(r.to) + ' ' + H(r.to) : 'en cours'})` : '');
+}
+/* Demi-journée au sens de l'avenant n° 52 */
+function nightIn(ds) { const d = S.days[ds]; if (!d) return false; return workIntervals(d).some(([a, b]) => { for (let t = a.getTime(); t < b.getTime(); t += 15 * 60000) { const h = new Date(t).getHours(); if (h >= 21 || h < 6) return true; } return false; }); }
+function dayWorkUnits(ds) { // 0, 0,5 ou 1 selon les horaires réels (forfait)
+  const d = S.days[ds]; if (!d || !inContract(ds)) return 0;
+  const iv = workIntervals(d); if (!iv.length) return catUnits(d, 'travail') ? Math.min(1, catUnits(d, 'travail')) : 0;
+  if (nightIn(ds)) return 1;
+  const st = iv.reduce((m, x) => x[0] < m ? x[0] : m, iv[0][0]), en = iv.reduce((m, x) => x[1] > m ? x[1] : m, iv[0][1]);
+  const p = allIntervals(addD(ds, -2), addD(ds, -1)), n = allIntervals(addD(ds, 1), addD(ds, 2));
+  const before = p.length ? (st - p[p.length - 1][1]) / 60000 : (known(addD(ds, -1)) ? 9999 : 0);
+  const after = n.length ? (n[0][0] - en) / 60000 : (known(addD(ds, 1)) && addD(ds, 1) <= today() ? 9999 : 0);
+  if (en <= dt(ds, '13:30') && after >= 1080) return .5;
+  if (st >= dt(ds, '13:30') && before >= 1080) return .5;
+  return 1;
+}
+function weekForfait(mon) { // repos hebdomadaire au sens de l'avenant n° 52
+  let units = 0, full = 0, halfOff = 0, worked = 0, inC = 0;
+  const det = [];
+  for (let i = 0; i < 7; i++) {
+    const ds = addD(mon, i); if (!inContract(ds)) continue; inC++;
+    const u = dayWorkUnits(ds), d = S.days[ds];
+    units += u; if (u) worked++;
+    if (!u && d && d.type === 'repos' && !d.half) full++;
+    if (u === .5) halfOff++;
+    det.push([ds, u]);
+  }
+  const past = addD(mon, 6) < today();
+  const maxUnits = Math.max(0, inC - 2);
+  const missHalf = inC === 7 ? Math.max(0, Math.round((units - maxUnits) * 2)) : 0;
+  return {mon, units, full, halfOff, worked, inC, missHalf, noFullDay:inC === 7 && full === 0 && units > 0, past, deadline:addD(addD(mon, 6), 91), det};
+}
+function reposDus(ref) { // demi-journées de repos hebdomadaire manquantes, prises et à prendre (forfait)
+  ref = ref || today(); const st = S.settings; if (st.mode !== 'forfait' || !st.debut) return null;
+  const weeks = []; for (let m = monday(st.debut); m <= ref; m = addD(m, 7)) { const w = weekForfait(m); if (addD(m, 6) <= ref || m === monday(ref)) weeks.push(w); }
+  const acq = weeks.filter(w => w.past || addD(w.mon, 6) <= ref);
+  let taken = 0, takenF = 0; for (const [ds, d] of Object.entries(S.days)) { const u = typeUnits(d, 'recup') * 2; if (ds <= ref) taken += u; else takenF += u; }
+  taken += (st.recupAdj || []).reduce((a, r) => a + (+r.j || 0) * 2, 0);
+  let left = taken; const lots = [];
+  for (const w of acq) if (w.missHalf) { const used = Math.min(left, w.missHalf); left -= used; lots.push({mon:w.mon, n:w.missHalf, open:w.missHalf - used, deadline:w.deadline}); }
+  const due = lots.reduce((a, l) => a + l.open, 0), late = lots.filter(l => l.open && l.deadline < ref);
+  const fy = fjPeriod(ref), wInY = weeks.filter(w => w.mon >= monday(fy.start) && w.past);
+  const need20 = Math.round(20 * Math.max(0, (pd(fy.end) - pd(st.debut > fy.start ? st.debut : fy.start)) / 864e5 + 1) / 365);
+  return {weeks, lots, acqHalf:lots.reduce((a, l) => a + l.n, 0), taken, takenF, due, late, two:wInY.filter(w => w.full >= 2).length, need20, cur:weeks.find(w => w.mon === monday(ref))};
+}
+
+/* ================= Récap v6 : repos, congés, RTT (avec détail du calcul) ================= */
+function htmlRepos() {
+  const st = S.settings, forfait = st.mode === 'forfait', rq = reqDaily(), rw = reqWeekly();
+  const days = Object.keys(S.days).filter(ds => inContract(ds) && ds <= today()).sort();
+  const shortD = []; days.forEach(ds => { const b = bounds(ds), p = bounds(addD(ds, -1)); if (b && p && p.en) { const r = (b.st - p.en) / 60000; if (r < rq) shortD.push([ds, r]); } });
+  const weeks = []; if (st.debut) for (let m = monday(st.debut); m <= today(); m = addD(m, 7)) weeks.push({r:restWeek(m), f:forfait ? weekForfait(m) : null});
+  const bad = weeks.filter(w => restBad(w.r)), rd = reposDus();
+  const D = ds => pd(ds).toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'numeric'});
+  return `<div class="group">
+    <div class="gh">Repos${forfait ? ' (avenant n° 52, forfait jours)' : ''}</div>
+    <div class="row ${shortD.length ? 'sup' : ''}"><span>Repos quotidiens de moins de ${hTxt(rq)}</span><span class="v num">${shortD.length}</span></div>
+    ${forfait ? `<div class="row ${shortD.filter(x => x[1] < 660).length ? 'sup' : ''}"><span>dont sous le minimum légal de 11 h</span><span class="v num">${shortD.filter(x => x[1] < 660).length}</span></div>` : ''}
+    <div class="row ${bad.length ? 'sup' : ''}"><span>Semaines sans ${hTxt(rw)} de repos d’affilée</span><span class="v num">${bad.length}</span></div>
+    ${rd ? `<div class="row ${rd.due ? 'sup' : ''}"><span>Demi-journées de repos hebdomadaire à récupérer</span><span class="v num">${rd.due} (${nj(rd.due / 2)})</span></div>
+      <div class="row"><span>Acquises / déjà prises</span><span class="v num">${rd.acqHalf} / ${rd.taken}</span></div>
+      ${rd.late.length ? `<div class="alert" style="margin:6px 16px 10px">Délai de 3 mois dépassé pour ${rd.late.reduce((a, l) => a + l.open, 0)} demi-journée(s).</div>` : ''}
+      <div class="row ${rd.two < rd.need20 ? '' : ''}"><span>Semaines avec 2 journées entières de repos</span><span class="v num">${rd.two} / ${rd.need20} sur l’année</span></div>` : ''}
+    <details class="pfx" style="padding:0 16px 12px"><summary>Détail du calcul</summary>
+      <p class="small muted">Repos quotidien : temps entre la fin d’une journée et le début de la suivante. Repos hebdomadaire : plus long repos continu de la semaine (lundi–dimanche), en temps réel (changement d’heure compris). Un jour non renseigné n’est jamais compté comme du repos.${forfait ? ' Demi-journée : travail fini au plus tard à 13 h 30 et suivi de 18 h de repos, ou commencé au plus tôt à 13 h 30 après 18 h de repos ; sinon journée entière. Au-delà de 5 jours travaillés dans la semaine, chaque demi-journée travaillée en plus est une demi-journée de repos à récupérer dans les 3 mois.' : ''}</p>
+      ${shortD.length ? `<b class="small">Repos quotidiens de moins de ${hTxt(rq)}</b>${shortD.map(([ds, r]) => `<div class="small">${D(addD(ds, -1))} → ${D(ds)} : ${fmt(r)}${r < 660 ? ' (sous 11 h)' : ''}</div>`).join('')}` : ''}
+      <div class="scroll" style="margin-top:8px"><table class="wk num"><tr><th>Semaine</th>${forfait ? '<th>Jours</th><th>½ j. à récup.</th>' : ''}<th>Plus long repos</th></tr>
+      ${weeks.slice().reverse().map(({r, f}) => `<tr><td>S${isoWeek(r.mon)} <span class="muted small">${frDM(r.mon)}</span></td>${forfait ? `<td>${String(f.units).replace('.', ',')}</td><td>${f.missHalf || ''}</td>` : ''}<td style="text-align:left${restBad(r) ? ';color:var(--alert)' : ''}">${esc(restTxt(r, true))}${r.state === 'ok' || r.state === 'court' ? (r.min >= rw ? ' ✓' : ' ✗') : ''}</td></tr>`).join('')}</table></div>
+      ${rd && rd.lots.length ? `<b class="small">Demi-journées à récupérer (les plus anciennes d’abord)</b>${rd.lots.map(l => `<div class="small">S${isoWeek(l.mon)} (${frDM(l.mon)}) : ${l.n} acquise(s), ${l.open} restante(s), à prendre avant le ${frNum(l.deadline)}${l.open && l.deadline < today() ? ' — délai dépassé' : ''}</div>`).join('')}<p class="small muted">Pour en prendre une, notez le jour en « Récupération / repos compensateur » (une demi-journée ou une journée).</p>` : ''}
+    </details>
+  </div>`;
+}
+function cpEnCours(ref) { // part du mois en cours, provisoire
+  ref = ref || today(); const st = S.settings, x = pd(ref), y = x.getFullYear(), m = x.getMonth(), rate = st.cpUnit === 'ouvres' ? 25/12 : 2.5;
+  let all = 0, done = 0, ok = 0;
+  for (let ds = ymd(new Date(y, m, 1)); ds <= ymd(new Date(y, m + 1, 0)); ds = addD(ds, 1)) { const w = pd(ds).getDay(); if (w === 0 || w === 6) continue; all++; if (ds <= ref) { done++; if (inContract(ds)) { const d = S.days[ds]; ok += 1 - (d ? typeUnits(d, 'sanssolde') + typeUnits(d, 'maladie') : 0); } } }
+  return all ? rate * ok / all : 0;
+}
+function cpMonths() { // détail : acquisition mois par mois depuis l'entrée
+  const st = S.settings, out = []; if (!st.debut) return out; const rate = st.cpUnit === 'ouvres' ? 25/12 : 2.5;
+  for (let x = pd(st.debut.slice(0, 8) + '01'); ymd(x) <= today(); x = new Date(x.getFullYear(), x.getMonth() + 1, 1)) {
+    const end = ymd(new Date(x.getFullYear(), x.getMonth() + 1, 0));
+    out.push({m:x.getMonth(), y:x.getFullYear(), v:end < today() ? cpMonthAcq(x.getFullYear(), x.getMonth(), rate) : cpEnCours(), cur:end >= today()});
+  }
+  return out;
+}
+function rttAcquis(f, ref) { // RTT gagnés au fil de la période, au prorata des jours de semaine écoulés sous contrat
+  ref = ref || today(); let tot = 0, done = 0;
+  for (let ds = f.p.start; ds <= f.p.end; ds = addD(ds, 1)) { const w = pd(ds).getDay(); if (w === 0 || w === 6 || !inContract(ds)) continue; tot++; if (ds <= ref) done++; }
+  return tot ? Math.floor(f.rd.n * done / tot * 2) / 2 : 0;
+}
+
+/* ================= Reprise des données v6 (une seule fois, sans doublon) ================= */
+function mig6() {
+  const st = S.settings, now = new Date().toISOString();
+  const d11 = S.days['2026-11-11'];
+  if (d11 && d11.type === 'repos' && !(d11.segs || []).length) {
+    d11.hist = [...(d11.hist || []), {at:now, act:'Reclassement', avant:'Repos hebdomadaire', apres:'Férié chômé (11 novembre)'}];
+    d11.type = 'ferie'; d11.updatedAt = now; try { pushDay('2026-11-11'); } catch (e) {}
+  }
+  let n = 0;
+  for (const [ds, d] of Object.entries(S.days)) {
+    const notes = (d.notes && d.notes.length) ? d.notes : (d.note ? [{id:'n' + ds.replace(/-/g, ''), txt:d.note, lv:'info'}] : []);
+    for (const no of notes) {
+      const txt = (no.txt || '').trim(); if (!txt) continue;
+      if (/rendez.?vous perso|rhumato|m[ée]decin traitant|docteur/i.test(txt)) continue; // rendez-vous personnel : reste dans les heures
+      const id = 'jn' + (no.id || ds), first = txt.split('\n')[0].trim();
+      if (S.jr[id]) continue;
+      const ferm = /^fermeture( du)?( magasin)?\b/i.test(first);
+      const low = ' ' + txt.toLowerCase() + ' ';
+      const priv = JR_PRIV.some(m => low.includes(m));
+      S.jr[id] = {id, type:ferm ? 'horaire' : 'evenement', date:ds, heure:'', titre:ferm ? 'Fermeture du magasin' : first.slice(0, 70), texte:ferm ? txt.split('\n').slice(1).join('\n').trim() : txt,
+        personnes:'', temoins:'', cat:'', lien:'', photos:[], aCompleter:priv, src:'note', createdAt:now, updatedAt:now, versions:[]};
+      n++; try { pushJr(id); } catch (e) {}
+    }
+  }
+  if (st.mode === 'forfait' && (+st.rachat || 0) < 15) st.rachat = 15;
+  st.mig6 = true; st.updatedAt = now; persist(); try { pushSettings(); } catch (e) {}
+  if (n) setTimeout(() => toast(n + ' note(s) copiée(s) dans le Journal'), 600);
+}
 /* ================= Démarrage ================= */
 render();
 showLock();
