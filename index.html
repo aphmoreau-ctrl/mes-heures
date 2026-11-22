@@ -9,15 +9,17 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Mes Heures">
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <title>Mes Heures</title>
 <style>
 :root{
-  --bg:#eef1f4; --panel:#ffffff; --ink:#16202e; --muted:#5d6b7e; --line:#d9dfe7;
-  --work:#2346a0; --work-soft:#dfe6f7; --sup:#c97d0c; --sup-soft:#f8ead2;
+  --bg:#f6f7f9; --panel:#ffffff; --ink:#101828; --muted:#667085; --line:#e4e7ec;
+  --work:#1e3a8a; --work-soft:#e0e7f6; --sup:#c97d0c; --sup-soft:#f8ead2;
   --pause:#a9b3c1; --ok:#2c7a4b; --ok-soft:#dcefe3; --alert:#b8322a; --alert-soft:#f7dfdc;
-  --radius:14px;
+  --radius:14px; --hero:#101828;
 }
 @media (prefers-color-scheme:dark){
   :root{
@@ -46,6 +48,56 @@ button{cursor:pointer}
 main{max-width:620px;margin:0 auto;padding:4px 16px calc(96px + env(safe-area-inset-bottom,0px))}
 
 /* Onglets */
+.top{display:block!important;padding-bottom:0!important}
+.hrow1{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hdate{font-size:12px;color:var(--muted);font-weight:500}
+.hname{font-size:20px;font-weight:700;letter-spacing:-.4px}
+.hright{display:flex;align-items:center;gap:8px}
+.avatar{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--panel);font-weight:700;font-size:13px;color:var(--ink);padding:0}
+.avatar.on{background:var(--work);color:#fff;border-color:var(--work)}
+.spt{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line);margin-top:10px}
+.spt button{border:0;background:none;padding:10px 0;font-size:14.5px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.spt button.on{color:var(--ink);font-weight:700;border-bottom-color:var(--work)}
+body{font-family:Inter,-apple-system,system-ui,sans-serif}
+.num{font-variant-numeric:tabular-nums}
+.gh{font-size:11px!important;font-weight:600!important;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)!important}
+.hero{background:var(--hero);color:#fff;border-radius:16px;padding:16px;margin:14px 0 12px;display:flex;flex-direction:column;gap:11px}
+.hrow{display:flex;justify-content:space-between;align-items:center}
+.hlab{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#98a2b3}
+.hchip{font-size:11.5px;font-weight:600;color:#d0d5dd;border:1px solid #344054;border-radius:999px;padding:3px 9px}
+.hbig{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.hbig b{font-size:38px;letter-spacing:-1px;font-weight:700}.hbig span{font-size:14px;color:#98a2b3}
+.hbar{height:6px;background:#344054;border-radius:99px;overflow:hidden}.hbar i{display:block;height:6px;background:#fff;border-radius:99px}
+.hsub{font-size:13px;color:#d0d5dd}.hsub b{color:#fff}
+.hact{display:grid;grid-template-columns:1fr 52px;gap:8px;align-items:stretch}
+.hero .actions{margin:0;gap:8px}
+.hero .pbtn{border-radius:12px;padding:13px 10px;font-size:16px}
+.hero .pbtn small{display:none}
+.hero .pbtn.in,.hero .pbtn.out{background:#fff;color:var(--hero)}
+.hero .pbtn.pause,.hero .pbtn.soft{background:transparent;border:1px solid #344054;color:#fff}
+.hcam{border:1px solid #344054;background:transparent;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:0;min-height:48px}
+.hcam svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 4px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px;text-align:left;display:flex;flex-direction:column;gap:4px;color:var(--ink);font-family:inherit}
+.kl{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kpi b{font-size:24px;letter-spacing:-.6px}.kpi b small{font-size:15px;color:#98a2b3;font-weight:600}
+.ks{font-size:12px;color:#475467}.ks em{font-style:normal;color:#b54708;font-weight:600}.ks.warn{color:#b54708;font-weight:600}
+.kbar{height:4px;background:#eaecf0;border-radius:99px;margin-top:6px;display:block}.kbar i{display:block;height:4px;background:var(--work);border-radius:99px}
+.wdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:8px;vertical-align:middle}.wdot.r{background:#d92d20}.wdot.o{background:#f79009}
+.rowb{width:100%;border:0;background:none;font-family:inherit;color:inherit;text-align:left}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){--hero:#0b111b} .ks{color:var(--muted)} .kbar{background:#2b3544} }
+.spt.hidden,#homeb.hidden{display:none}
+body.home main{padding-bottom:30px}
+.homew{display:flex;flex-direction:column;gap:12px;padding-top:16px}
+.hcard{border:0;border-radius:18px;padding:18px;text-align:left;display:flex;flex-direction:column;gap:8px;color:#fff;font-family:inherit;min-height:170px}
+.hblue{background:#101828}.hteal{background:#0f5f58}
+.hctop{display:flex;justify-content:space-between;align-items:center}
+.hcic{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center}
+.hcic svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.hcgo{font-size:26px;opacity:.7}
+.hctitle{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-top:4px}
+.hcline{font-size:14px;color:rgba(255,255,255,.82)}
+.hcstats{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:rgba(255,255,255,.75);margin-top:2px}.hcstats b{color:#fff;font-size:14px}
+.hmini{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .spc{display:flex;gap:3px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:3px}
 .spc button{border:0;background:none;padding:7px 13px;border-radius:8px;font-weight:700;font-size:15px;color:var(--muted)}
 .spc button.on{background:var(--work);color:#fff}
@@ -240,8 +292,11 @@ ol.steps li{margin:4px 0}
 </head>
 <body>
 <header class="top">
-  <div class="spc" role="tablist" aria-label="Espace"><button data-sp="heures" class="on">Mes heures</button><button data-sp="journal">Journal</button></div>
-  <span id="sync" class="sync">Sur l'appareil</span>
+  <div class="hrow1">
+    <div><div class="hdate" id="hdate"></div><div class="hname" id="hname">Mes Heures</div></div>
+    <div class="hright"><span id="sync" class="sync">Sur l'appareil</span><button class="avatar" id="homeb" data-sp="accueil" aria-label="Accueil"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9H5z"/><path d="M10 20v-6h4v6"/></svg></button><button class="avatar" id="avatar" data-act="gosettings" aria-label="Réglages">⚙</button></div>
+  </div>
+  <div class="spt" role="tablist" aria-label="Espace"><button data-sp="heures" class="on">Mes heures</button><button data-sp="journal">Journal de bord</button></div>
 </header>
 <main id="view"></main>
 <nav class="jtabs tabs hidden" aria-label="Journal">
@@ -250,11 +305,11 @@ ol.steps li{margin:4px 0}
   <button data-jv="pers"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c.8-3.6 3.2-5.5 6-5.5s5.2 1.9 6 5.5"/><circle cx="17" cy="9" r="2.4"/><path d="M16 14.6c2.4.2 4.2 1.9 5 5.4"/></svg>Personnes</button>
 </nav>
 <nav class="htabs tabs" aria-label="Navigation">
-  <button data-tab="today" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Pointer</button>
+  <button data-tab="today" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Aujourd’hui</button>
   <button data-tab="week"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Semaine</button>
-  <button data-tab="recap"><svg viewBox="0 0 24 24"><path d="M5 20V11M10 20V5M15 20v-7M20 20V8"/></svg>Récap</button>
+  <button data-tab="recap"><svg viewBox="0 0 24 24"><path d="M5 20V11M10 20V5M15 20v-7M20 20V8"/></svg>Compteurs</button>
   <button data-tab="docs"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>Documents</button>
-  <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Réglages</button>
+    <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Réglages</button>
 </nav>
 <div id="sheet" class="sheet hidden" role="dialog" aria-modal="true"></div>
 <div id="toast" role="status"></div>
@@ -732,7 +787,7 @@ function mergeDay(ds, r) { // fusion d'une journée reçue ; true si la donnée 
 }
 
 /* ================= Rendu ================= */
-let space = (() => { try { return localStorage.getItem('mh_space') || 'heures'; } catch (e) { return 'heures'; } })();
+let space = 'accueil';
 let tab = 'today', weekMon = monday(today()), rMonth = {y:new Date().getFullYear(), m:new Date().getMonth()};
 let exFrom = null, exTo = null;
 
@@ -778,17 +833,13 @@ function vToday() {
   const al = dayAlerts(st.ds, now).concat(w.over48 ? ['Plus de 48 h travaillées cette semaine'] : []);
   return `
   <div class="cols"><div>
+  ${heroHtml(st, d, now, btns)}
+  ${kpiHtml(now)}
   <section class="punch">
-    ${banner}
-    <div class="date">${frLong(today())}</div>
-    <div class="clock num" id="clock">${nowHM()}</div>
-    <div class="state ${st.k}"><span class="dot"></span>${lab}</div>
-    ${typeTag}
-    <div class="actions">${btns}</div>
     <button class="btn ghost" data-act="edit" data-ds="${st.ds}">Saisir ou corriger mes horaires</button>
     <div class="btns two" style="margin-top:10px"><button class="btn ghost" data-act="itvq">Alarme / intervention</button><button class="btn ghost" data-act="solq">Appel / message hors temps</button></div>
   </section>
-  ${hc}${al.map(a => `<div class="alert">${esc(a)}</div>`).join('')}
+  ${hc}${watchHtml(now)}${photosOfDay(st.ds)}
   </div><div>
   <div class="group">
     <div class="gpad">${timeline(d, now)}<div class="tl-scale num"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span></div></div>
@@ -980,7 +1031,7 @@ const idbPut = (k, v) => idbOp('readwrite', s => s.put(v, k));
 const idbGet = k => idbOp('readonly', s => s.get(k));
 const idbDel = k => idbOp('readwrite', s => s.delete(k));
 const slug = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
-function docName(m) { if (m.type === 'journal') return `Journal_${m.date || ''}_${(m.jr || '').slice(-5)}_${m.id.slice(-5)}.jpg`; const ext = m.mime === 'application/pdf' ? 'pdf' : (m.mime || '').includes('png') ? 'png' : 'jpg'; return `${(m.mois || m.date || '').slice(0, 7)}_${slug(DOC_TYPES[m.type] || 'Document')}${m.titre ? '_' + slug(m.titre) : ''}.${ext}`; }
+function docName(m) { if (m.type === 'pointage') return `Pointage_${m.date || ''}_${m.kind || ''}_${(m.t || '').replace(':', 'h')}.jpg`; if (m.type === 'journal') return `Journal_${m.date || ''}_${(m.jr || '').slice(-5)}_${m.id.slice(-5)}.jpg`; const ext = m.mime === 'application/pdf' ? 'pdf' : (m.mime || '').includes('png') ? 'png' : 'jpg'; return `${(m.mois || m.date || '').slice(0, 7)}_${slug(DOC_TYPES[m.type] || 'Document')}${m.titre ? '_' + slug(m.titre) : ''}.${ext}`; }
 const b64ToBlob = (b64, mime) => { const bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Blob([u], {type:mime}); };
 const blobToB64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
 async function compressImage(file) {
@@ -1017,8 +1068,8 @@ function mergeDoc(id, r) {
 }
 let docFilter = '';
 function vDocs() {
-  const list = Object.values(S.docs || {}).filter(m => !m.deleted && m.type !== 'journal' && (!docFilter || m.type === docFilter)).sort((a, b) => (b.mois || b.date || '') < (a.mois || a.date || '') ? -1 : 1);
-  const used = [...new Set(Object.values(S.docs || {}).filter(m => !m.deleted && m.type !== 'journal').map(m => m.type))];
+  const list = Object.values(S.docs || {}).filter(m => !m.deleted && m.type !== 'journal' && m.type !== 'pointage' && (!docFilter || m.type === docFilter)).sort((a, b) => (b.mois || b.date || '') < (a.mois || a.date || '') ? -1 : 1);
+  const used = [...new Set(Object.values(S.docs || {}).filter(m => !m.deleted && m.type !== 'journal' && m.type !== 'pointage').map(m => m.type))];
   return `
   <div class="group"><div class="gpad">
     <div style="font-weight:700">Mes documents</div>
@@ -1665,20 +1716,21 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 6.0</p>`;
+  <p class="note">Mes Heures, version 7.1</p>`;
 }
 
 function render() {
   flushSet();
   if (!S.settings.mig6 && Object.keys(S.days).length) mig6();
-  const v = $('#view'), isJ = space === 'journal';
+  const v = $('#view'), isJ = space === 'journal', isH = space === 'accueil';
   if (tab === 'journal') tab = 'today';
   document.body.classList.toggle('spj', isJ);
-  document.querySelectorAll('.spc button').forEach(b => b.classList.toggle('on', b.dataset.sp === space));
-  $('.htabs').classList.toggle('hidden', isJ); $('.jtabs').classList.toggle('hidden', !isJ);
+  document.querySelectorAll('.spt button').forEach(b => b.classList.toggle('on', b.dataset.sp === space));
+  { const nm = (S.settings.nom || '').trim(); $('#hdate').textContent = frLong(today()); $('#hname').textContent = isJ && !isH ? 'Journal de bord' : (nm ? 'Bonjour ' + nm.split(/\s+/)[0] : 'Mes Heures'); $('#avatar').textContent = nm ? nm.split(/\s+/).map(x => x[0]).slice(0, 2).join('').toUpperCase() : '⚙'; $('#avatar').classList.toggle('on', !isJ && tab === 'settings'); }
+  $('.htabs').classList.toggle('hidden', isJ || isH); $('.jtabs').classList.toggle('hidden', !isJ); $('.spt').classList.toggle('hidden', isH); $('#homeb').classList.toggle('hidden', isH); document.body.classList.toggle('home', isH);
   document.querySelectorAll('.jtabs button').forEach(b => b.classList.toggle('on', b.dataset.jv === jrView));
-  v.innerHTML = isJ ? vJournal() : tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'docs' ? `<div class="cols"><div>${vDocs()}</div><div>${htmlNotesFinder()}</div></div>` : tab === 'journal' ? vJournal() : vSettings();
-  if (!isJ && tab === 'recap') setTimeout(verifyClosUI, 30);
+  v.innerHTML = isH ? vHome() : isJ ? vJournal() : tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'docs' ? `<div class="cols"><div>${vDocs()}</div><div>${htmlNotesFinder()}</div></div>` : tab === 'journal' ? vJournal() : vSettings();
+  if (!isJ && !isH && tab === 'recap') setTimeout(verifyClosUI, 30);
   document.querySelectorAll('.htabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
   setSync();
 }
@@ -1758,6 +1810,7 @@ function renderSheet() {
     <div class="btns"><button class="btn" data-act="save">Enregistrer</button>${ed.orig ? '<button class="btn danger" data-act="delday">Supprimer cette journée</button>' : ''}</div>
     ${ed.orig ? '<p class="small muted">Supprimer efface la journée entière sur tous vos appareils, sans trace dans l’historique ni dans les relevés : à réserver aux essais et aux erreurs.</p>' : ''}
     ${d.createdAt ? `<p class="small muted">Première saisie le ${stampTxt(d.createdAt)} (visible seulement dans l’application)</p>` : ''}
+    ${ed.orig && (ed.orig.photos || []).length ? `<div class="hist"><div style="border:0;font-weight:700">Preuves photo</div>${ed.orig.photos.map(p => `<div><button class="linkbtn" data-act="ptview" data-pid="${p.id}">📷 ${({in:'Arrivée', pause:'Pause', abs:'Absence', out:'Départ'})[p.kind] || 'Pointage'} à ${esc(p.t)} (${stampTxt(p.at)})</button></div>`).join('')}</div>` : ''}
     ${hist ? `<div class="hist"><div style="border:0;font-weight:700">Historique des modifications</div>${hist}</div>` : ''}
   </div>`;
   sh.classList.remove('hidden');
@@ -2481,7 +2534,7 @@ function fbErr(e) {
 /* ================= Événements ================= */
 document.addEventListener('click', async e => {
   const spb = e.target.closest('[data-sp]');
-  if (spb) { space = spb.dataset.sp; try { localStorage.setItem('mh_space', space); } catch (er) {} render(); window.scrollTo(0, 0); return; }
+  if (spb) { space = spb.dataset.sp; if (space === 'heures' && spb.dataset.t) tab = spb.dataset.t; render(); window.scrollTo(0, 0); return; }
   const jb = e.target.closest('[data-jv]');
   if (jb) { jrView = jb.dataset.jv; render(); window.scrollTo(0, 0); return; }
   const tb = e.target.closest('.htabs button');
@@ -2495,6 +2548,12 @@ document.addEventListener('click', async e => {
     case 'other': { const v = $('#otherDay').value; if (v) openEditor(v); break; }
     case 'shut': closeSheet(); break;
     case 'jrexpress': jrExpress(); break;
+    case 'gosettings': space = 'heures'; try { localStorage.setItem('mh_space', space); } catch (er) {} tab = 'settings'; render(); window.scrollTo(0, 0); break;
+    case 'gotab': tab = b.dataset.t; render(); window.scrollTo(0, 0); break;
+    case 'photopunch': photoPunchOpen(); break;
+    case 'ppk': pp.note = ($('#pp-note') || {}).value || ''; pp.k = b.dataset.k; ppRender(); break;
+    case 'ppsave': ppSave(); break;
+    case 'ptview': try { const m = S.docs[b.dataset.pid] || {id:b.dataset.pid, type:'pointage', date:today()}; await deliver(await docBlob(b.dataset.pid), docName(m), 'image/jpeg'); } catch (er) { toast('Photo indisponible sur cet appareil pour l’instant'); } break;
     case 'jrplan': jrOpen(null, {type:'planning', titre:'Planning de la semaine du ' + frNum(b.dataset.m)}); break;
     case 'jrexport': jrExportOpen('pdf'); break;
     case 'jrbilan': jrExportOpen('bilan'); break;
@@ -2629,6 +2688,7 @@ document.addEventListener('click', async e => {
 });
 document.addEventListener('change', e => {
   if (e.target.classList.contains('jrpv') || e.target.id === 'jrpv-note') { jrSavePreuves(); toast('Enregistré'); }
+  else if (e.target.id === 'pp-file') { const fs = [...e.target.files]; e.target.value = ''; jrAddFiles(fs); }
   else if (e.target.id === 'jr-file') { const fs = [...e.target.files]; e.target.value = ''; jrAddFiles(fs); }
   else if (e.target.id === 'jr-type') { const w = $('#jr-catw'); if (w) w.style.display = e.target.value === 'rappel' ? '' : 'none'; }
 });
@@ -3393,6 +3453,134 @@ function mig6() {
   if (st.mode === 'forfait' && (+st.rachat || 0) < 15) st.rachat = 15;
   st.mig6 = true; st.updatedAt = now; persist(); try { pushSettings(); } catch (e) {}
   if (n) setTimeout(() => toast(n + ' note(s) copiée(s) dans le Journal'), 600);
+}
+/* ================= v7 : tableau de bord, en-tête, pointage avec photo ================= */
+const HMx = x => pad(x.getHours()) + ':' + pad(x.getMinutes());
+const DDx = x => x.toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'numeric'});
+function lastWorkEnd(now) { const iv = allIntervals(addD(today(), -6), today()).filter(x => x[1] <= now); return iv.length ? iv[iv.length - 1][1] : null; }
+function heroHtml(st, d, now, btns) {
+  let label = 'Statut', chip = '', big = '', sub = '', prog = -1, unit = '';
+  const eff = d ? dayEff(d, now) : 0;
+  if (st.k === 'on') {
+    chip = 'Au travail'; big = fmtC(eff); unit = 'travaillées aujourd’hui';
+    const b = bounds(st.ds); const amp = b ? (now - b.st) / 60000 : 0;
+    sub = `Arrivée ${st.since}${st.ds !== today() ? ' (hier)' : ''} · amplitude ${fmtC(amp)}`; prog = Math.min(1, amp / 780);
+  } else if (st.k === 'pause' || st.k === 'abs') {
+    chip = st.k === 'pause' ? 'En pause' : 'Absent'; const p = (now - dt(today(), st.since)) / 60000; big = fmtC(Math.max(0, p)); unit = st.k === 'pause' ? 'de pause' : motifLabel({m:st.m, t:st.t});
+    sub = `Depuis ${st.since} · ${fmtC(eff)} travaillées aujourd’hui`;
+  } else {
+    const td = S.days[today()], restDay = td && !(td.segs || []).length && ['repos', 'ferie', 'rtt', 'recup', 'conge'].includes(td.type);
+    chip = st.k === 'done' ? 'Journée terminée' : restDay ? tLabel(td.type) : 'Pas encore pointé';
+    const last = lastWorkEnd(now);
+    if (last) {
+      const target = restDay ? reqWeekly() : reqDaily(), r = (now - last) / 60000, lim = new Date(last.getTime() + target * 60000);
+      big = fmtC(r); unit = 'de repos sur ' + fmtC(target); prog = Math.min(1, r / target);
+      sub = `Depuis ${DDx(last)} ${HMx(last)} · ` + (r >= target ? `<b>${hTxt(target)} atteintes</b>` : `reprise possible dès <b>${DDx(lim)} ${HMx(lim)}</b>`);
+    } else { big = nowHM(); unit = frLong(today()); }
+  }
+  return `<section class="hero">
+    <div class="hrow"><span class="hlab">${label}</span><span class="hchip">${esc(chip)}</span></div>
+    <div class="hbig num"><b>${big}</b><span>${esc(unit)}</span></div>
+    ${prog >= 0 ? `<div class="hbar"><i style="width:${Math.round(prog * 100)}%"></i></div>` : ''}
+    ${sub ? `<div class="hsub">${sub}</div>` : ''}
+    <div class="hact"><div class="actions">${btns}</div><button class="hcam" data-act="photopunch" aria-label="Pointer avec une photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button></div>
+  </section>`;
+}
+const fmtC = m => { m = Math.max(0, Math.round(m)); return pad(Math.floor(m / 60)) + ':' + pad(m % 60); };
+function kpiHtml(now) {
+  const st = S.settings, w = weekStats(monday(today()), now), forfait = st.mode === 'forfait';
+  const nd = w.days.filter(x => x.d && x.e).length, cards = [];
+  cards.push(`<button class="kpi" data-act="gotab" data-t="week"><span class="kl">Semaine ${isoWeek(today())}</span><b class="num">${fmtC(w.total)}</b><span class="ks">${nd} jour${nd > 1 ? 's' : ''}${w.sup ? ' · <em>+' + fmtC(w.sup) + '</em>' : ''}</span></button>`);
+  if (forfait) { const f = fjStats(); cards.push(`<button class="kpi" data-act="gotab" data-t="recap"><span class="kl">Forfait</span><b class="num">${String(f.worked).replace('.', ',')}<small> / ${f.fj} j</small></b><span class="kbar"><i style="width:${Math.min(100, f.worked / (f.fj || 1) * 100)}%"></i></span></button>`); }
+  else cards.push(`<button class="kpi" data-act="gotab" data-t="recap"><span class="kl">Heures sup. (mois)</span><b class="num">${fmtC(monthStats(new Date().getFullYear(), new Date().getMonth(), now).s25 + monthStats(new Date().getFullYear(), new Date().getMonth(), now).s50)}</b><span class="ks">à +${st.t1} % et +${st.t2} %</span></button>`);
+  const rd = reposDus();
+  if (rd) { const nx = rd.lots.find(l => l.open); cards.push(`<button class="kpi" data-act="gotab" data-t="recap"><span class="kl">À récupérer</span><b class="num">${String(rd.due / 2).replace('.', ',')}<small> j</small></b><span class="ks${rd.due ? ' warn' : ''}">${nx ? '1re échéance ' + frDM(nx.deadline) : 'rien en attente'}</span></button>`); }
+  const c = cpStats(); if (c) { const f = forfait ? fjStats() : null; cards.push(`<button class="kpi" data-act="gotab" data-t="recap"><span class="kl">Congés</span><b class="num">${(Math.round((c.n + cpEnCours()) * 100) / 100).toLocaleString('fr-FR')}<small> j</small></b><span class="ks">${f ? 'RTT acquis : ' + nj(rttAcquis(f)) : 'N-1 : ' + nj(c.n1)}</span></button>`); }
+  return `<div class="kpis">${cards.join('')}</div>`;
+}
+function watchHtml(now) {
+  const mon = monday(today()), rows = [];
+  for (let i = 0; i < 7; i++) { const ds = addD(mon, i); if (ds > today()) break; dayAlerts(ds, now).forEach(a => {
+    let m = a.match(/^Repos de (\S+) depuis la veille/); if (m) return rows.push(['r', 'Repos avant ' + pd(ds).toLocaleDateString('fr-FR', {weekday:'long'}), m[1].replace('h', ':')]);
+    m = a.match(/^Amplitude de (\S+)/); if (m) return rows.push(['o', 'Amplitude ' + pd(ds).toLocaleDateString('fr-FR', {weekday:'long'}), m[1].replace('h', ':')]);
+    m = a.match(/^Plus de 10 h/); if (m) return rows.push(['o', 'Plus de 10 h ' + pd(ds).toLocaleDateString('fr-FR', {weekday:'long'}), fmtC(dayEff(S.days[ds], now))]);
+    rows.push(['r', a, '']);
+  }); }
+  const rw = restWeek(mon); if (restBad(rw)) rows.push(['r', 'Repos hebdomadaire', fmtC(rw.min)]);
+  const wf = S.settings.mode === 'forfait' ? weekForfait(mon) : null; if (wf && wf.missHalf) rows.push(['o', 'Demi-journées de repos à récupérer', String(wf.missHalf)]);
+  if (!rows.length) return '';
+  return `<div class="group watch"><div class="gh" style="display:flex;justify-content:space-between"><span>À surveiller cette semaine</span><span style="color:var(--alert)">${rows.length}</span></div>${rows.map(([k, l, v]) => `<div class="row"><span><i class="wdot ${k}"></i>${esc(l)}</span><span class="v num">${esc(v)}</span></div>`).join('')}</div>`;
+}
+function photosOfDay(ds) {
+  const d = S.days[ds]; if (!d || !(d.photos || []).length) return '';
+  const L = {in:'Arrivée', pause:'Pause', abs:'Absence', out:'Départ', finish:'Fin de journée'};
+  return `<div class="group"><div class="gh">Preuves photo</div>${d.photos.map(p => `<button class="row rowb" data-act="ptview" data-pid="${p.id}"><span>📷 ${L[p.kind] || 'Pointage'} à ${esc(p.t)}</span><span class="v">voir ›</span></button>`).join('')}</div>`;
+}
+/* Pointage avec photo */
+let pp = null;
+function photoPunchOpen() {
+  const st = status();
+  const kinds = st.k === 'on' ? [['pause', 'Pause'], ['out', 'Départ']] : [['in', st.k === 'pause' ? 'Reprise' : st.k === 'abs' ? 'Retour' : 'Arrivée']];
+  pp = {kinds, k:kinds[kinds.length === 2 ? 0 : 0][0], photos:[], note:''};
+  jrEd = {mode:'pp', photos:[], added:[]}; // réutilise le nettoyage des photos abandonnées
+  ppRender(); $('#sheet').classList.remove('hidden');
+}
+function ppRender() {
+  $('#sheet').innerHTML = `<div class="bgd" data-act="shut"></div><div class="pnl"><div class="grip"></div>
+    <div class="shd"><b>Pointer</b><button class="linkbtn" data-act="shut">Fermer</button></div>
+    <div class="segv" style="grid-template-columns:repeat(${pp.kinds.length},1fr)">${pp.kinds.map(([k, l]) => `<button class="${pp.k === k ? 'on' : ''}" data-act="ppk" data-k="${k}">${l}</button>`).join('')}</div>
+    <div style="text-align:center;padding:10px 0 4px"><div class="num" style="font-size:52px;font-weight:700;letter-spacing:-2px;line-height:1" id="ppclock">${nowHM()}</div><div class="small muted" style="margin-top:6px">${frLong(today())} · l’heure est enregistrée au moment de la validation</div></div>
+    <label class="l">Preuve photo (facultatif)</label>
+    <div id="jr-ph" class="jrph"></div>
+    <label class="btn ghost jrfile">📷 Prendre ou choisir une photo<input type="file" id="pp-file" accept="image/*" capture="environment" hidden></label>
+    <p class="small muted">Exemples : l’écran de l’alarme à l’ouverture, le magasin fermé, la badgeuse. La photo est horodatée et liée à ce pointage. Photographiez un lieu ou un écran, jamais une personne.</p>
+    <label class="l" for="pp-note">Note</label><input type="text" id="pp-note" value="${esc(pp.note)}" placeholder="Ex. ouverture demandée par la direction">
+    <div class="btns"><button class="btn" data-act="ppsave">Valider ${({in:'le pointage', pause:'la pause', out:'le départ'})[pp.k]}</button></div></div>`;
+  jrPhotos();
+}
+async function ppSave() {
+  if (!pp) return; const k = pp.k, note = ($('#pp-note') || {}).value || '', photos = jrEd ? jrEd.photos.slice() : [], added = jrEd ? jrEd.added.slice() : [];
+  const ds0 = k === 'in' ? today() : (openSeg() || {}).ds || today(), t = nowHM(), now = new Date().toISOString();
+  jrEd.added = []; jrEd = null; pp = null; $('#sheet').classList.add('hidden');
+  punch(k);
+  const d = S.days[ds0]; if (!d) return;
+  if (photos.length) d.photos = [...(d.photos || []), ...photos.map(id => ({id, kind:k, t, at:now}))];
+  if (note.trim()) { d.notes = [...(d.notes || []), {id:uid(), txt:note.trim(), lv:'info'}]; d.note = d.notes.map(n => n.txt).join(' — '); }
+  for (const a of added) if (photos.includes(a.id)) S.docs[a.id] = {id:a.id, type:'pointage', date:ds0, kind:k, t, mime:'image/jpeg', size:a.size, n:0, addedAt:now, updatedAt:now};
+  d.updatedAt = now; persist(); pushDay(ds0);
+  if (fb.user) photos.forEach(id => pushDoc(id).catch(() => {}));
+  render();
+}
+
+/* ================= Accueil : choix de l'espace ================= */
+function vHome() {
+  const now = new Date(), st = status(), d = S.days[st.ds], w = weekStats(monday(today()), now);
+  let line = '';
+  if (st.k === 'on') line = `Au travail depuis ${st.since} · ${fmtC(dayEff(d, now))} aujourd’hui`;
+  else if (st.k === 'pause') line = `En pause depuis ${st.since}`;
+  else { const last = lastWorkEnd(now); const td = S.days[today()], restDay = td && !(td.segs || []).length && ['repos', 'ferie', 'rtt', 'recup', 'conge'].includes(td.type), tg = restDay ? reqWeekly() : reqDaily(); line = last ? `Repos en cours : ${fmtC((now - last) / 60000)} sur ${fmtC(tg)}` : 'Pas encore pointé aujourd’hui'; }
+  const rd = reposDus(), al = []; for (let i = 0; i < 7; i++) { const ds = addD(monday(today()), i); if (ds <= today()) al.push(...dayAlerts(ds, now)); }
+  const jl = jrList(), todo = jl.filter(f => f.aCompleter).length, tasks = jrTasksOf(today());
+  let tt = 0, td2 = 0; tasks.forEach(f => f.pids.forEach(p => { tt++; if (jrStatus(f, p) === 'fait') td2++; }));
+  return `<div class="homew">
+  <button class="hcard hblue" data-sp="heures" data-t="today">
+    <span class="hctop"><span class="hcic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="hcgo">›</span></span>
+    <span class="hctitle">Mes heures</span>
+    <span class="hcline">${esc(line)}</span>
+    <span class="hcstats"><span><b class="num">${fmtC(w.total)}</b> cette semaine</span>${rd ? `<span><b class="num">${String(rd.due / 2).replace('.', ',')} j</b> à récupérer</span>` : ''}${al.length ? `<span><b class="num">${al.length}</b> alerte${al.length > 1 ? 's' : ''}</span>` : ''}</span>
+  </button>
+  <button class="hcard hteal" data-sp="journal">
+    <span class="hctop"><span class="hcic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6z"/><path d="M6 3v18M9.5 8h5M9.5 12h5M9.5 16h3"/></svg></span><span class="hcgo">›</span></span>
+    <span class="hctitle">Journal de bord</span>
+    <span class="hcline">${tt ? `Tâches du jour : ${td2} / ${tt} faites` : 'Consignes, constats, tâches et personnes'}</span>
+    <span class="hcstats"><span><b class="num">${jl.length}</b> fiche${jl.length > 1 ? 's' : ''}</span>${todo ? `<span><b class="num">${todo}</b> à compléter</span>` : ''}</span>
+  </button>
+  <div class="hmini">
+    <button class="kpi" data-sp="heures" data-t="docs"><span class="kl">Documents</span><span class="ks">Bulletins, contrat, exports</span></button>
+    <button class="kpi" data-sp="heures" data-t="settings"><span class="kl">Réglages</span><span class="ks">Contrat, sauvegarde, code</span></button>
+  </div>
+  <p class="note" style="text-align:center">Mes Heures · tout est sauvegardé ${fb.user ? 'en ligne' : 'sur cet appareil'}</p>
+  </div>`;
 }
 /* ================= Démarrage ================= */
 render();
