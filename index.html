@@ -436,6 +436,61 @@ input:focus,textarea:focus,select:focus{border-color:#0a0a0a;box-shadow:0 0 0 3p
 .hero{background:#0a0a0a}
 #pv .pvbar .btn{background:#fff;color:#0a0a0a}
 .pvtop,.pvbar{background:#0a0a0a}
+/* ===== v10 : appli unifiée ===== */
+.dnav{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;margin:6px 0 10px}
+.dnb{width:42px;height:42px;border:1px solid #d4d4d4;border-radius:50%;background:#fff;font-size:22px;line-height:1;color:#0a0a0a}
+.dnl{position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;cursor:pointer}
+.dnl b{font:500 20px 'Playfair Display',Georgia,serif}
+.dnl span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#737373;font-weight:600;margin-top:2px}
+.dnl input{position:absolute;inset:0;opacity:0;width:100%;height:100%;min-height:0;border:0;padding:0}
+.dsum{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}
+.dsum b{display:block;font-size:22px;font-weight:700}.dsum span{font-size:11.5px;color:#737373;text-transform:uppercase;letter-spacing:.1em}
+.feed .fdl{padding:4px 16px 4px;position:relative}
+.fd{display:grid;grid-template-columns:46px 18px 1fr;align-items:start;width:100%;text-align:left;border:0;background:none;padding:7px 0;color:#0a0a0a;position:relative}
+.fd:before{content:'';position:absolute;left:54px;top:0;bottom:0;width:1px;background:#e8e8e8}
+.ft{font-size:13px;font-weight:700;padding-top:1px}
+.fdot{width:9px;height:9px;border-radius:50%;background:#fff;border:1.5px solid #0a0a0a;margin:4px 0 0 0;position:relative;z-index:1}
+.fdot.f{background:#0a0a0a}
+.fl{font-size:14px;color:#525252}
+.fc .fb{display:flex;flex-direction:column;gap:3px;border:1px solid #e8e8e8;border-radius:12px;padding:10px 12px;background:#fff}
+.fc:active .fb{background:#f5f5f5}
+.fxt{display:flex;flex-wrap:wrap;gap:4px}
+.fxt .tag{font-size:10.5px;padding:2px 7px}
+.tag.niv-imp{border-color:#0a0a0a;font-weight:700}
+.tag.niv-litige{background:#0a0a0a;color:#fff;border-color:#0a0a0a}
+.tag.niv-resolu{color:#737373;text-decoration:line-through}
+.fxx{font-size:13px;color:#525252;line-height:1.35}
+.fxp{font-size:12.5px;color:#737373}
+.fdu{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#737373;font-weight:700;margin:12px 0 2px 64px}
+.thbs{display:flex;gap:5px;margin-top:4px;align-items:center}
+.thb{width:52px;height:52px;border-radius:8px;background:#f2f2f2 center/cover no-repeat;display:block;border:1px solid #e8e8e8}
+.thb.na{background:#f2f2f2}
+.thbs em{font-style:normal;font-size:12px;color:#737373}
+.rcap textarea{min-height:120px;margin-top:8px;line-height:1.45}
+.rch{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.rch b{font:500 18px 'Playfair Display',Georgia,serif}
+.rcl{margin-top:10px;display:flex;flex-direction:column;gap:2px}
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px}
+.fxtop{display:grid;grid-template-columns:1fr auto;gap:8px;margin:4px 0 10px}
+.fxtop input{margin:0}
+.fxfb{width:auto;padding:0 16px;white-space:nowrap}
+.fxchips{margin:0 0 8px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.fxchips .chipb{white-space:nowrap;flex:0 0 auto}
+.chipb.on{background:#0a0a0a!important;color:#fff!important;border-color:#0a0a0a!important}
+.fxbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 10px}
+.fxbar b{font-size:15px}
+.fxexp{width:auto;padding:0 14px;min-height:40px;font-size:14px}
+.fxd{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#737373;font-weight:700;padding:14px 16px 4px}
+.fxr{display:grid;grid-template-columns:46px 1fr 14px;gap:8px;width:100%;text-align:left;background:none;border:0;border-top:1px solid #f0f0f0;padding:11px 16px;color:#0a0a0a}
+.fxr:active{background:#f7f7f7}
+.fxh{font-size:13px;font-weight:700;padding-top:2px}.fxh i{color:#a3a3a3;font-style:normal}
+.fxb{display:flex;flex-direction:column;gap:3px;min-width:0}
+.fxb b{font-size:15px;line-height:1.3}
+.fxc{color:#a3a3a3;align-self:center}
+.vrow{border:1px solid #e8e8e8;border-radius:12px;padding:10px;margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.vh1,.vh2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.vh1 input[type=date]{width:auto;flex:1}.vh1 select,.vh2 select{width:auto;flex:1}
+
 </style>
 </head>
 <body>
@@ -656,7 +711,8 @@ function dayAlerts(ds, now) {
   if (b && b.en && (b.en - b.st)/60000 > 780) out.push('Amplitude de ' + fmt((b.en - b.st)/60000) + ' (plus de 13 h)');
   const p = bounds(addD(ds, -1));
   if (b && p && p.en) { const r = (b.st - p.en)/60000, rq = reqDaily(); if (r < rq) out.push('Repos de ' + fmt(r) + ' depuis la veille (moins de ' + hTxt(rq) + (forfait && r < 660 ? ' ; sous le minimum légal de 11 h' : '') + ')'); }
-  if (forfait && (d.half || (d.q && d.q < 1)) && dayWorkUnits(ds) === 1) out.push('Compté comme journée entière (avenant n° 52 : une demi-journée finit au plus tard à 13 h 30 et est suivie de 18 h de repos)');
+  if (forfait && d.half && d.pm && tCat(d.pm) !== 'travail' && b && b.en && b.en > dt(ds, '13:30')) out.push('Après-midi noté en ' + tLabel(d.pm).toLowerCase() + ', mais travaillé jusqu’à ' + HMx(b.en) + ' : c’est une journée entière selon l’avenant n° 52 (une demi-journée finit au plus tard à 13 h 30)');
+  else if (forfait && (d.half || (d.q && d.q < 1)) && dayWorkUnits(ds) === 1 && !(b && b.en && b.en <= dt(ds, '13:30') && addD(ds, 1) >= today())) out.push('Compté comme journée entière (avenant n° 52 : une demi-journée finit au plus tard à 13 h 30 et est suivie de 18 h de repos)');
   return out.concat(itvAlerts(ds));
 }
 function srcTxt(d) {
@@ -963,61 +1019,49 @@ function sumBanner() {
   return parts.length ? `<div class="sumb num">${parts.join(' · ')}</div>` : '';
 }
 function vToday() {
-  const now = new Date(), st = status(), d = S.days[st.ds];
-  const eff = d ? dayEff(d, now) : 0, pau = d ? dayPause(d) : 0;
-  const w = weekStats(monday(today()), now), base = S.settings.base*60;
-  const lab = {
-    off: 'Pas encore pointé aujourd’hui',
-    on: 'Au travail depuis ' + st.since + (st.ds !== today() ? ' (hier)' : ''),
-    pause: 'En pause depuis ' + st.since,
-    abs: 'Absent depuis ' + st.since + ' (' + motifLabel({m:st.m, t:st.t}) + ')',
-    done: 'Journée terminée'
-  }[st.k];
-  let btns = '';
-  if (st.k === 'off') btns = `<button class="pbtn in wide" data-act="in">Arrivée<small>pointer maintenant</small></button>`;
-  if (st.k === 'on') btns = `<button class="pbtn pause" data-act="pause">Pause<small>repas, coupure</small></button><button class="pbtn out" data-act="out">Départ<small>fin de journée</small></button><button class="pbtn soft wide" data-act="absp">Absence<small>rendez-vous, démarche…</small></button>`;
-  if (st.k === 'abs') btns = `<button class="pbtn in" data-act="in">Retour<small>fin de l’absence</small></button><button class="pbtn soft" data-act="finish">Terminer la journée</button>`;
-  if (st.k === 'pause') btns = `<button class="pbtn in" data-act="in">Reprise<small>après la pause</small></button><button class="pbtn soft" data-act="finish">Terminer la journée</button>`;
-  if (st.k === 'done') btns = `<button class="pbtn soft wide" data-act="in">Reprendre le travail<small>rappel, imprévu</small></button>`;
-  const tot = Math.max(w.total, base) || 1;
-  const typeTag = d && (d.half || d.type !== 'travail') ? `<p><span class="tag">${esc(dayTypeTxt(d))}</span></p>` : '';
-  const banner = sumBanner();
-  const hc = inContract(today()) ? '' : `<div class="alert">Aujourd’hui est en dehors de la période du contrat indiquée dans Réglages : les heures ne seront pas comptées.</div>`;
-  const al = dayAlerts(st.ds, now).concat(w.over48 ? ['Plus de 48 h travaillées cette semaine'] : []);
+  const now = new Date(), st = status(), ds = dayDs || today(), isT = ds === today();
+  const d = isT ? S.days[st.ds] : S.days[ds], dd = S.days[ds];
+  const eff = dd ? dayEff(dd, now) : 0, pau = dd ? dayPause(dd) : 0, b = dd ? bounds(ds) : null;
+  const w = weekStats(monday(today()), now), base = S.settings.base * 60, tot = Math.max(w.total, base) || 1;
+  const long = pd(ds).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+  const hc = inContract(ds) ? '' : `<div class="alert">Ce jour est en dehors de la période du contrat indiquée dans Réglages : les heures ne seront pas comptées.</div>`;
+  const al = dayAlerts(ds, now).concat(isT && w.over48 ? ['Plus de 48 h travaillées cette semaine'] : []);
+  const typeTag = dd && (dd.half || dd.type !== 'travail') ? `<span class="tag">${esc(dayTypeTxt(dd))}</span>` : '';
+  const top = isT ? `${dialHtml(st, d, now)}${punchBtns(st)}
+    <section class="punch">
+      <button class="btn ghost" data-act="edit" data-ds="${st.ds}">Saisir ou corriger mes horaires</button>
+      <div class="btns two" style="margin-top:10px"><button class="btn ghost" data-act="itvq">Alarme / intervention</button><button class="btn ghost" data-act="solq">Appel / message hors temps</button></div>
+    </section>${watchHtml(now)}`
+    : `<div class="group"><div class="gpad">
+      <div class="dsum num"><div><b>${dd && dd.segs.length ? fmt(eff) : '—'}</b><span>travaillé</span></div><div><b>${b && b.en ? fmt((b.en - b.st) / 60000) : '—'}</b><span>amplitude</span></div><div><b>${dd && dd.segs.length ? fmt(pau) : '—'}</b><span>pauses</span></div></div>
+      ${typeTag ? `<p style="margin:10px 0 0">${typeTag}</p>` : ''}
+      <button class="btn ghost" style="margin-top:12px" data-act="edit" data-ds="${ds}">${dd ? 'Corriger les horaires de ce jour' : 'Saisir les horaires de ce jour'}</button>
+    </div></div>`;
   return `
+  <div class="dnav"><button class="dnb" data-act="dprev" aria-label="Jour précédent">‹</button>
+    <label class="dnl"><b>${esc(long.charAt(0).toUpperCase() + long.slice(1))}</b><span>${isT ? 'aujourd’hui' : 'changer de jour'}</span><input type="date" id="dpick" value="${ds}"></label>
+    <button class="dnb" data-act="dnext" aria-label="Jour suivant">›</button></div>
+  ${!isT ? '<button class="mlink" style="margin:0 auto 6px" data-act="dtoday">Revenir à aujourd’hui</button>' : ''}
   <div class="cols"><div>
-  ${dialHtml(st, d, now)}
-  ${punchBtns(st)}
-  <section class="punch">
-    <button class="btn ghost" data-act="edit" data-ds="${st.ds}">Saisir ou corriger mes horaires</button>
-    <div class="btns two" style="margin-top:10px"><button class="btn ghost" data-act="itvq">Alarme / intervention</button><button class="btn ghost" data-act="solq">Appel / message hors temps</button></div>
-  </section>
-  ${hc}${watchHtml(now)}${photosOfDay(st.ds)}
-  </div><div>
-  <div class="group">
-    <div class="gpad">${timeline(d, now)}<div class="tl-scale num"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span></div></div>
-    <div class="stats num">
-      <div><b>${fmt(eff)}</b><span>travaillé</span></div>
-      <div><b>${fmt(pau)}</b><span>pauses</span></div>
-      <div><b>${fmt(d ? dayAbs(d).reduce((a, g) => a + g.m, 0) : 0)}</b><span>absences</span></div>
-    </div>
-  </div>
-  <div class="group">
+  ${top}
+  ${hc}
+  ${isT && dd && dd.half && tCat(dd.pm) !== 'travail' && b && b.en && b.en <= dt(ds, '13:30') ? `<div class="alert">Demi-journée de repos cet après-midi : pour qu’elle compte comme telle, reprise au plus tôt ${DDx(new Date(b.en.getTime() + 1080 * 60000))} à ${HMx(new Date(b.en.getTime() + 1080 * 60000))} (18 h de repos après ${HMx(b.en)}, avenant n° 52).</div>` : ''}
+  ${al.length && !isT ? `<div class="group"><div class="gh">Alertes</div>${al.map(a => `<div class="row"><span class="small">${esc(a)}</span></div>`).join('')}</div>` : ''}
+  ${photosOfDay(ds)}
+  ${isT ? `<div class="group">
     <div class="gh">Semaine ${isoWeek(today())}${S.settings.mode === 'forfait' ? ' (heures, base 35 h)' : ''}</div>
     <div class="gpad" style="padding-top:4px">
-      <div class="bar"><i class="n" style="width:${Math.min(w.total, base)/tot*100}%"></i><i class="x" style="width:${w.sup/tot*100}%"></i></div>
-      <div class="small muted num">${fmt(w.total)} sur ${fmt(base)} de référence</div>
-    </div>
-    <div class="row sup"><span>Heures sup. à +${S.settings.t1} %</span><span class="v num">${fmt(w.s25)}</span></div>
-    <div class="row sup"><span>Heures sup. à +${S.settings.t2} %</span><span class="v num">${fmt(w.s50)}</span></div>
+      <div class="bar"><i class="n" style="width:${Math.min(w.total, base) / tot * 100}%"></i><i class="x" style="width:${w.sup / tot * 100}%"></i></div>
+      <div class="small muted num">${fmt(w.total)} sur ${fmt(base)} de référence · ${fmt(w.sup)} au-delà</div>
+    </div></div>` : ''}
+  </div><div>
+  <div class="group">
+    <div class="gpad">${timeline(dd, isT ? now : null)}<div class="tl-scale num"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span></div></div>
   </div>
-  <div class="group"><div class="gpad">
-    <label class="l" for="otherDay" style="margin-top:0">Saisir un autre jour</label>
-    <div class="two"><input type="date" id="otherDay" value="${addD(today(), -1)}"><button class="btn ghost" data-act="other">Ouvrir</button></div>
-  </div></div>
+  ${htmlFeed(ds)}
+  ${htmlRecap(ds)}
   </div></div>`;
 }
-
 function vWeek() {
   const now = new Date(), w = weekStats(weekMon, now), st = S.settings, forfait = st.mode === 'forfait';
   const cur = weekMon === monday(today()), rw = restWeek(weekMon), wf = forfait ? weekForfait(weekMon) : null;
@@ -1036,10 +1080,10 @@ function vWeek() {
       if (d.ast) parts.push('<span class="tag">astreinte</span>');
       if ((d.itv || []).length) parts.push(`<span class="tag warn">${d.itv.length > 1 ? d.itv.length + ' interventions' : 'intervention'}</span>`);
       if ((d.sol || []).length) parts.push(`<span class="tag">${d.sol.length} appel${d.sol.length > 1 ? 's' : ''}</span>`);
-      if (dayNotes(d).length) parts.push(`<span class="ndots">${noteDots(d)}</span>`);
       if (al.length) parts.push(`<span class="tag warn">${al.length > 1 ? al.length + ' alertes' : 'alerte'}</span>`);
     }
     if (jrList().some(f => f.date === ds && f.type === 'horaire')) parts.push('<span class="tag warn">horaire imposé</span>');
+    { const nf = jrOfDay(ds).length; if (nf) parts.push(`<span class="tag">${nf} fiche${nf > 1 ? 's' : ''}</span>`); }
     if (empty && ds < today() && inContract(ds) && (st.debut || d)) parts.push('<span class="tag warn">à compléter</span>');
     mid = parts.join(' ') || '<span class="muted">—</span>';
     const sel = d && !d.half && !d.segs.length ? (d.type === 'travail' ? (d.q ? 'travail' : '') : d.type) : '';
@@ -1111,27 +1155,28 @@ function repasDed(r) {
   v -= (+st.repasEmp || 0); return Math.max(0, v);
 }
 function fiscalStats(a, b) {
-  const st = S.settings, o = {kmT:0, kmI:0, rep:0, repDed:0, jours:0, months:{}};
+  const st = S.settings, o = {kmT:0, kmI:0, rep:0, repDed:0, jours:0, months:{}}, kv = {};
   for (let ds = a; ds <= b; ds = addD(ds, 1)) {
     const d = S.days[ds]; if (!d || !inContract(ds)) continue;
     const mk = ds.slice(0, 7), M = o.months[mk] = o.months[mk] || {kmT:0, kmI:0, rep:0, repDed:0, jours:0};
     const u = catUnits(d, 'travail');
-    if (u > 0 && d.trajet !== false) { const k = d.kmJour !== undefined && d.kmJour !== '' && d.kmJour !== null ? +d.kmJour : 2 * (+st.kmAller || 0); o.kmT += k; M.kmT += k; }
+    const sh = vehShares(ds);
+    if (u > 0 && d.trajet !== false) { const k = d.kmJour !== undefined && d.kmJour !== '' && d.kmJour !== null ? +d.kmJour : 2 * Math.min(40, +st.kmAller || 0); o.kmT += k; M.kmT += k; sh.forEach(([i, p]) => kv[i] = (kv[i] || 0) + k * p); }
     o.jours += u; M.jours += u;
-    (d.itv || []).forEach(v => { o.kmI += +v.km || 0; M.kmI += +v.km || 0; });
+    (d.itv || []).forEach(v => { o.kmI += +v.km || 0; M.kmI += +v.km || 0; sh.forEach(([i, p]) => kv[i] = (kv[i] || 0) + (+v.km || 0) * p); });
     const r = repasOf(d); if (r) { const x = repasDed(r); o.rep++; o.repDed += x; M.rep++; M.repDed += x; }
   }
-  o.km = o.kmT + o.kmI; o.kmVal = bareme(o.km, st.cv, st.elec); o.total = o.kmVal + o.repDed;
+  o.km = o.kmT + o.kmI; o.maj = +a.slice(0, 4) >= 2026 ? 1.1 : 1; o.veh = vehList().map((v, i) => ({...v, km:kv[i] || 0, val:bareme(kv[i] || 0, v.cv, v.elec) * o.maj})).filter(v => v.km > 0); o.kmVal = o.veh.reduce((a, v) => a + v.val, 0); o.total = o.kmVal + o.repDed;
   return o;
 }
 function htmlFiscal(y) {
   const st = S.settings, a = `${y}-01-01`, b0 = `${y}-12-31`, b = b0 > today() ? today() : b0, f = fiscalStats(a, b);
-  const ni = +((S.paie[`${y}-12`] || {}).ni) || +st.niAnnuel || 0, abat = ni ? Math.min(Math.max(ni * .1, 504), 14426) : 0;
+  const ni = +((S.paie[`${y}-12`] || {}).ni) || +st.niAnnuel || 0, abat = ni ? Math.min(Math.max(ni * .1, 509), 14555) : 0;
   return `<div class="group">
     <div class="gh">Frais réels ${y} (impôts)${b < b0 ? ' au ' + frNum(b) : ''}</div>
     <div class="row"><span>Kilomètres domicile–travail</span><span class="v num">${Math.round(f.kmT).toLocaleString('fr-FR')} km</span></div>
     <div class="row"><span>Kilomètres des interventions</span><span class="v num">${Math.round(f.kmI).toLocaleString('fr-FR')} km</span></div>
-    <div class="row"><span>Barème kilométrique (${st.cv} CV${st.elec ? ', électrique' : ''})</span><span class="v num">${eur(f.kmVal)}</span></div>
+    ${f.veh.map(v => `<div class="row"><span>Barème ${v.cv} CV${v.elec ? ', électrique (+20 %)' : ', thermique'}${f.veh.length > 1 ? ' : ' + Math.round(v.km).toLocaleString('fr-FR') + ' km' + (v.from ? ' depuis le ' + frNum(v.from) + (v.pm ? ' au soir' : '') : '') : ''}</span><span class="v num">${eur(v.val)}</span></div>`).join('')}${f.maj > 1 ? '<p class="note">Barème des revenus 2026 relevé de 10 % (hausse votée par les députés, pas encore définitive : à vérifier au printemps 2027).</p>' : ''}${f.veh.length ? '' : `<div class="row"><span>Barème kilométrique</span><span class="v num">${eur(0)}</span></div>`}
     <div class="row"><span>Repas hors domicile (${f.rep})</span><span class="v num">${eur(f.repDed)}</span></div>
     <div class="row sup"><span>Total des frais réels</span><span class="v num">${eur(f.total)}</span></div>
     ${ni ? `<div class="row"><span>Abattement de 10 % (net imposable ${eur(ni)})</span><span class="v num">${eur(abat)}</span></div>
@@ -1513,6 +1558,7 @@ function htmlForfait() {
       <div class="small muted num">${nj(f.worked)} travaillés sur ${f.fj}${f.fjProrata ? ' (prorata de la période)' : f.fjOv ? ' (chiffre employeur)' : ''}</div>
     </div>
     <div class="row"><span>Jours restant à travailler</span><span class="v num">${nj(f.rest)}</span></div>
+    ${htmlRealDays(f)}
     ${f.proj ? `<div class="row"><span>À ce rythme, forfait atteint le</span><span class="v num">${frNum(f.proj)}</span></div>` : ''}
     ${f.over ? `<div class="row sup"><span>Jours au-delà du forfait</span><span class="v num">${nj(f.over)}</span></div>
       ${f.jour ? `<div class="row sup"><span>Valeur (1 jour = ${eur(f.jour)}, +${st.rachat} %)</span><span class="v num">${eur(f.overVal)}</span></div>` : ''}` : ''}
@@ -1640,7 +1686,6 @@ function htmlSettingsV3() {
     <div class="two">
       <div><label class="l" for="s-km">Distance domicile–travail (km, aller)</label><input type="text" inputmode="decimal" id="s-km" value="${st.kmAller}"></div>
       <div><label class="l" for="s-tm">Durée du trajet (min, aller)</label><input type="text" inputmode="decimal" id="s-tm" value="${st.trajetMin}"></div>
-      <div><label class="l" for="s-cv">Puissance fiscale</label><select id="s-cv">${[3, 4, 5, 6, 7].map(c => `<option value="${c}" ${+st.cv === c ? 'selected' : ''}>${c === 3 ? '3 CV et moins' : c === 7 ? '7 CV et plus' : c + ' CV'}</option>`).join('')}</select></div>
       <div><label class="l" for="s-rpx">Prix habituel d’un repas (€)</label><input type="text" inputmode="decimal" id="s-rpx" value="${st.repasPrix}" placeholder="facultatif"></div>
       <div><label class="l" for="s-remp">Part employeur par repas (€)</label><input type="text" inputmode="decimal" id="s-remp" value="${st.repasEmp}"></div>
       <div><label class="l" for="s-rfo">Valeur repas au foyer (€)</label><input type="text" inputmode="decimal" id="s-rfo" value="${st.repasFoyer}"></div>
@@ -1648,7 +1693,7 @@ function htmlSettingsV3() {
       <div><label class="l" for="s-ni">Net imposable annuel (€)</label><input type="text" inputmode="decimal" id="s-ni" value="${st.niAnnuel}" placeholder="estimation"></div>
       <div><label class="l" for="s-ast">Compensation par astreinte (€)</label><input type="text" inputmode="decimal" id="s-ast" value="${st.astMontant}"></div>
     </div>
-    <label class="check"><input type="checkbox" id="s-elec" ${st.elec ? 'checked' : ''}><span>Véhicule 100 % électrique (barème +20 %)</span></label>
+    ${htmlVehs()}
     <label class="check"><input type="checkbox" id="s-rauto" ${st.repasAuto ? 'checked' : ''}><span>Compter automatiquement un repas hors domicile par journée travaillée</span></label>
     <p class="small muted">Barème kilométrique inchangé depuis 2023 ; valeur du repas au foyer : 5,45 € pour les revenus 2025. Ces valeurs changent chaque année : vérifiez-les sur impots.gouv.fr.</p>
   </div></div>
@@ -1689,7 +1734,7 @@ function readSettingsV3() {
   st.dimReg = numIn($('#s-dr').value); st.dimOcc = numIn($('#s-do').value); st.ferPct = numIn($('#s-fp').value);
   st.maskMotif = $('#s-mask').checked;
   st.fjOv = st.fjOv || {}; const fo = $('#s-fjov').value.trim(); if (fo === '') delete st.fjOv[p.start]; else st.fjOv[p.start] = numIn(fo);
-  st.kmAller = numIn($('#s-km').value); st.trajetMin = numIn($('#s-tm').value); st.cv = +$('#s-cv').value; st.elec = $('#s-elec').checked;
+  st.kmAller = numIn($('#s-km').value); st.trajetMin = numIn($('#s-tm').value); readVehs(st);
   st.repasPrix = $('#s-rpx').value.trim() === '' ? '' : numIn($('#s-rpx').value); st.repasEmp = numIn($('#s-remp').value); st.repasFoyer = numIn($('#s-rfo').value);
   st.repasLimite = $('#s-rlim').value.trim() === '' ? '' : numIn($('#s-rlim').value); st.niAnnuel = $('#s-ni').value.trim() === '' ? '' : numIn($('#s-ni').value);
   st.astMontant = numIn($('#s-ast').value); st.repasAuto = $('#s-rauto').checked;
@@ -1876,23 +1921,24 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 9.1</p>`;
+  <p class="note">Mes Heures, version 10.0</p>`;
 }
 
 function render() {
   flushSet();
   if (!S.settings.mig6 && Object.keys(S.days).length) mig6();
+  if (!S.settings.mig10 && Object.keys(S.days).length) mig10();
   const v = $('#view'), isJ = space === 'journal', isH = space === 'accueil';
   if (tab === 'journal') tab = 'today';
-  document.body.classList.toggle('spj', isJ);
+  document.body.classList.toggle('spj', false);
 
-  { const nm = (S.settings.nom || '').trim(); $('#hdate').textContent = (d => d.charAt(0).toUpperCase() + d.slice(1))(pd(today()).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'})); $('#hname').textContent = isJ ? 'Journal de bord' : (nm ? 'Bonjour ' + nm.split(/\s+/)[0] : 'Mes Heures'); $('#avatar').textContent = nm ? nm.split(/\s+/).map(x => x[0]).slice(0, 2).join('').toUpperCase() : 'MH'; const t0 = sectionTitle(); $('#mwm').textContent = t0 || 'MES HEURES'; $('#mwm').classList.toggle('sec', !!t0); $('#avatar').classList.toggle('on', !isJ && tab === 'settings'); }
+  { const nm = (S.settings.nom || '').trim(); $('#hdate').textContent = (d => d.charAt(0).toUpperCase() + d.slice(1))(pd(today()).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'})); $('#hname').textContent = (nm ? 'Bonjour ' + nm.split(/\s+/)[0] : 'Mes Heures'); $('#avatar').textContent = nm ? nm.split(/\s+/).map(x => x[0]).slice(0, 2).join('').toUpperCase() : 'MH'; const t0 = sectionTitle(); $('#mwm').textContent = t0 || 'MES HEURES'; $('#mwm').classList.toggle('sec', !!t0); $('#avatar').classList.toggle('on', !isJ && tab === 'settings'); }
   $('.htabs').classList.add('hidden'); $('.jtabs').classList.add('hidden'); menuClose(); document.body.classList.toggle('home', isH);
   document.querySelectorAll('.jtabs button').forEach(b => b.classList.toggle('on', b.dataset.jv === jrView));
-  v.innerHTML = isH ? vHome() : isJ ? vJournal() : tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'docs' ? `<div class="cols"><div>${vDocs()}</div><div>${htmlNotesFinder()}</div></div>` : tab === 'journal' ? vJournal() : vSettings();
+  v.innerHTML = isH ? vHome() : isJ ? vJournal() : tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'docs' ? vDocs() : tab === 'journal' ? vJournal() : vSettings();
   if (!isJ && !isH && tab === 'recap') setTimeout(verifyClosUI, 30);
   document.querySelectorAll('.htabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  setSync();
+  setSync(); setTimeout(fillThumbs, 20);
 }
 
 /* ================= Éditeur de journée ================= */
@@ -1954,9 +2000,8 @@ function renderSheet() {
     <p class="small muted">Saisissez quand vous voulez, même plus tard. Laissez le départ vide si vous êtes encore au travail. Une absence (rendez-vous, démarche…) n’est pas une pause : elle est notée avec son motif.${src ? ' Mode de saisie : ' + esc(src) + '.' : ''}</p>
     ${sunday ? `<label class="check"><input type="checkbox" id="e-dimocc" ${d.dimOcc ? 'checked' : ''}><span>Dimanche travaillé exceptionnellement (majoration occasionnelle)</span></label>` : ''}
     <label class="l" for="e-lieu">Lieu de travail (si différent de l’habituel)</label><input type="text" id="e-lieu" value="${esc(d.lieu)}" placeholder="Ex. autre magasin, formation, réunion à la centrale…">
-    <label class="l">Notes</label>
-    ${notesEditor(d)}
-    <button class="btn ghost" data-act="addnote">Ajouter une note</button>
+    <label class="l">Fiches de ce jour</label>
+    <p class="small muted" style="margin:2px 0 0">${jrOfDay(ed.ds).length ? jrOfDay(ed.ds).length + ' fiche(s) ce jour-là. ' : ''}Les notes sont maintenant des fiches, avec heure et photos : ajoutez-les depuis « Ma journée ».</p>
     <label class="l">Hors temps de travail</label>
     <label class="check" style="margin:0 0 8px"><input type="checkbox" id="e-ast" ${d.ast ? 'checked' : ''}><span>Astreinte ce jour ou cette nuit</span></label>
     ${(d.itv || []).map((v, i) => `<div class="xrow itvrow" data-i="${i}"><b class="small">Intervention ${i + 1}</b>${itvFields(v)}<button class="linkbtn" style="color:var(--alert)" data-act="delitv" data-i="${i}">Supprimer cette intervention</button></div>`).join('')}
@@ -2330,7 +2375,7 @@ async function exportPdf() {
     if (!d) return [wd, '', '', '', '', '', ''];
     const e = dayEff(d);
     const ab = dayAbs(d), pz = [dayPause(d) ? fmt(dayPause(d)) : '', ab.length ? 'abs. ' + fmt(ab.reduce((a, g) => a + g.m, 0)) : ''].filter(Boolean).join('\n');
-    return [wd, dayTypeTxt(d, true), sorted(d).map(s => s.d + ' – ' + (s.f || '…')).join('\n'), pz, d.segs.length ? fmt(e) : '', srcTxt(d), [absTxt(d, true), extrasTxt(d, true), d.lieu, notesTxt(d)].filter(Boolean).join(' — ')];
+    return [wd, dayTypeTxt(d, true), sorted(d).map(s => s.d + ' – ' + (s.f || '…')).join('\n'), pz, d.segs.length ? fmt(e) : '', srcTxt(d), [absTxt(d, true), extrasTxt(d, true), d.lieu, releveNotes(ds)].filter(Boolean).join(' — ')];
   });
   ys = sect('Détail jour par jour');
   T({startY:ys, head:[['Date', 'Type', 'Horaires', 'Pauses', 'Travaillé', 'Saisie', 'Lieu / note']], body,
@@ -2519,7 +2564,7 @@ async function exportFiscal(yr) {
     foot:[['Total', nj(f.jours), Math.round(f.kmT) + ' km', Math.round(f.kmI) + ' km', String(f.rep), eur(f.repDed)]], footStyles:{fillColor:[235, 239, 246], textColor:0, fontStyle:'bold'}, didParseCell:h => { h.cell.styles.halign = h.column.index ? 'right' : 'left'; }});
   const ni = +((S.paie[`${yr}-12`] || {}).ni) || +st.niAnnuel || 0;
   const syn = [['Kilomètres totaux', Math.round(f.km).toLocaleString('fr-FR') + ' km'], ['Frais kilométriques (barème)', eur(f.kmVal)], ['Frais de repas', eur(f.repDed)], ['Total des frais réels', eur(f.total)]];
-  if (ni) { const ab = Math.min(Math.max(ni * .1, 504), 14426); syn.push(['Abattement forfaitaire de 10 % (environ)', eur(ab)], ['Option la plus favorable', f.total > ab ? 'frais réels' : 'abattement de 10 %']); }
+  if (ni) { const ab = Math.min(Math.max(ni * .1, 509), 14555); syn.push(['Abattement forfaitaire de 10 % (environ)', eur(ab)], ['Option la plus favorable', f.total > ab ? 'frais réels' : 'abattement de 10 %']); }
   T({startY:doc.lastAutoTable.finalY + 8, body:syn, theme:'plain', styles:{fontSize:10, cellPadding:1.8}, columnStyles:{0:{cellWidth:120}, 1:{fontStyle:'bold', halign:'right'}}});
   const docs = Object.values(S.docs || {}).filter(m => !m.deleted && m.type === 'ticket' && (m.date || '').startsWith(String(yr)));
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(110, 118, 130);
@@ -2538,7 +2583,7 @@ async function exportCsv() {
     const d = S.days[ds];
     if (!d) { rows.push([frNum(ds), frDay(ds)]); return; }
     const e = dayEff(d);
-    const mj = dayMaj(d); rows.push([frNum(ds), frDay(ds), dayTypeTxt(d, true), String(catUnits(d, 'travail')).replace('.', ','), segTxt(d), dayPause(d) ? fmt(dayPause(d)) : '', absTxt(d, true), d.segs.length ? fmt(e) : '', d.segs.length ? dec(e) : '', mj.nuitTot ? fmt(mj.nuitTot) : '', mj.dim ? fmt(mj.dim) : '', mj.fer ? fmt(mj.fer) : '', extrasTxt(d, true), d.ast ? 'oui' : '', (catUnits(d, 'travail') > 0 && d.trajet !== false ? (d.kmJour != null && d.kmJour !== '' ? +d.kmJour : 2 * (+st.kmAller || 0)) : 0) + (d.itv || []).reduce((a, v) => a + (+v.km || 0), 0) || '', repasOf(d) ? 'oui' : '', srcTxt(d), d.lieu, notesTxt(d), dayAlerts(ds).join(' / ')]);
+    const mj = dayMaj(d); rows.push([frNum(ds), frDay(ds), dayTypeTxt(d, true), String(catUnits(d, 'travail')).replace('.', ','), segTxt(d), dayPause(d) ? fmt(dayPause(d)) : '', absTxt(d, true), d.segs.length ? fmt(e) : '', d.segs.length ? dec(e) : '', mj.nuitTot ? fmt(mj.nuitTot) : '', mj.dim ? fmt(mj.dim) : '', mj.fer ? fmt(mj.fer) : '', extrasTxt(d, true), d.ast ? 'oui' : '', (catUnits(d, 'travail') > 0 && d.trajet !== false ? (d.kmJour != null && d.kmJour !== '' ? +d.kmJour : 2 * (+st.kmAller || 0)) : 0) + (d.itv || []).reduce((a, v) => a + (+v.km || 0), 0) || '', repasOf(d) ? 'oui' : '', srcTxt(d), d.lieu, releveNotes(ds), dayAlerts(ds).join(' / ')]);
   });
   rows.push([]);
   rows.push(['Semaine', 'Du', 'Au', 'Travaillé', 'Absences comptées', 'Total', 'Normales', `Sup. +${st.t1} %`, `Sup. +${st.t2} %`, `Sup. +${st.t1} % (déc.)`, `Sup. +${st.t2} % (déc.)`, 'Taux horaire (€)', 'Valeur brute (€)']);
@@ -2708,7 +2753,7 @@ function fbErr(e) {
 /* ================= Événements ================= */
 document.addEventListener('click', async e => {
   const spb = e.target.closest('[data-sp]');
-  if (spb) { space = spb.dataset.sp; if (space === 'heures' && spb.dataset.t) tab = spb.dataset.t; if (space === 'journal' && spb.dataset.jv) jrView = spb.dataset.jv; render(); window.scrollTo(0, 0); return; }
+  if (spb) { space = spb.dataset.sp; if (space === 'heures' && spb.dataset.t) { tab = spb.dataset.t; if (tab === 'today') dayDs = null; } if (space === 'journal' && spb.dataset.jv) jrView = spb.dataset.jv; render(); window.scrollTo(0, 0); return; }
   const jb = e.target.closest('[data-jv]');
   if (jb) { jrView = jb.dataset.jv; render(); window.scrollTo(0, 0); return; }
   const tb = e.target.closest('.htabs button');
@@ -2906,14 +2951,14 @@ function saveSettings() {
   st.updatedAt = new Date().toISOString(); persist(); pushSettings(); return true;
 }
 function keepScroll(f) { const y = window.scrollY; f(); requestAnimationFrame(() => window.scrollTo(0, y)); }
-const isSetField = t => tab === 'settings' && t && t.closest && t.closest('#view') && ((t.id || '').startsWith('s-') || t.name === 's-mode' || t.classList.contains('s-fc') || t.classList.contains('nb-a') || t.classList.contains('nb-z') || t.classList.contains('nb-p'));
+const isSetField = t => tab === 'settings' && t && t.closest && t.closest('#view') && ((t.id || '').startsWith('s-') || t.name === 's-mode' || t.classList.contains('s-fc') || t.classList.contains('nb-a') || t.classList.contains('nb-z') || t.classList.contains('nb-p') || t.classList.contains('vh'));
 /* Sur iPhone, quitter un champ en touchant un bouton ne déclenche pas toujours « change » :
    on enregistre donc aussi pendant la frappe, et juste avant tout changement d'écran. */
 let setTimer = null;
-function flushSet() { if (!setTimer) return; clearTimeout(setTimer); setTimer = null; if ($('#s-cv')) saveSettings(); }
+function flushSet() { if (!setTimer) return; clearTimeout(setTimer); setTimer = null; if ($('#s-km')) saveSettings(); }
 document.addEventListener('input', e => {
   if (!isSetField(e.target)) return;
-  clearTimeout(setTimer); setTimer = setTimeout(() => { setTimer = null; if ($('#s-cv')) saveSettings(); }, 600);
+  clearTimeout(setTimer); setTimer = setTimeout(() => { setTimer = null; if ($('#s-km')) saveSettings(); }, 600);
 });
 document.addEventListener('change', e => {
   if (!isSetField(e.target)) return;
@@ -2933,46 +2978,55 @@ const JR_TYPES = {
   horaire:{l:'Horaire imposé', c:'#1f7a8c'},
   planning:{l:'Planning annoncé', c:'#4a5568'},
   tableau:{l:'Photo du tableau du jour', c:'#6b7280'},
-  evenement:{l:'Événement / incident', c:'#9a3412'}
+  evenement:{l:'Événement / incident', c:'#9a3412'},
+  jour:{l:'Note de journée', c:'#0a0a0a'},
+  perso:{l:'Note personnelle', c:'#0a0a0a'}
 };
-const JR_EXPRESS = ['consigne', 'constat', 'evenement', 'rappel', 'obstacle', 'horaire', 'tableau'];
+const JR_EXPRESS = ['constat', 'evenement', 'consigne', 'horaire', 'rappel', 'jour', 'obstacle', 'tableau'];
 const JR_CATS_DEF = ['EPI', 'Présence au poste', 'Bavardages', 'Téléphone', 'Autre'];
-const JR_FIELDS = ['type', 'date', 'heure', 'titre', 'texte', 'personnes', 'temoins', 'cat', 'lien', 'photos', 'aCompleter', 'limite', 'direction'];
+const JR_FIELDS = ['type', 'date', 'heure', 'titre', 'texte', 'personnes', 'temoins', 'cat', 'lien', 'photos', 'aCompleter', 'limite', 'direction', 'niv'];
 let jrEd = null, jrFilter = '', jrSearch = '';
 const jrCats = () => (S.settings.jrCats && S.settings.jrCats.length ? S.settings.jrCats : JR_CATS_DEF);
 const jrList = () => Object.values(S.jr || {}).filter(f => !f.deleted);
 const jrSortKey = f => (f.date || '') + ' ' + (f.heure || '00:00') + ' ' + (f.createdAt || '');
 const jrTag = t => `<span class="tag">${esc((JR_TYPES[t] || {}).l || t)}</span>`;
-function jrTitle(f) { return f.titre || (f.texte || '').split('\n')[0].slice(0, 70) || (JR_TYPES[f.type] || {}).l || 'Fiche'; }
-function jrPick(f) { const o = {}; JR_FIELDS.forEach(k => o[k] = clone(f[k] ?? (k === 'photos' ? [] : k === 'aCompleter' ? false : ''))); return o; }
+function jrTitle(f) { let t = (f.titre || '').trim(); const first = (f.texte || '').split('\n')[0].trim(); if (!t || (first.startsWith(t) && first.length > t.length)) { t = first; if (t.length > 80) t = t.slice(0, 80).replace(/\s+\S*$/, '') + '…'; } return t || (JR_TYPES[f.type] || {}).l || 'Fiche'; }
+function jrExcerpt(f, n) { let x = (f.texte || '').trim(); const first = x.split('\n')[0].trim(), t = jrTitle(f); if (t === first || (t.endsWith('…') && first.startsWith(t.slice(0, -1)))) x = x.split('\n').slice(1).join(' '); x = x.replace(/\s+/g, ' ').trim(); if (x === t) return ''; return x.length > n ? x.slice(0, n).replace(/\s+\S*$/, '') + '…' : x; }
+function jrPick(f) { const o = {}; JR_FIELDS.forEach(k => o[k] = clone(f[k] ?? (k === 'photos' ? [] : k === 'aCompleter' ? false : k === 'niv' ? 'info' : ''))); return o; }
 
 function vJournal() { return jrHeader() + (jrView === 'jour' ? vJrDay() : jrView === 'pers' ? vJrPers() : vJrFiches()); }
 function vJrFiches() {
-  const all = jrList(), todo = all.filter(f => f.aCompleter).length;
-  const q = jrSearch.trim().toLowerCase();
-  const list = all.filter(f => (!jrFilter || (jrFilter === 'todo' ? f.aCompleter : f.type === jrFilter)) &&
-    (!q || [f.titre, f.texte, f.personnes, f.temoins, f.cat].join(' ').toLowerCase().includes(q))).sort((a, b) => jrSortKey(b) < jrSortKey(a) ? -1 : 1);
-  const used = [...new Set(all.map(f => f.type))];
+  const all = jrList(), list = all.filter(fxMatch).sort((a, b) => jrSortKey(b) < jrSortKey(a) ? -1 : 1);
+  const todo = all.filter(f => f.aCompleter).length, act = fxActive();
+  const qk = (k, l, on) => `<button class="chipb${on ? ' on' : ''}" data-act="fxq" data-k="${k}">${l}</button>`;
   let lastD = '', rows = '';
   for (const f of list) {
-    if (f.date !== lastD) { lastD = f.date; rows += `<div class="gh" style="padding-top:14px">${f.date ? pd(f.date).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) : 'Sans date'}</div>`; }
-    rows += `<button class="day" style="grid-template-columns:52px 1fr auto" data-act="jropen" data-id="${f.id}">
-      <span class="dn">${esc(f.heure || '')}</span>
-      <span class="dt">${jrTag(f.type)}${f.aCompleter ? ' <span class="tag warn">À compléter</span>' : ''}<br><b>${esc(jrTitle(f))}</b>${f.personnes ? '<br><span class="muted small">' + esc(f.personnes) + '</span>' : ''}</span>
-      <span class="dh small muted">${(f.photos || []).length ? f.photos.length + ' photo' + (f.photos.length > 1 ? 's' : '') : ''} ›</span></button>`;
+    if (f.date !== lastD) { lastD = f.date; rows += `<div class="fxd">${f.date ? pd(f.date).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) : 'Sans date'}</div>`; }
+    const np = (f.photos || []).length;
+    rows += `<button class="fxr" data-act="jropen" data-id="${f.id}">
+      <span class="fxh num">${f.heure ? esc(f.heure) : '<i>—</i>'}</span>
+      <span class="fxb"><span class="fxt">${jrTag(f.type)}${nivTag(f)}${f.aCompleter ? '<span class="tag">À compléter</span>' : ''}</span>
+        <b>${esc(jrTitle(f))}</b>
+        ${jrExcerpt(f, 130) ? `<span class="fxx">${esc(jrExcerpt(f, 130))}</span>` : ''}
+        ${f.personnes ? `<span class="fxp">${esc(f.personnes)}</span>` : ''}
+        ${np ? `<span class="thbs">${f.photos.slice(0, 4).map(p => `<i class="thb" data-pid="${p}"></i>`).join('')}${np > 4 ? `<em>+${np - 4}</em>` : ''}</span>` : ''}
+      </span><span class="fxc">›</span></button>`;
   }
+  const nExp = list.filter(f => f.type !== 'perso' || FX.type === 'perso').length;
   return `
-  <div class="group"><div class="gpad">
-    <div style="font-weight:700">Journal de bord</div>
-    <p class="small muted" style="margin:4px 0 0">Notez sur le moment, complétez plus tard. ${fb.user ? 'Chaque fiche est sauvegardée en ligne.' : '<b>Activez la sauvegarde en ligne (Réglages) pour ne rien perdre.</b>'}</p>
-    <div class="btns two"><button class="btn" data-act="jrexpress">+ Noter vite</button><button class="btn ghost" data-act="jrnew">Fiche complète</button></div>
-    ${htmlJrTools()}
-  </div></div>
-  ${todo ? `<div class="alert" style="cursor:pointer" data-act="jrf" data-t="todo">${todo} fiche${todo > 1 ? 's' : ''} à compléter</div>` : ''}
-  ${all.length ? `<input type="text" id="jr-q" placeholder="Rechercher (prénom, sujet…)" value="${esc(jrSearch)}" style="margin:4px 0 8px">
-  <div class="chips" style="margin:0 2px 6px"><button class="chipb${!jrFilter ? ' on' : ''}" data-act="jrf" data-t="">Toutes</button>${todo ? `<button class="chipb${jrFilter === 'todo' ? ' on' : ''}" data-act="jrf" data-t="todo">À compléter</button>` : ''}${used.map(t => `<button class="chipb${jrFilter === t ? ' on' : ''}" data-act="jrf" data-t="${t}">${esc(JR_TYPES[t].l)}</button>`).join('')}</div>` : ''}
-  <div class="group">${rows || '<div class="row"><span class="small muted">Aucune fiche pour l’instant. Touchez « + Noter vite » au moment où quelque chose se passe.</span></div>'}</div>
-  <p class="note">Notez des faits (quoi, où, quand, devant qui), jamais des jugements. Photographiez le travail, pas les personnes. Les fiches restent modifiables : chaque modification est gardée dans l’historique.</p>`;
+  <div class="fxtop">
+    <input type="search" id="jr-q" placeholder="Rechercher un mot, un prénom…" value="${esc(jrSearch)}">
+    <button class="btn ghost fxfb" data-act="fxopen">Filtrer${act.length ? ' (' + act.length + ')' : ''}</button>
+  </div>
+  <div class="chips fxchips">
+    ${qk('all', 'Tout', FX.per === 'all' && !act.length)}${qk('week', 'Cette semaine', FX.per === 'week')}${qk('month', 'Ce mois', FX.per === today().slice(0, 7))}${qk('todo', 'À compléter' + (todo ? ' (' + todo + ')' : ''), FX.todo)}${qk('ph', 'Avec photos', FX.ph)}
+  </div>
+  ${act.length ? `<div class="chips fxchips">${act.map(([k, l]) => `<button class="chipb on" data-act="fxclr" data-k="${k}">${esc(l)} ✕</button>`).join('')}</div>` : ''}
+  <div class="fxbar"><b>${list.length} fiche${list.length > 1 ? 's' : ''}</b>${nExp ? `<button class="btn fxexp" data-act="fxexp">Exporter ${nExp > 1 ? 'ces ' + nExp + ' fiches' : 'cette fiche'} en PDF</button>` : ''}</div>
+  <div class="btns two" style="margin:0 0 12px"><button class="btn ghost" data-act="jrexpress">+ Noter vite</button><button class="btn ghost" data-act="jrnew">+ Fiche complète</button></div>
+  <div class="group fxl">${rows || '<div class="row"><span class="small muted">Aucune fiche ne correspond. Touchez un filtre noir pour le retirer.</span></div>'}</div>
+  ${htmlJrTools()}
+  <p class="note">Notez des faits (quoi, où, quand, devant qui), jamais des jugements. Chaque modification, y compris l’heure des faits, est gardée dans l’historique de la fiche. Les notes personnelles ne sortent jamais dans les PDF, sauf si vous filtrez sur elles.</p>`;
 }
 
 /* Saisie express : photo + type + quelques mots */
@@ -2997,7 +3051,7 @@ function jrExpress() {
 function jrOpen(id, pre) {
   if (jrEd) jrDiscard();
   const f = id ? S.jr[id] : null; pre = pre || {};
-  const base = f ? jrPick(f) : {type:pre.type || 'consigne', date:today(), heure:nowHM(), titre:pre.titre || '', texte:'', personnes:pre.personnes || '', temoins:'', cat:'', lien:pre.lien || '', photos:[], aCompleter:false};
+  const base = f ? jrPick(f) : {niv:pre.niv || 'info', type:pre.type || 'constat', date:pre.date || today(), heure:pre.heure !== undefined ? pre.heure : nowHM(), titre:pre.titre || '', texte:'', personnes:pre.personnes || '', temoins:'', cat:'', lien:pre.lien || '', photos:[], aCompleter:false};
   jrEd = {mode:'full', id, photos:[...(base.photos || [])], added:[], removed:[]};
   const others = jrList().filter(x => x.id !== id).sort((a, b) => jrSortKey(b) < jrSortKey(a) ? -1 : 1).slice(0, 60);
   const sh = $('#sheet');
@@ -3006,10 +3060,13 @@ function jrOpen(id, pre) {
     ${f && f.aCompleter ? '<div class="alert">Note rapide à compléter : précisez les personnes, les témoins et le contexte.</div>' : ''}
     <label class="l" for="jr-type">Type</label>
     <select id="jr-type">${Object.entries(JR_TYPES).map(([k, v]) => `<option value="${k}" ${base.type === k ? 'selected' : ''}>${v.l}</option>`).join('')}</select>
+    <label class="l">Importance</label>
+    <div class="chips">${Object.entries(JR_NIV).map(([k, l]) => `<label><input type="radio" name="jr-niv" value="${k}" ${(base.niv || 'info') === k ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div>
     <div class="two">
       <div><label class="l" for="jr-date">Date des faits</label><input type="date" id="jr-date" value="${esc(base.date)}"></div>
-      <div><label class="l" for="jr-heure">Heure</label><input type="time" id="jr-heure" value="${esc(base.heure)}"></div>
+      <div><label class="l" for="jr-heure">Heure des faits</label><input type="time" id="jr-heure" value="${esc(base.heure)}"></div>
     </div>
+    <div class="hrow"><span class="small muted">${f && f.heure && (f.versions || []).some(v => v.data.heure && v.data.heure !== f.heure) ? 'Heure modifiée (l’ancienne reste dans l’historique). ' : ''}Vous pouvez changer l’heure à tout moment.</span><button type="button" class="linkbtn" data-act="jrnoh">Heure inconnue</button></div>
     <div id="jr-catw" style="${base.type === 'rappel' ? '' : 'display:none'}"><label class="l" for="jr-cat">Sujet du rappel</label>
       <select id="jr-cat"><option value="">Choisir…</option>${jrCats().map(c => `<option ${base.cat === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div>
     <label class="l" for="jr-titre">Titre court</label><input type="text" id="jr-titre" value="${esc(base.titre)}" placeholder="Ex. balisage rayon fromage">
@@ -3087,9 +3144,9 @@ function jrSave() {
     const t = (document.querySelector('input[name=jr-xt]:checked') || {}).value || 'constat';
     const txt = $('#jr-xtxt').value.trim();
     if (!txt && !jrEd.photos.length) return toast('Ajoutez quelques mots ou une photo.');
-    data = {type:t, date:jrEd.date || today(), heure:nowHM(), titre:'', texte:txt, personnes:'', temoins:'', cat:'', lien:'', photos:jrEd.photos, aCompleter:true};
+    data = {niv:'info', type:t, date:jrEd.date || today(), heure:jrEd.heure !== undefined ? jrEd.heure : nowHM(), titre:'', texte:txt, personnes:'', temoins:'', cat:'', lien:'', photos:jrEd.photos, aCompleter:true};
   } else {
-    data = {type:$('#jr-type').value, date:$('#jr-date').value || today(), heure:$('#jr-heure').value, titre:$('#jr-titre').value.trim(), texte:$('#jr-texte').value.trim(),
+    data = {niv:(document.querySelector('input[name=jr-niv]:checked') || {}).value || 'info', type:$('#jr-type').value, date:$('#jr-date').value || today(), heure:$('#jr-heure').value, titre:$('#jr-titre').value.trim(), texte:$('#jr-texte').value.trim(),
       personnes:$('#jr-pers').value.trim(), temoins:$('#jr-tem').value.trim(), cat:data_cat(), lien:$('#jr-lien').value, photos:jrEd.photos, aCompleter:$('#jr-todo').checked};
     if (data.type === 'tache') { const ids = data.personnes.split(/\s*,\s*/).map(n => (jrPers().find(p => p.nom.toLowerCase() === n.toLowerCase()) || {}).id).filter(Boolean); if (ids.length) data.pids = [...new Set(ids)]; }
     if (data.type === 'rappel' && data.cat && !data.texte) data.texte = data.cat === 'Autre' ? 'Rappel oral.' : 'Rappel oral : ' + data.cat + '.';
@@ -3391,37 +3448,41 @@ async function jrImg(id) { try { const b = await docBlob(id); return 'data:image
 function jrMatchPerson(f, pid) { if (!pid) return true; const p = jrPers().find(x => x.id === pid); return (f.pids || []).includes(pid) || (p && (f.personnes || '').toLowerCase().split(/\s*,\s*/).includes(p.nom.toLowerCase())); }
 async function jrExportPdf() {
   const a = $('#jx-a').value, b = $('#jx-b').value, pid = $('#jx-p').value, t = $('#jx-t').value, ph = $('#jx-ph').checked;
-  const list = jrList().filter(f => f.date >= a && f.date <= b && (!t || f.type === t) && jrMatchPerson(f, pid)).sort((x, y2) => jrSortKey(x) < jrSortKey(y2) ? -1 : 1);
+  const list = jrList().filter(f => f.date >= a && f.date <= b && (!t || f.type === t) && (t === 'perso' || f.type !== 'perso') && jrMatchPerson(f, pid)).sort((x, y2) => jrSortKey(x) < jrSortKey(y2) ? -1 : 1);
+  const pn = pid ? (jrPers().find(x => x.id === pid) || {}).nom : '';
+  await jrPdfList(list, [`Période : du ${frNum(a)} au ${frNum(b)}`, pn && 'Personne : ' + pn, t && 'Type : ' + JR_TYPES[t].l], `Journal_${a}_${b}${pn ? '_' + slug(pn) : ''}.pdf`, ph);
+}
+async function jrPdfFiche(doc, w, f, ph) {
+  w.need(18); doc.setDrawColor(210, 214, 222); doc.line(14, w.y - 3, 196, w.y - 3);
+  w.line(`${frNum(f.date)}${f.heure ? ' à ' + f.heure : ' (heure non précisée)'} — ${(JR_TYPES[f.type] || {}).l || f.type}${f.cat ? ' (' + f.cat + ')' : ''}${f.niv && f.niv !== 'info' ? ' — ' + JR_NIV[f.niv] : ''}`, {b:true, s:10.5});
+  if (f.titre) w.line(f.titre, {b:true});
+  if (f.texte && f.texte.trim() !== (f.titre || '').trim()) w.line(f.texte);
+  const meta = [f.personnes && 'Personne(s) : ' + f.personnes, f.temoins && 'Témoins / présents : ' + f.temoins, f.limite && 'À faire avant : ' + f.limite, f.direction && 'Demande de la direction', f.relance && 'Relance n° ' + f.relance].filter(Boolean);
+  if (meta.length) w.line(meta.join(' · '), {c:[70, 78, 92]});
+  const prev = f.lien && S.jr[f.lien]; if (prev && !prev.deleted) w.line('Fait suite à : ' + frNum(prev.date) + ' — ' + (JR_TYPES[prev.type] || {}).l + ' — ' + jrTitle(prev), {c:[70, 78, 92]});
+  if (f.type === 'tache' && (f.pids || []).length) w.line('Suivi : ' + f.pids.map(p => { const x = (f.suivi || {})[p]; return jrPName(p, f) + ' : ' + JR_ST[jrStatus(f, p)].l.toLowerCase() + (x && x.at ? ' (constaté le ' + stampTxt(x.at) + ')' : ''); }).join(' ; '), {c:[70, 78, 92]});
+  if (f.type === 'horaire') w.line(jrDaySummary(f.date), {c:[70, 78, 92]});
+  if (ph && (f.photos || []).length) {
+    let col = 0; for (const id of f.photos) {
+      const img = await jrImg(id); if (!img) continue;
+      if (col === 0) w.need(46);
+      try { const pr = doc.getImageProperties(img), h = Math.min(44, 58 * pr.height / pr.width); doc.addImage(img, 'JPEG', 14 + col * 61, w.y, 58, h); } catch (e) {}
+      col++; if (col === 3) { col = 0; w.gap(47); }
+    }
+    if (col) w.gap(47);
+  }
+  w.gap(5);
+}
+async function jrPdfList(list, head, fname, ph) {
   if (!list.length) return toast('Aucune fiche pour ces critères.');
   toast('Préparation du PDF…'); if (!await ensurePdf()) return toast('Connexion internet nécessaire la première fois pour créer un PDF.');
   const {jsPDF} = window.jspdf, doc = new jsPDF({unit:'mm', format:'a4'}), w = jrPdfWriter(doc), st = S.settings;
-  const pn = pid ? (jrPers().find(x => x.id === pid) || {}).nom : '';
   w.line('Journal de bord', {b:true, s:15}); w.gap(1);
-  [st.nom && 'Rédigé par : ' + st.nom + (st.poste ? ', ' + st.poste : ''), st.employeur && 'Employeur : ' + st.employeur, `Période : du ${frNum(a)} au ${frNum(b)}`, pn && 'Personne : ' + pn, t && 'Type : ' + JR_TYPES[t].l, list.length + ' fiche(s)'].filter(Boolean).forEach(l => w.line(l));
+  [st.nom && 'Rédigé par : ' + st.nom + (st.poste ? ', ' + st.poste : ''), st.employeur && 'Employeur : ' + st.employeur, ...head, list.length + ' fiche(s)'].filter(Boolean).forEach(l => w.line(l));
   w.gap(4);
-  for (const f of list) {
-    w.need(18); doc.setDrawColor(210, 214, 222); doc.line(14, w.y - 3, 196, w.y - 3);
-    w.line(`${frNum(f.date)}${f.heure ? ' à ' + f.heure : ''} — ${(JR_TYPES[f.type] || {}).l || f.type}${f.cat ? ' (' + f.cat + ')' : ''}`, {b:true, s:10.5});
-    if (f.titre) w.line(f.titre, {b:true});
-    if (f.texte) w.line(f.texte);
-    const meta = [f.personnes && 'Personne(s) : ' + f.personnes, f.temoins && 'Témoins : ' + f.temoins, f.limite && 'À faire avant : ' + f.limite, f.direction && 'Demande de la direction', f.relance && 'Relance n° ' + f.relance].filter(Boolean);
-    if (meta.length) w.line(meta.join(' · '), {c:[70, 78, 92]});
-    const prev = f.lien && S.jr[f.lien]; if (prev && !prev.deleted) w.line('Fait suite à : ' + frNum(prev.date) + ' — ' + (JR_TYPES[prev.type] || {}).l + ' — ' + jrTitle(prev), {c:[70, 78, 92]});
-    if (f.type === 'tache' && (f.pids || []).length) w.line('Suivi : ' + f.pids.map(p => { const x = (f.suivi || {})[p]; return jrPName(p, f) + ' : ' + JR_ST[jrStatus(f, p)].l.toLowerCase() + (x && x.at ? ' (constaté le ' + stampTxt(x.at) + ')' : ''); }).join(' ; '), {c:[70, 78, 92]});
-    if (f.type === 'horaire') w.line(jrDaySummary(f.date), {c:[70, 78, 92]});
-    if (ph && (f.photos || []).length) {
-      let col = 0; for (const id of f.photos) {
-        const img = await jrImg(id); if (!img) continue;
-        if (col === 0) w.need(46);
-        try { const pr = doc.getImageProperties(img), h = Math.min(44, 58 * pr.height / pr.width); doc.addImage(img, 'JPEG', 14 + col * 61, w.y, 58, h); } catch (e) {}
-        col++; if (col === 3) { col = 0; w.gap(47); }
-      }
-      if (col) w.gap(47);
-    }
-    w.gap(5);
-  }
+  for (const f of list) await jrPdfFiche(doc, w, f, ph);
   pdfFooter(doc, 'Journal de bord — Mes Heures');
-  closeSheet(); await deliver(doc.output('blob'), `Journal_${a}_${b}${pn ? '_' + slug(pn) : ''}.pdf`, 'application/pdf');
+  closeSheet(); await deliver(doc.output('blob'), fname, 'application/pdf');
 }
 async function jrBilanPdf() {
   const mon = monday($('#jx-w').value || today()), sun = addD(mon, 6);
@@ -3835,7 +3896,7 @@ function tilesHtml(now) {
     ${forfait ? T('data-sp="heures" data-t="recap"', 'clock', 'Forfait', String(f.worked).replace('.', ',') + '/' + f.fj) : T('data-sp="heures" data-t="recap"', 'clock', 'Heures sup.', fmtC(w.sup))}
     ${rd ? T('data-sp="heures" data-t="recap"', 'back', 'À récupérer', String(rd.due / 2).replace('.', ',') + ' j', rd.due > 0) : T('data-sp="heures" data-t="recap"', 'back', 'Repos', '—')}
     ${T('data-sp="heures" data-t="recap"', 'sun', 'Congés', c ? (Math.round((c.n + cpEnCours()) * 100) / 100).toLocaleString('fr-FR') + ' j' : '—')}
-    ${T('data-sp="journal" data-jv="fiches"', 'book', 'Journal', String(jrList().length))}
+    ${T('data-sp="journal" data-jv="fiches"', 'book', 'Fiches', String(jrList().length))}
     ${T('data-sp="heures" data-t="today"', 'warn', 'Alertes', String(al), al > 0)}
   </div>`;
 }
@@ -3854,20 +3915,21 @@ function vHome() {
 function menuItems() {
   const now = new Date(), st = status(), w = weekStats(monday(today()), now), rd = reposDus(), f = S.settings.mode === 'forfait' ? fjStats() : null;
   const jl = jrList(), todo = jl.filter(x => x.aCompleter).length, tasks = jrTasksOf(today()); let tt = 0, tdn = 0; tasks.forEach(x => x.pids.forEach(p => { tt++; if (jrStatus(x, p) === 'fait') tdn++; }));
+  const nToday = jrOfDay(today()).length;
   const cur = (sp, t) => space === sp && (!t || (sp === 'heures' ? tab === t : jrView === t));
   const I = (attrs, l, v, strong, on) => `<button class="mmi${on ? ' on' : ''}" ${attrs}><b>${l}</b><span${strong ? ' class="s"' : ''}>${v}</span></button>`;
-  return `<div class="mmsec">Mes heures</div>
+  return `<div class="mmsec">Au quotidien</div>
     ${I('data-sp="accueil"', 'Accueil', st.k === 'on' ? 'au travail' : 'repos', false, space === 'accueil')}
-    ${I('data-sp="heures" data-t="today"', 'Ma journée', st.k === 'on' ? 'depuis ' + st.since : '', false, cur('heures', 'today'))}
+    ${I('data-sp="heures" data-t="today"', 'Ma journée', [st.k === 'on' ? 'depuis ' + st.since : '', nToday ? nToday + ' fiche' + (nToday > 1 ? 's' : '') : ''].filter(Boolean).join(' · '), false, cur('heures', 'today'))}
     ${I('data-sp="heures" data-t="week"', 'Semaine', fmtC(w.total), false, cur('heures', 'week'))}
-    ${I('data-sp="heures" data-t="recap"', 'Repos, forfait, congés', rd && rd.due ? String(rd.due / 2).replace('.', ',') + ' j dus' : f ? String(f.worked).replace('.', ',') + '/' + f.fj : '', !!(rd && rd.due), cur('heures', 'recap'))}
-    ${I('data-sp="heures" data-t="docs"', 'Documents &amp; PDF', 'aperçu', false, cur('heures', 'docs'))}
-    <div class="mmsec">Journal de bord</div>
     ${I('data-sp="journal" data-jv="fiches"', 'Fiches', todo ? todo + ' à compléter' : String(jl.length), todo > 0, cur('journal', 'fiches'))}
     ${I('data-sp="journal" data-jv="jour"', 'Tâches du jour', tt ? tdn + '/' + tt : '—', false, cur('journal', 'jour'))}
     ${I('data-sp="journal" data-jv="pers"', 'Personnes', String(jrPers().length), false, cur('journal', 'pers'))}
+    <div class="mmsec">Suivi</div>
+    ${I('data-sp="heures" data-t="recap"', 'Compteurs', rd && rd.due ? String(rd.due / 2).replace('.', ',') + ' j de repos dus' : f ? String(f.worked).replace('.', ',') + '/' + f.fj : '', !!(rd && rd.due), cur('heures', 'recap'))}
+    ${I('data-sp="heures" data-t="docs"', 'Documents &amp; PDF', 'aperçu', false, cur('heures', 'docs'))}
     <div class="mmsec">Compte</div>
-    ${I('data-sp="heures" data-t="settings"', 'Réglages', 'contrat, Face ID', false, cur('heures', 'settings'))}`;
+    ${I('data-sp="heures" data-t="settings"', 'Réglages', 'contrat, véhicule, Face ID', false, cur('heures', 'settings'))}`;
 }
 function menuOpen() {
   const st = S.settings, nm = (st.nom || '').trim(), ini = nm ? nm.split(/\s+/).map(x => x[0]).slice(0, 2).join('').toUpperCase() : 'MH';
@@ -3882,6 +3944,268 @@ function sectionTitle() {
   if (space === 'journal') return ({fiches:'Fiches', jour:'Tâches du jour', pers:'Personnes'})[jrView] || 'Journal';
   return ({today:'Ma journée', week:'Semaine', recap:'Compteurs', docs:'Documents', settings:'Réglages'})[tab] || '';
 }
+
+/* ================= v10 : une seule appli, fiches, récapitulatif de journée ================= */
+const JR_NIV = {info:'Info', imp:'Important', litige:'Litige', resolu:'Résolu'};
+const RELEVE_T = ['horaire', 'consigne', 'planning', 'jour'];
+let dayDs = null;
+let FX = {per:'all', a:'', b:'', who:'', ray:'', type:'', niv:'', todo:false, ph:false};
+const normTxt = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const nivTag = f => f.niv && f.niv !== 'info' ? `<span class="tag niv-${f.niv}">${JR_NIV[f.niv]}</span>` : '';
+const jrOfDay = ds => jrList().filter(f => f.date === ds).sort((a, b) => ((a.heure || '99:99') + (a.createdAt || '')) < ((b.heure || '99:99') + (b.createdAt || '')) ? -1 : 1);
+function releveNotes(ds) { return jrOfDay(ds).filter(f => RELEVE_T.includes(f.type)).map(f => { let x = [(f.titre || '').trim(), (f.texte || '').trim()].filter(Boolean); if (x.length === 2 && x[1].startsWith(x[0].replace(/…$/, ''))) x = [x[1]]; x = x.join(' : ').replace(/\s+/g, ' '); return (f.heure ? f.heure + ' ' : '') + (x.length > 220 ? x.slice(0, 220).replace(/\s+\S*$/, '') + '…' : x); }).join(' — '); }
+
+/* ---- Le fil de la journée : pointages et fiches, dans l'ordre des heures ---- */
+function htmlFeed(ds) {
+  const d = S.days[ds], ev = [];
+  if (d) { const sg = [...(d.segs || [])].sort((a, b) => a.d < b.d ? -1 : 1); sg.forEach((s, i) => { ev.push({t:s.d, k:'pt', l:i === 0 ? 'Arrivée' : 'Reprise'}); if (s.f) ev.push({t:s.f, k:'pt', l:i === sg.length - 1 ? 'Départ' : 'Pause'}); }); }
+  const fs = jrOfDay(ds); fs.forEach(f => ev.push({t:f.heure || '', k:'f', f}));
+  const timed = ev.filter(e => e.t).sort((a, b) => a.t < b.t ? -1 : a.t > b.t ? 1 : (a.k === 'pt' ? -1 : 1)), un = ev.filter(e => !e.t);
+  const fRow = f => { const np = (f.photos || []).length; return `<button class="fd fc" data-act="jropen" data-id="${f.id}"><span class="ft num">${f.heure ? esc(f.heure) : ''}</span><span class="fdot f"></span>
+      <span class="fb"><span class="fxt">${jrTag(f.type)}${nivTag(f)}${f.aCompleter ? '<span class="tag">À compléter</span>' : ''}</span><b>${esc(jrTitle(f))}</b>${jrExcerpt(f, 120) ? `<span class="fxx">${esc(jrExcerpt(f, 120))}</span>` : ''}
+      ${np ? `<span class="thbs">${f.photos.slice(0, 4).map(p => `<i class="thb" data-pid="${p}"></i>`).join('')}${np > 4 ? `<em>+${np - 4}</em>` : ''}</span>` : ''}</span></button>`; };
+  const rows = timed.map(e => e.k === 'pt' ? `<div class="fd pt"><span class="ft num">${esc(e.t)}</span><span class="fdot"></span><span class="fl">${e.l}</span></div>` : fRow(e.f)).join('')
+    + (un.length ? `<div class="fdu">Heure non précisée</div>` + un.map(e => fRow(e.f)).join('') : '');
+  return `<div class="group feed"><div class="gh">Le fil de la journée${fs.length ? ' · ' + fs.length + ' fiche' + (fs.length > 1 ? 's' : '') : ''}</div>
+    <div class="fdl">${rows || '<div class="small muted" style="padding:6px 0 4px">Rien pour ce jour.</div>'}</div>
+    <div class="gpad" style="padding-top:4px"><button class="btn" data-act="dayfiche" data-ds="${ds}">+ Ajouter une fiche</button></div></div>`;
+}
+/* ---- Récapitulatif de la journée (pour mémoire) ---- */
+function htmlRecap(ds) {
+  const d = S.days[ds], r = (d && d.recap) || null, fs = jrOfDay(ds), vs = (r && r.v) || [];
+  return `<div class="group rcap"><div class="gpad">
+    <div class="rch"><b>Récapitulatif de ma journée</b><span class="small muted" id="rc-st">${r && r.at ? 'Enregistré le ' + stampTxt(r.at) : 'pour mémoire'}</span></div>
+    <textarea id="rc-txt" data-ds="${ds}" rows="5" placeholder="Ce que j’ai fait, ce qu’on m’a demandé, ce qui reste en suspens…">${esc(r ? r.txt : '')}</textarea>
+    <div class="rcl"><span class="small"><b>Fiches liées automatiquement</b> (${fs.length})</span>
+      ${fs.length ? fs.map(f => `<button class="mline" data-act="jropen" data-id="${f.id}">${f.heure ? esc(f.heure) + ' · ' : ''}${esc(jrTitle(f))}</button>`).join('') : '<span class="small muted">Les fiches de ce jour s’ajouteront ici d’elles-mêmes.</span>'}</div>
+    ${vs.length ? `<details class="pfx"><summary>Versions précédentes (${vs.length})</summary>${vs.slice().reverse().map(v => `<div class="nrow small"><b>${stampTxt(v.at)}</b><br>${esc(v.txt).replace(/\n/g, '<br>')}</div>`).join('')}</details>` : ''}
+    <button class="btn ghost" style="margin-top:10px" data-act="daypdf" data-ds="${ds}">Imprimer cette journée (PDF)</button>
+  </div></div>`;
+}
+let rcTimer = null;
+function recapSave(ds, txt) {
+  txt = String(txt || '').replace(/\s+$/, ''); let d = S.days[ds]; const cur = d && d.recap ? d.recap.txt : '';
+  if (txt === (cur || '')) return;
+  const now = new Date().toISOString();
+  if (!d) { if (!txt) return; d = S.days[ds] = {date:ds, type:'travail', segs:[], lieu:'', note:'', closed:false, half:false, hist:[]}; stamp(d); }
+  const r = d.recap || {txt:'', at:'', v:[]};
+  if (r.txt && r.at && Date.now() - Date.parse(r.at) > 5 * 60000) r.v = [...(r.v || []), {at:r.at, txt:r.txt}].slice(-40);
+  r.txt = txt; r.at = now; d.recap = r; d.updatedAt = now; persist(); try { pushDay(ds); } catch (e) {}
+  const s = $('#rc-st'); if (s) s.textContent = 'Enregistré à ' + nowHM();
+}
+function recapFlush() { const t = $('#rc-txt'); if (rcTimer && t) { clearTimeout(rcTimer); rcTimer = null; recapSave(t.dataset.ds, t.value); } }
+document.addEventListener('input', e => { if (e.target.id !== 'rc-txt') return; clearTimeout(rcTimer); const t = e.target; rcTimer = setTimeout(() => { rcTimer = null; recapSave(t.dataset.ds, t.value); }, 1200); });
+document.addEventListener('change', e => {
+  if (e.target.id === 'rc-txt') { clearTimeout(rcTimer); rcTimer = null; recapSave(e.target.dataset.ds, e.target.value); }
+  if (e.target.id === 'dpick' && e.target.value) { recapFlush(); dayDs = e.target.value === today() ? null : e.target.value; render(); }
+});
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') recapFlush(); });
+window.addEventListener('pagehide', recapFlush);
+/* ---- Miniatures des photos ---- */
+const thumbURL = {};
+async function fillThumbs() {
+  for (const el of document.querySelectorAll('.thb[data-pid]:not(.ok)')) {
+    const p = el.dataset.pid; el.classList.add('ok');
+    try { if (!thumbURL[p]) thumbURL[p] = URL.createObjectURL(await docBlob(p)); el.style.backgroundImage = `url("${thumbURL[p]}")`; } catch (e) { el.classList.add('na'); }
+  }
+}
+/* ---- Filtres des fiches ---- */
+function fxRange() {
+  const t = today();
+  if (FX.per === 'week') return [monday(t), addD(monday(t), 6)];
+  if (/^\d{4}-\d{2}$/.test(FX.per)) return [FX.per + '-01', ymd(new Date(+FX.per.slice(0, 4), +FX.per.slice(5, 7), 0))];
+  if (FX.per === 'custom') return [FX.a || '0000-00-00', FX.b || '9999-99-99'];
+  return null;
+}
+function hasWord(txt, w) { w = normTxt(w).trim(); if (!w) return true; return new RegExp('(^|[^a-z0-9])' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-z0-9])').test(normTxt(txt)); }
+const fTxt = f => [f.titre, f.texte, f.personnes, f.temoins, f.cat].join(' \n ');
+function fxWhoName() { const p = jrPers().find(x => x.id === FX.who); return p ? p.nom : FX.who; }
+function fxMatch(f) {
+  const r = fxRange(); if (r && !(f.date >= r[0] && f.date <= r[1])) return false;
+  if (FX.type && f.type !== FX.type) return false;
+  if (FX.niv && (f.niv || 'info') !== FX.niv) return false;
+  if (FX.todo && !f.aCompleter) return false;
+  if (FX.ph && !(f.photos || []).length) return false;
+  if (FX.who) { const p = jrPers().find(x => x.id === FX.who); if (!(p && (f.pids || []).includes(p.id)) && !hasWord(fTxt(f), fxWhoName())) return false; }
+  if (FX.ray) { const ps = jrPers().filter(p => normTxt(p.rayon) === normTxt(FX.ray)); if (!ps.some(p => (f.pids || []).includes(p.id) || hasWord(fTxt(f), p.nom)) && !hasWord(fTxt(f), FX.ray)) return false; }
+  const q = jrSearch.trim(); if (q && !normTxt(fTxt(f)).includes(normTxt(q))) return false;
+  return true;
+}
+function fxPerLabel() { if (FX.per === 'week') return 'Cette semaine'; if (/^\d{4}-\d{2}$/.test(FX.per)) return moisNom(+FX.per.slice(0, 4), +FX.per.slice(5, 7) - 1) + ' ' + FX.per.slice(0, 4); if (FX.per === 'custom') return (FX.a ? 'du ' + frNum(FX.a) : '') + (FX.b ? ' au ' + frNum(FX.b) : ''); return ''; }
+function fxActive() {
+  const o = [];
+  if (FX.per !== 'all') o.push(['per', fxPerLabel()]);
+  if (FX.who) o.push(['who', fxWhoName()]);
+  if (FX.ray) o.push(['ray', 'Rayon ' + FX.ray]);
+  if (FX.type) o.push(['type', (JR_TYPES[FX.type] || {}).l || FX.type]);
+  if (FX.niv) o.push(['niv', JR_NIV[FX.niv]]);
+  if (FX.todo) o.push(['todo', 'À compléter']);
+  if (FX.ph) o.push(['ph', 'Avec photos']);
+  return o;
+}
+const RAYONS_DEF = ['Boucherie', 'Charcuterie', 'Traiteur', 'Fromagerie', 'Fruits et légumes', 'Marée', 'Fraîche découpe'];
+function fxRayons() { const m = new Map(); [...jrRayons(), ...RAYONS_DEF].forEach(r => { if (r && !m.has(normTxt(r))) m.set(normTxt(r), r); }); return [...m.values()]; }
+function fxPeople() { const m = new Map(); jrPers().forEach(p => m.set(normTxt(p.nom), {id:p.id, nom:p.nom, ray:p.rayon})); jrList().forEach(f => (f.personnes || '').split(/\s*[,;]\s*/).forEach(n => { n = n.trim(); if (n && n.length < 30 && !m.has(normTxt(n))) m.set(normTxt(n), {id:n, nom:n}); })); return [...m.values()].sort((a, b) => a.nom.localeCompare(b.nom, 'fr')); }
+function fxOpen() {
+  const months = [...new Set(jrList().map(f => (f.date || '').slice(0, 7)).filter(Boolean))].sort().reverse();
+  const R = (name, v, l, on) => `<label><input type="radio" name="${name}" value="${esc(v)}" ${on ? 'checked' : ''}><span>${esc(l)}</span></label>`;
+  const sh = $('#sheet');
+  sh.innerHTML = `<div class="bgd" data-act="shut"></div><div class="pnl"><div class="grip"></div>
+    <div class="shd"><b>Filtrer les fiches</b><button class="linkbtn" data-act="shut">Fermer</button></div>
+    <label class="l">Période</label>
+    <div class="chips">${R('fx-per', 'all', 'Tout', FX.per === 'all')}${R('fx-per', 'week', 'Cette semaine', FX.per === 'week')}${months.map(m => R('fx-per', m, moisNom(+m.slice(0, 4), +m.slice(5) - 1) + ' ' + m.slice(0, 4), FX.per === m)).join('')}${R('fx-per', 'custom', 'Dates libres', FX.per === 'custom')}</div>
+    <div class="two"><div><label class="l" for="fx-a">Du</label><input type="date" id="fx-a" value="${esc(FX.a)}"></div><div><label class="l" for="fx-b">Au</label><input type="date" id="fx-b" value="${esc(FX.b)}"></div></div>
+    <label class="l">Personne</label>
+    <div class="chips">${R('fx-who', '', 'Toutes', !FX.who)}${fxPeople().map(p => R('fx-who', p.id, p.nom, FX.who === p.id)).join('')}</div>
+    <input type="text" id="fx-whot" placeholder="Autre prénom (cherché dans le texte des fiches)" value="${esc(FX.who && !fxPeople().some(p => p.id === FX.who) ? FX.who : '')}" style="margin-top:8px">
+    <label class="l">Rayon</label>
+    <div class="chips">${R('fx-ray', '', 'Tous', !FX.ray)}${fxRayons().map(r => R('fx-ray', r, r, FX.ray === r)).join('')}</div>
+    <label class="l" for="fx-type">Type</label>
+    <select id="fx-type"><option value="">Tous les types</option>${Object.entries(JR_TYPES).map(([k, v]) => `<option value="${k}" ${FX.type === k ? 'selected' : ''}>${v.l}</option>`).join('')}</select>
+    <label class="l">Importance</label>
+    <div class="chips">${R('fx-niv', '', 'Toutes', !FX.niv)}${Object.entries(JR_NIV).map(([k, l]) => R('fx-niv', k, l, FX.niv === k)).join('')}</div>
+    <label class="check"><input type="checkbox" id="fx-todo" ${FX.todo ? 'checked' : ''}><span>Seulement les fiches à compléter</span></label>
+    <label class="check"><input type="checkbox" id="fx-ph" ${FX.ph ? 'checked' : ''}><span>Seulement les fiches avec photos</span></label>
+    <p class="small muted">Un prénom ou un rayon est cherché dans les personnes concernées et dans le texte de la fiche. Ajoutez votre équipe dans « Personnes » (prénom et rayon) pour que le filtre par rayon retrouve aussi leurs fiches.</p>
+    <div class="btns two"><button class="btn ghost" data-act="fxreset">Tout effacer</button><button class="btn" data-act="fxapply">Voir les fiches</button></div></div>`;
+  sh.classList.remove('hidden');
+}
+function fxApply() {
+  const g = n => (document.querySelector(`input[name=${n}]:checked`) || {}).value || '';
+  FX.per = g('fx-per') || 'all'; FX.a = $('#fx-a').value; FX.b = $('#fx-b').value;
+  if ((FX.a || FX.b) && FX.per === 'all') FX.per = 'custom';
+  FX.who = $('#fx-whot').value.trim() || g('fx-who'); FX.ray = g('fx-ray'); FX.type = $('#fx-type').value; FX.niv = g('fx-niv');
+  FX.todo = $('#fx-todo').checked; FX.ph = $('#fx-ph').checked;
+  closeSheet(); render(); window.scrollTo(0, 0);
+}
+function fxExport() {
+  const list = jrList().filter(fxMatch).filter(f => f.type !== 'perso' || FX.type === 'perso').sort((x, y) => jrSortKey(x) < jrSortKey(y) ? -1 : 1);
+  const act = fxActive().map(x => x[1]); if (jrSearch.trim()) act.push('mot « ' + jrSearch.trim() + ' »');
+  const r = fxRange(), dates = list.map(f => f.date).filter(Boolean);
+  const per = r && FX.per !== 'custom' ? `Période : du ${frNum(r[0])} au ${frNum(r[1])}` : dates.length ? `Période : du ${frNum(dates[0])} au ${frNum(dates[dates.length - 1])}` : '';
+  jrPdfList(list, [per, act.length ? 'Filtres : ' + act.join(', ') : ''], `Fiches_${slug(act.join('_') || 'toutes')}_${today()}.pdf`.replace(/_+/g, '_'), true);
+}
+/* ---- PDF d'une journée ---- */
+async function dayPdf(ds) {
+  recapFlush();
+  toast('Préparation du PDF…'); if (!await ensurePdf()) return toast('Connexion internet nécessaire la première fois pour créer un PDF.');
+  const {jsPDF} = window.jspdf, doc = new jsPDF({unit:'mm', format:'a4'}), w = jrPdfWriter(doc), st = S.settings, d = S.days[ds];
+  const long = pd(ds).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  w.line('Journée du ' + long, {b:true, s:15}); w.gap(1);
+  [st.nom && st.nom + (st.poste ? ', ' + st.poste : ''), st.employeur && 'Employeur : ' + st.employeur].filter(Boolean).forEach(l => w.line(l, {c:[70, 78, 92]}));
+  w.gap(4); w.line('Horaires', {b:true, s:11.5});
+  if (d && d.segs.length) {
+    const b = bounds(ds), p = bounds(addD(ds, -1));
+    w.line(dayTypeTxt(d, true) + ' : ' + segTxt(d));
+    w.line(`Temps travaillé ${fmt(dayEff(d))} · amplitude ${b && b.en ? fmt((b.en - b.st) / 60000) : '—'} · pauses ${fmt(dayPause(d))}${b && p && p.en ? ' · repos depuis la veille ' + fmt((b.st - p.en) / 60000) : ''}`);
+    const al = dayAlerts(ds); if (al.length) al.forEach(a => w.line('• ' + a, {c:[70, 78, 92]}));
+  } else w.line(d ? dayTypeTxt(d, true) : 'Non renseigné');
+  if (d && d.recap && d.recap.txt) { w.gap(4); w.line('Récapitulatif de la journée', {b:true, s:11.5}); w.line(d.recap.txt); }
+  const fs = jrOfDay(ds).filter(f => f.type !== 'perso');
+  if (fs.length) { w.gap(5); w.line(`Fiches du jour (${fs.length})`, {b:true, s:11.5}); w.gap(4); for (const f of fs) await jrPdfFiche(doc, w, f, true); }
+  pdfFooter(doc, 'Journée — Mes Heures');
+  await deliver(doc.output('blob'), `Journee_${ds}.pdf`, 'application/pdf');
+}
+/* ---- Forfait : jours déclarés et jours réels ---- */
+function htmlRealDays(f) {
+  const end = addD(today(), -1); let dec = 0, real = 0; const diff = [];
+  for (let ds = f.p.start; ds <= end && ds <= f.p.end; ds = addD(ds, 1)) { const d = S.days[ds]; if (!d || !inContract(ds)) continue; const a = catUnits(d, 'travail'), r = dayWorkUnits(ds); dec += a; real += r; if (a !== r) diff.push([ds, a, r]); }
+  if (!diff.length) return '';
+  return `<div class="row sup"><span>Jours réellement travaillés jusqu’à hier (règle des demi-journées)</span><span class="v num">${nj(real)}</span></div>
+    <details class="pfx" style="padding:0 16px 10px"><summary>Écart de ${nj(real - dec)} avec les jours notés (${diff.length} jour${diff.length > 1 ? 's' : ''})</summary>${diff.map(([ds, a, r]) => `<div class="small">${frDay(ds)} ${frNum(ds)} : noté ${nj(a)}, réel ${nj(r)}${S.days[ds].half && S.days[ds].pm && tCat(S.days[ds].pm) !== 'travail' ? ' (après-midi noté en repos mais travaillé)' : ''}</div>`).join('')}<p class="small muted">Le compteur du forfait suit ce qui est noté (comme sur la fiche de paie). Une demi-journée ne compte comme telle que si le travail finit au plus tard à 13 h 30 et est suivi de 18 h de repos (avenant n° 52).</p></details>`;
+}
+/* ---- Véhicules (changement en cours d'année) ---- */
+function vehList() { const st = S.settings; const l = (st.vehs && st.vehs.length) ? st.vehs.map(v => ({...v})) : [{from:'', pm:false, cv:+st.cv || 5, elec:!!st.elec}]; return l.sort((a, b) => (a.from || '') < (b.from || '') ? -1 : 1); }
+function vehShares(ds) {
+  const l = vehList(); let cur = 0;
+  l.forEach((v, i) => { if (!v.from || v.from < ds) cur = i; });
+  const sw = l.findIndex(v => v.from && v.from === ds);
+  if (sw >= 0) return l[sw].pm && sw !== cur ? [[cur, .5], [sw, .5]] : [[sw, 1]];
+  return [[cur, 1]];
+}
+function htmlVehs() {
+  const l = vehList(), cvs = c => [3, 4, 5, 6, 7].map(x => `<option value="${x}" ${+c === x ? 'selected' : ''}>${x === 3 ? '3 CV et moins' : x === 7 ? '7 CV et plus' : x + ' CV'}</option>`).join('');
+  return `<div class="vehs"><label class="l">Véhicule${l.length > 1 ? 's' : ''} pour les trajets</label>
+    ${l.map((v, i) => `<div class="vrow">
+      <div class="vh1">${i === 0 && !v.from ? '<span class="small"><b>Depuis le début</b></span><input type="hidden" class="vh vh-from" value="">' : `<span class="small">Depuis le</span><input type="date" class="vh vh-from" value="${esc(v.from)}"><select class="vh vh-pm"><option value="">dès le matin</option><option value="1" ${v.pm ? 'selected' : ''}>à partir du soir</option></select>`}</div>
+      <div class="vh2"><select class="vh vh-cv">${cvs(v.cv)}</select><label class="check" style="margin:0"><input type="checkbox" class="vh vh-el" ${v.elec ? 'checked' : ''}><span>100 % électrique (+20 %)</span></label>${i > 0 ? `<button type="button" class="linkbtn" data-act="vehdel" data-i="${i}">Retirer</button>` : ''}</div>
+    </div>`).join('')}
+    <button type="button" class="btn ghost" data-act="vehadd" style="margin-top:8px">+ Changement de véhicule</button>
+    <p class="small muted">En cas de changement de véhicule dans l’année, le barème est appliqué à chaque véhicule pour ses propres kilomètres. La puissance fiscale figure sur la carte grise (case P.6) ; une voiture électrique a souvent moins de CV que l’ancienne.</p></div>`;
+}
+function readVehs(st) {
+  const rows = [...document.querySelectorAll('.vrow')]; if (!rows.length) return;
+  st.vehs = rows.map(el => ({from:(el.querySelector('.vh-from') || {}).value || '', pm:((el.querySelector('.vh-pm') || {}).value || '') === '1', cv:+el.querySelector('.vh-cv').value, elec:el.querySelector('.vh-el').checked}));
+  const l = vehList(), last = l[l.length - 1]; st.cv = last.cv; st.elec = last.elec;
+}
+/* ---- Reprise des données v10 (une seule fois, sans doublon) ---- */
+function mig10() {
+  const st = S.settings, now = new Date().toISOString(); let n = 0;
+  const LVN = {info:'info', pos:'resolu', imp:'imp', crit:'litige'}, srcLv = {};
+  const HOR = /me demande de prendre|demi.?journ[ée]e|planning|r[ée]union [àa] \d/i, PERSO = /rendez.?vous perso|rhumato|m[ée]decin traitant|docteur/i;
+  for (const [ds, d] of Object.entries(S.days)) {
+    const notes = (d.notes && d.notes.length) ? d.notes : (d.note ? [{id:'n' + ds.replace(/-/g, ''), txt:d.note, lv:'info'}] : []);
+    for (const no of notes) {
+      const txt = (no.txt || '').trim(); if (!txt) continue;
+      const id = 'jn' + (no.id || ds); srcLv[id] = LVN[no.lv] || 'info';
+      if (S.jr[id]) continue;
+      const first = txt.split('\n')[0].trim(), ferm = /^fermeture( du)?( magasin)?\b/i.test(first);
+      const type = PERSO.test(txt) ? 'perso' : (ferm || HOR.test(txt)) ? 'horaire' : 'evenement';
+      S.jr[id] = {id, type, niv:srcLv[id], date:ds, heure:'', titre:ferm ? 'Fermeture du magasin' : first.slice(0, 70), texte:ferm ? txt.split('\n').slice(1).join('\n').trim() : txt,
+        personnes:'', temoins:'', cat:'', lien:'', photos:[], aCompleter:false, src:'note', createdAt:now, updatedAt:now, versions:[]};
+      n++; try { pushJr(id); } catch (e) {}
+    }
+  }
+  for (const f of jrList()) {
+    let ch = false;
+    if (!f.niv && srcLv[f.id]) { f.niv = srcLv[f.id]; ch = true; }
+    if (f.src === 'note' && f.type === 'evenement' && !(f.versions || []).length && HOR.test(f.texte || '')) { f.versions = [{at:f.updatedAt || f.createdAt, data:jrPick(f)}]; f.type = 'horaire'; ch = true; }
+    if (ch) { f.updatedAt = now; try { pushJr(f.id); } catch (e) {} }
+  }
+  // Lundi 16 novembre : après-midi déclaré en repos à l'employeur (travaillé en réalité)
+  const d16 = S.days['2026-11-16'];
+  if (d16 && !d16.half && (d16.segs || []).length && !st.mig10) {
+    d16.hist = [...(d16.hist || []), {at:now, act:'Correction', avant:dayTypeTxt(d16, true), apres:'Matin : Travail / après-midi : Repos hebdomadaire (noté en repos à ma demande ; travaillé en réalité, horaires conservés)'}];
+    d16.half = true; d16.am = 'travail'; d16.pm = 'repos'; if (d16.rep === undefined) d16.rep = 1; d16.updatedAt = now; try { pushDay('2026-11-16'); } catch (e) {}
+  }
+  // Mercredi 25 novembre : affaire Vincent, échange avec l'avocat de l'entreprise
+  if (!S.jr.jx2511avocat && S.days['2026-11-25']) {
+    S.jr.jx2511avocat = {id:'jx2511avocat', type:'evenement', niv:'imp', date:'2026-11-25', heure:'11:00',
+      titre:'Affaire Vincent : échange des faits avec l’avocat de l’entreprise',
+      texte:'Point important sur le problème de Vincent (remballe des poulets et changement des dates).\nÉchange des faits avec l’avocat de l’entreprise, vers 11 h – 11 h 30.\nPrésents : M. et Mme Eude, Émilie, Angélique et moi.',
+      personnes:'Vincent', temoins:'M. Eude, Mme Eude, Émilie, Angélique', cat:'', lien:S.jr.jnccs8x6cf ? 'jnccs8x6cf' : '', photos:[], aCompleter:true, limite:'', direction:'', createdAt:now, updatedAt:now, versions:[]};
+    n++; try { pushJr('jx2511avocat'); } catch (e) {}
+  }
+  // Véhicule électrique depuis le lundi 23 novembre au soir
+  if (!(st.vehs && st.vehs.length) && st.elec && st.debut === '2026-10-05') st.vehs = [{from:'', pm:false, cv:+st.cv || 6, elec:false}, {from:'2026-11-23', pm:true, cv:5, elec:true}]; st.cv = 5;
+  if (st.mode === 'forfait' && +st.contingent === 220 && /2216|4711|alimentaire/i.test(st.convention || '')) st.contingent = 180; // contingent conventionnel IDCC 2216
+  st.mig10 = true; st.updatedAt = now;
+  { const e = (st.vehs || []).find(v => v.from === '2026-11-23' && v.elec); if (e && !st.mig10b) { e.cv = 5; st.cv = 5; } st.mig10b = true; } persist(); try { pushSettings(); } catch (e) {}
+  if (n) setTimeout(() => toast(n + ' note(s) devenue(s) des fiches'), 600);
+}
+/* ---- Actions v10 ---- */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, cur = dayDs || today();
+  if (a === 'dprev' || a === 'dnext') { recapFlush(); const n = addD(cur, a === 'dprev' ? -1 : 1); dayDs = n === today() ? null : n; render(); }
+  else if (a === 'dtoday') { recapFlush(); dayDs = null; render(); window.scrollTo(0, 0); }
+  else if (a === 'dayfiche') { recapFlush(); const ds = b.dataset.ds; jrOpen(null, {date:ds, heure:ds === today() ? nowHM() : ''}); }
+  else if (a === 'daypdf') dayPdf(b.dataset.ds);
+  else if (a === 'jrnoh') { const h = $('#jr-heure'); if (h) h.value = ''; }
+  else if (a === 'fxopen') fxOpen();
+  else if (a === 'fxapply') fxApply();
+  else if (a === 'fxreset') { FX = {per:'all', a:'', b:'', who:'', ray:'', type:'', niv:'', todo:false, ph:false}; jrSearch = ''; closeSheet(); render(); }
+  else if (a === 'fxclr') { const k = b.dataset.k; if (k === 'per') { FX.per = 'all'; FX.a = FX.b = ''; } else if (k === 'todo' || k === 'ph') FX[k] = false; else FX[k] = ''; render(); }
+  else if (a === 'fxq') { const k = b.dataset.k, m = today().slice(0, 7);
+    if (k === 'all') { FX = {per:'all', a:'', b:'', who:'', ray:'', type:'', niv:'', todo:false, ph:false}; jrSearch = ''; }
+    else if (k === 'week') FX.per = FX.per === 'week' ? 'all' : 'week';
+    else if (k === 'month') FX.per = FX.per === m ? 'all' : m;
+    else FX[k] = !FX[k];
+    render(); }
+  else if (a === 'fxexp') fxExport();
+  else if (a === 'vehadd') { const st = S.settings; st.vehs = vehList(); const last = st.vehs[st.vehs.length - 1]; st.vehs.push({from:today(), pm:false, cv:last.cv, elec:!last.elec}); st.updatedAt = new Date().toISOString(); persist(); try { pushSettings(); } catch (er) {} keepScroll(render); }
+  else if (a === 'vehdel') { const st = S.settings; st.vehs = vehList(); st.vehs.splice(+b.dataset.i, 1); const l = vehList(), last = l[l.length - 1]; st.cv = last.cv; st.elec = last.elec; st.updatedAt = new Date().toISOString(); persist(); try { pushSettings(); } catch (er) {} keepScroll(render); }
+});
 
 /* ================= Démarrage ================= */
 render();
