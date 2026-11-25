@@ -2612,7 +2612,7 @@ function importBackup(file) {
     let o; try { o = JSON.parse(r.result); } catch (e) { return toast('Ce fichier n’est pas une sauvegarde Mes Heures.'); }
     if (!o || typeof o.days !== 'object') return toast('Ce fichier n’est pas une sauvegarde Mes Heures.');
     const n = Object.keys(o.days).length, nj2 = Object.keys(o.jr || {}).length;
-    if (!confirm(n ? `Restaurer ${n} jour(s) ? Les journées plus récentes déjà présentes sur ce téléphone sont conservées.` : `Ajouter ${nj2} fiche(s) au Journal${o.photos ? ' avec leurs photos' : ''} ? Rien d’autre n’est modifié.`)) return;
+    if (!confirm(n ? `Restaurer ${n} jour(s) ? Les journées plus récentes déjà présentes sur ce téléphone sont conservées.` : `Ajouter ${nj2} fiche(s)${o.photos ? ' avec leurs photos' : ''}${o.recap ? ' et le récapitulatif de la journée' : ''} ? Rien d’autre n’est modifié.`)) return;
     let c = 0;
     for (const [ds, d] of Object.entries(o.days)) { if (d.deleted) continue; if (mergeDay(ds, d)) { c++; pushDay(ds); } }
     if (o.settings && (o.settings.updatedAt || '') > (S.settings.updatedAt || '')) { S.settings = {...DEF_SET, ...o.settings}; pushSettings(); }
@@ -2630,7 +2630,10 @@ function importBackup(file) {
     let fj = 0; for (const [k, v] of Object.entries(o.jr || {})) if (mergeJr(k, v)) { pushJr(k); fj++; }
     for (const [k, pt] of Object.entries(o.jrPatch || {})) { const f = S.jr[k]; if (!f || f.deleted) continue; // complète une fiche existante, avec historique
       f.versions = [...(f.versions || []), {at:f.updatedAt || f.createdAt, data:jrPick(f)}]; Object.assign(f, pt, {updatedAt:now}); pushJr(k); fj++; }
-    persist(); render(); toast(n ? c + ' jour(s) restauré(s)' : fj + ' fiche(s) ajoutée(s) au Journal');
+    for (const [ds, txt] of Object.entries(o.recap || {})) { // ajoute au récapitulatif de la journée, sans effacer l'existant
+      const d = S.days[ds]; const cur = d && d.recap ? d.recap.txt : ''; if (!txt || (cur && cur.includes(txt))) continue;
+      recapSave(ds, cur ? cur + '\n\n' + txt : txt); fj++; }
+    persist(); render(); toast(n ? c + ' jour(s) restauré(s)' : fj + ' élément(s) ajouté(s)');
   };
   r.readAsText(file);
 }
@@ -3743,7 +3746,7 @@ function watchHtml(now) {
     let m = a.match(/^Repos de (\S+) depuis la veille/); if (m) return rows.push(['r', 'Repos avant ' + pd(ds).toLocaleDateString('fr-FR', {weekday:'long'}), m[1].replace('h', ':')]);
     m = a.match(/^Amplitude de (\S+)/); if (m) return rows.push(['o', 'Amplitude ' + pd(ds).toLocaleDateString('fr-FR', {weekday:'long'}), m[1].replace('h', ':')]);
     m = a.match(/^Plus de 10 h/); if (m) return rows.push(['o', 'Plus de 10 h ' + pd(ds).toLocaleDateString('fr-FR', {weekday:'long'}), fmtC(dayEff(S.days[ds], now))]);
-    rows.push(['r', a, '']);
+    rows.push(['r', (ds === today() ? 'Aujourd’hui' : pd(ds).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'}).replace(/^./, c => c.toUpperCase())) + ' : ' + a, '']);
   }); }
   const rw = restWeek(mon); if (restBad(rw)) rows.push(['r', 'Repos hebdomadaire', fmtC(rw.min)]);
   const wf = S.settings.mode === 'forfait' ? weekForfait(mon) : null; if (wf && wf.missHalf) rows.push(['o', 'Demi-journées de repos à récupérer', String(wf.missHalf)]);
