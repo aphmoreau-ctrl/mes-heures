@@ -500,6 +500,8 @@ input:focus,textarea:focus,select:focus{border-color:#0a0a0a;box-shadow:0 0 0 3p
 .brdem2{display:flex;flex-direction:column;gap:6px;border-bottom:1px solid #f0f0f0;padding:8px 0}
 .brdem2>span:first-child{font-size:15px}
 
+.mday{display:grid;grid-template-columns:1fr auto;gap:10px;width:100%;text-align:left;background:none;border:0;border-top:1px solid #f0f0f0;padding:10px 16px;color:#0a0a0a;font-size:14.5px}
+.mday:active{background:#f7f7f7}.mdays summary{padding:12px 16px}.mdays{padding:0!important}
 </style>
 </head>
 <body>
@@ -1930,7 +1932,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 10.1</p>`;
+  <p class="note">Mes Heures, version 10.2</p>`;
 }
 
 function render() {
@@ -1944,7 +1946,7 @@ function render() {
   { const nm = (S.settings.nom || '').trim(); $('#hdate').textContent = (d => d.charAt(0).toUpperCase() + d.slice(1))(pd(today()).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'})); $('#hname').textContent = (nm ? 'Bonjour ' + nm.split(/\s+/)[0] : 'Mes Heures'); $('#avatar').textContent = nm ? nm.split(/\s+/).map(x => x[0]).slice(0, 2).join('').toUpperCase() : 'MH'; const t0 = sectionTitle(); $('#mwm').textContent = t0 || 'MES HEURES'; $('#mwm').classList.toggle('sec', !!t0); $('#avatar').classList.toggle('on', !isJ && tab === 'settings'); }
   $('.htabs').classList.add('hidden'); $('.jtabs').classList.add('hidden'); menuClose(); document.body.classList.toggle('home', isH);
   document.querySelectorAll('.jtabs button').forEach(b => b.classList.toggle('on', b.dataset.jv === jrView));
-  v.innerHTML = isH ? vHome() : isJ ? vJournal() : tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'docs' ? vDocs() : tab === 'journal' ? vJournal() : vSettings();
+  v.innerHTML = isH ? vHome() : isJ ? vJournal() : tab === 'today' ? vToday() : tab === 'week' ? vWeek() : tab === 'recap' ? vRecap() : tab === 'mois' ? vMonth() : tab === 'docs' ? vDocs() : tab === 'journal' ? vJournal() : vSettings();
   if (!isJ && !isH && tab === 'recap') setTimeout(verifyClosUI, 30);
   document.querySelectorAll('.htabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
   setSync(); setTimeout(fillThumbs, 20);
@@ -2765,7 +2767,7 @@ function fbErr(e) {
 /* ================= Événements ================= */
 document.addEventListener('click', async e => {
   const spb = e.target.closest('[data-sp]');
-  if (spb) { space = spb.dataset.sp; if (space === 'heures' && spb.dataset.t) { tab = spb.dataset.t; if (tab === 'today') dayDs = null; } if (space === 'journal' && spb.dataset.jv) jrView = spb.dataset.jv; render(); window.scrollTo(0, 0); return; }
+  if (spb) { space = spb.dataset.sp; if (space === 'heures' && spb.dataset.t) { tab = spb.dataset.t; if (tab === 'today') dayDs = null; if (tab === 'mois') monYm = null; } if (space === 'journal' && spb.dataset.jv) jrView = spb.dataset.jv; render(); window.scrollTo(0, 0); return; }
   const jb = e.target.closest('[data-jv]');
   if (jb) { jrView = jb.dataset.jv; render(); window.scrollTo(0, 0); return; }
   const tb = e.target.closest('.htabs button');
@@ -3940,6 +3942,7 @@ function menuItems() {
     ${I('data-sp="journal" data-jv="jour"', 'Tâches du jour', tt ? tdn + '/' + tt : '—', false, cur('journal', 'jour'))}
     ${I('data-sp="journal" data-jv="pers"', 'Personnes', String(jrPers().length), false, cur('journal', 'pers'))}
     <div class="mmsec">Suivi</div>
+    ${I('data-sp="heures" data-t="mois"', 'Mon mois', moisNom(+today().slice(0, 4), +today().slice(5, 7) - 1), false, cur('heures', 'mois'))}
     ${I('data-sp="heures" data-t="recap"', 'Compteurs', rd && rd.due ? String(rd.due / 2).replace('.', ',') + ' j de repos dus' : f ? String(f.worked).replace('.', ',') + '/' + f.fj : '', !!(rd && rd.due), cur('heures', 'recap'))}
     ${I('data-sp="heures" data-t="docs"', 'Documents &amp; PDF', 'aperçu', false, cur('heures', 'docs'))}
     <div class="mmsec">Compte</div>
@@ -3956,7 +3959,7 @@ function menuClose() { const m = $('#mmenu'); if (m) m.classList.remove('on'); d
 function sectionTitle() {
   if (space === 'accueil') return '';
   if (space === 'journal') return ({brief:'Brief d’équipe', fiches:'Fiches', jour:'Tâches du jour', pers:'Personnes'})[jrView] || 'Journal';
-  return ({today:'Ma journée', week:'Semaine', recap:'Compteurs', docs:'Documents', settings:'Réglages'})[tab] || '';
+  return ({today:'Ma journée', week:'Semaine', mois:'Mon mois', recap:'Compteurs', docs:'Documents', settings:'Réglages'})[tab] || '';
 }
 
 /* ================= v10 : une seule appli, fiches, récapitulatif de journée ================= */
@@ -4045,7 +4048,7 @@ function fxMatch(f) {
   const q = jrSearch.trim(); if (q && !normTxt(fTxt(f)).includes(normTxt(q))) return false;
   return true;
 }
-function fxPerLabel() { if (FX.per === 'week') return 'Cette semaine'; if (/^\d{4}-\d{2}$/.test(FX.per)) return moisNom(+FX.per.slice(0, 4), +FX.per.slice(5, 7) - 1) + ' ' + FX.per.slice(0, 4); if (FX.per === 'custom') return (FX.a ? 'du ' + frNum(FX.a) : '') + (FX.b ? ' au ' + frNum(FX.b) : ''); return ''; }
+function fxPerLabel() { if (FX.per === 'week') return 'Cette semaine'; if (/^\d{4}-\d{2}$/.test(FX.per)) return moisNom(+FX.per.slice(0, 4), +FX.per.slice(5, 7) - 1); if (FX.per === 'custom') return (FX.a ? 'du ' + frNum(FX.a) : '') + (FX.b ? ' au ' + frNum(FX.b) : ''); return ''; }
 function fxActive() {
   const o = [];
   if (FX.per !== 'all') o.push(['per', fxPerLabel()]);
@@ -4067,7 +4070,7 @@ function fxOpen() {
   sh.innerHTML = `<div class="bgd" data-act="shut"></div><div class="pnl"><div class="grip"></div>
     <div class="shd"><b>Filtrer les fiches</b><button class="linkbtn" data-act="shut">Fermer</button></div>
     <label class="l">Période</label>
-    <div class="chips">${R('fx-per', 'all', 'Tout', FX.per === 'all')}${R('fx-per', 'week', 'Cette semaine', FX.per === 'week')}${months.map(m => R('fx-per', m, moisNom(+m.slice(0, 4), +m.slice(5) - 1) + ' ' + m.slice(0, 4), FX.per === m)).join('')}${R('fx-per', 'custom', 'Dates libres', FX.per === 'custom')}</div>
+    <div class="chips">${R('fx-per', 'all', 'Tout', FX.per === 'all')}${R('fx-per', 'week', 'Cette semaine', FX.per === 'week')}${months.map(m => R('fx-per', m, moisNom(+m.slice(0, 4), +m.slice(5) - 1), FX.per === m)).join('')}${R('fx-per', 'custom', 'Dates libres', FX.per === 'custom')}</div>
     <div class="two"><div><label class="l" for="fx-a">Du</label><input type="date" id="fx-a" value="${esc(FX.a)}"></div><div><label class="l" for="fx-b">Au</label><input type="date" id="fx-b" value="${esc(FX.b)}"></div></div>
     <label class="l">Personne</label>
     <div class="chips">${R('fx-who', '', 'Toutes', !FX.who)}${fxPeople().map(p => R('fx-who', p.id, p.nom, FX.who === p.id)).join('')}</div>
@@ -4321,6 +4324,142 @@ document.addEventListener('click', e => {
   else if (a === 'brphotos') { const id = BR.id; BR = null; render(); return jrOpenRaw(id); }
   else return;
   keepScroll(render);
+});
+
+/* ================= Récapitulatif du mois ================= */
+let monYm = null;
+function monthData(ym) {
+  const y = +ym.slice(0, 4), m = +ym.slice(5, 7) - 1, first = ym + '-01', last = ymd(new Date(y, m + 1, 0)), end = last < today() ? last : today();
+  const o = {ym, y, m, first, last, end, dec:0, real:0, eff:0, jours:0, r12:[], r11:[], amp:[], conge:0, rtt:0, recup:0, ferie:0, weeks:[], missHalf:0, horaires:[], fiches:[], byType:{}, briefs:{}, dem:{fait:0, pasfait:0, att:0}, imp:[]};
+  for (let ds = first; ds <= end; ds = addD(ds, 1)) {
+    const d = S.days[ds]; if (!d || !inContract(ds)) continue;
+    const a = catUnits(d, 'travail'); o.dec += a; o.real += dayWorkUnits(ds); o.eff += dayEff(d); if (a > 0) o.jours++;
+    dayParts(d).forEach(p => { if (p.t === 'conge' || p.t === 'anciennete' || p.t === 'fractionnement') o.conge += p.w; else if (p.t === 'rtt') o.rtt += p.w; else if (p.t === 'recup') o.recup += p.w; else if (p.t === 'ferie') o.ferie += p.w; });
+    dayAlerts(ds).forEach(t => { const r = t.match(/^Repos de (\S+) depuis la veille/); if (r) { o.r12.push([ds, r[1]]); if (/sous le minimum légal/.test(t)) o.r11.push([ds, r[1]]); } if (/^Amplitude/.test(t)) o.amp.push([ds, t.match(/^Amplitude de (\S+)/)[1]]); });
+  }
+  for (const mon of weeksEndingIn(y, m)) { if (mon > today() || (S.settings.debut && addD(mon, 6) < S.settings.debut)) continue; const r = restWeek(mon), wf = S.settings.mode === 'forfait' ? weekForfait(mon) : null, w = weekStats(mon); o.weeks.push({mon, r, w, miss:wf ? wf.missHalf : 0}); o.missHalf += wf ? wf.missHalf : 0; }
+  o.fiches = jrList().filter(f => f.date >= first && f.date <= last && f.type !== 'perso').sort((a, b) => jrSortKey(a) < jrSortKey(b) ? -1 : 1);
+  o.fiches.forEach(f => {
+    o.byType[f.type] = (o.byType[f.type] || 0) + 1;
+    if (f.type === 'horaire') o.horaires.push(f);
+    if (f.type === 'brief' && f.br) { o.briefs[f.br.ray] = (o.briefs[f.br.ray] || 0) + 1; (f.br.dem || []).forEach(d => d.st === 'fait' ? o.dem.fait++ : d.st === 'pasfait' ? o.dem.pasfait++ : o.dem.att++); }
+    if (f.type === 'tache') (f.pids || []).forEach(p => { const s = jrStatus(f, p); s === 'fait' ? o.dem.fait++ : s === 'pasfait' ? o.dem.pasfait++ : o.dem.att++; });
+    if ((f.niv === 'imp' || f.niv === 'litige') && f.type !== 'perso' && f.type !== 'horaire') o.imp.push(f);
+  });
+  const mr = (S.settings.mrecap || {})[ym]; o.recap = mr || null;
+  return o;
+}
+
+const unitTxt = u => u === 1 ? 'Journée' : u === .5 ? 'Demi-journée' : u === 0 ? '—' : nj(u);
+function monthDays(o) {
+  const out = [];
+  for (let ds = o.first; ds <= o.end; ds = addD(ds, 1)) {
+    const d = S.days[ds]; if (!d || !inContract(ds)) continue;
+    const dec = catUnits(d, 'travail'), real = dayWorkUnits(ds), b = bounds(ds), eff = dayEff(d);
+    let why = '';
+    if (real > dec && b && b.en) why = b.en > dt(ds, '13:30') && b.st < dt(ds, '13:30') ? 'travail fini à ' + HMx(b.en) + ', après 13 h 30' : 'moins de 18 h de repos avant ou après';
+    else if (real < dec) why = 'demi-journée réelle : moins de 13 h 30 de travail et 18 h de repos';
+    out.push({ds, d, type:dayTypeTxt(d), hor:(d.segs || []).length ? segTxt(d) : '', eff, amp:b && b.en ? (b.en - b.st) / 60000 : 0, dec, real, why});
+  }
+  return out;
+}
+function vMonth() {
+  const ym = monYm || today().slice(0, 7), o = monthData(ym), st = S.settings;
+  const prev = ymd(new Date(o.y, o.m - 1, 1)).slice(0, 7), next = ymd(new Date(o.y, o.m + 1, 1)).slice(0, 7);
+  const R = (l, v, cls) => `<div class="row${cls ? ' ' + cls : ''}"><span>${l}</span><span class="v num">${v}</span></div>`;
+  const dl = arr => arr.map(([ds, v]) => `${frDay(ds).slice(0, 3)}. ${+ds.slice(8)} : ${esc(v)}`).join(' · ');
+  const badW = o.weeks.filter(x => restBad(x.r));
+  const tl = Object.entries(o.byType).sort((a, b) => b[1] - a[1]).map(([t, n]) => `${(JR_TYPES[t] || {}).l || t} ${n}`).join(' · ');
+  const vs = (o.recap && o.recap.v) || [];
+  return `
+  <div class="dnav"><button class="dnb" data-act="mprev" data-m="${prev}" aria-label="Mois précédent">‹</button>
+    <div class="dnl"><b>${moisNom(o.y, o.m)}</b><span>${o.end < o.last ? 'en cours, jusqu’à aujourd’hui' : 'mois complet'}</span></div>
+    <button class="dnb" data-act="mprev" data-m="${next}" aria-label="Mois suivant">›</button></div>
+  <div class="cols"><div>
+  <div class="group"><div class="gh">Temps de travail</div>
+    ${R('Jours travaillés (notés)', nj(o.dec))}
+    ${o.real !== o.dec ? R('Jours réellement travaillés (règle des demi-journées)', nj(o.real), 'sup') : ''}
+    ${R('Heures travaillées', fmt(o.eff))}
+    ${o.jours ? R('Moyenne par jour travaillé', fmt(o.eff / o.jours)) : ''}
+    ${o.conge ? R('Congés payés', nj(o.conge)) : ''}${o.rtt ? R('RTT / repos forfait', nj(o.rtt)) : ''}${o.recup ? R('Récupérations', nj(o.recup)) : ''}${o.ferie ? R('Fériés chômés', nj(o.ferie)) : ''}
+    ${(md => md.length ? `<details class="pfx mdays"><summary>Détail jour par jour (${md.length} jours)</summary>${md.map(x => `<button class="mday" data-act="dgo" data-ds="${x.ds}">
+      <span class="mdl"><b>${frDay(x.ds)}. ${+x.ds.slice(8)}</b> · ${esc(x.dec > 0 ? unitTxt(x.dec) + (x.d.half || x.d.type !== 'travail' ? ' (' + x.type.toLowerCase() + ')' : '') : x.type)}${x.hor ? `<br><span class="small muted num">${esc(x.hor)}${x.amp ? ' · amplitude ' + fmt(x.amp) : ''}</span>` : ''}${x.why ? `<br><span class="small"><b>Réel : ${unitTxt(x.real).toLowerCase()}</b> (${esc(x.why)})</span>` : ''}</span>
+      <span class="v num">${x.eff ? fmt(x.eff) : ''}</span></button>`).join('')}<div class="row"><span><b>Total</b> · ${nj(o.dec)} noté${o.real !== o.dec ? ', ' + nj(o.real) + ' réel' : ''}</span><span class="v num">${fmt(o.eff)}</span></div></details>` : '')(monthDays(o))}
+  </div>
+  <div class="group"><div class="gh">Repos (avenant n° 52)</div>
+    ${R('Repos de moins de 12 h', String(o.r12.length), o.r12.length ? 'sup' : '')}
+    ${o.r12.length ? `<div class="row"><span class="small muted">${dl(o.r12)}</span></div>` : ''}
+    ${o.r11.length ? R('dont sous le minimum légal de 11 h', String(o.r11.length), 'sup') : ''}
+    ${R('Semaines sans 36 h de repos d’affilée', badW.length + ' sur ' + o.weeks.length, badW.length ? 'sup' : '')}
+    ${badW.length ? `<div class="row"><span class="small muted">${badW.map(x => 'semaine du ' + frNum(x.mon) + ' : ' + restTxt(x.r, true)).join(' · ')}</span></div>` : ''}
+    ${st.mode === 'forfait' ? R('Demi-journées de repos manquantes', String(o.missHalf), o.missHalf ? 'sup' : '') : ''}
+    ${o.amp.length ? R('Amplitudes de plus de 13 h', String(o.amp.length), 'sup') + `<div class="row"><span class="small muted">${dl(o.amp)}</span></div>` : ''}
+  </div>
+  <div class="group"><div class="gh">Équipes et fiches</div>
+    ${R('Fiches du mois', String(o.fiches.length))}
+    ${tl ? `<div class="row"><span class="small muted">${esc(tl)}</span></div>` : ''}
+    ${Object.keys(o.briefs).length ? R('Briefs d’équipe', Object.entries(o.briefs).map(([r, n]) => esc(r) + ' ' + n).join(' · ')) : R('Briefs d’équipe', '0')}
+    ${o.dem.fait + o.dem.pasfait + o.dem.att ? R('Demandes faites / pas faites / en attente', `${o.dem.fait} / ${o.dem.pasfait} / ${o.dem.att}`) : ''}
+    ${o.horaires.length ? R('Horaires imposés notés', String(o.horaires.length)) : ''}
+  </div>
+  </div><div>
+  <div class="group rcap"><div class="gpad">
+    <div class="rch"><b>Récapitulatif du mois</b><span class="small muted" id="mr-st">${o.recap && o.recap.at ? 'Enregistré le ' + stampTxt(o.recap.at) : 'pour mémoire'}</span></div>
+    <textarea id="mr-txt" data-ym="${ym}" rows="7" placeholder="Le bilan du mois : ce qui a avancé, ce qui bloque, ce qu’on m’a demandé, ce que j’ai demandé…">${esc(o.recap ? o.recap.txt : '')}</textarea>
+    ${vs.length ? `<details class="pfx"><summary>Versions précédentes (${vs.length})</summary>${vs.slice().reverse().map(v => `<div class="nrow small"><b>${stampTxt(v.at)}</b><br>${esc(v.txt).replace(/\n/g, '<br>')}</div>`).join('')}</details>` : ''}
+  </div></div>
+  ${o.horaires.length ? `<div class="group"><div class="gh">Horaires imposés</div>${o.horaires.map(f => `<button class="mline" data-act="jropen" data-id="${f.id}">${frNum(f.date)}${f.heure ? ' · ' + esc(f.heure) : ''} · ${esc(jrTitle(f))}</button>`).join('')}</div>` : ''}
+  ${o.imp.length ? `<div class="group"><div class="gh">Faits importants · ${o.imp.length}</div>${o.imp.map(f => `<button class="mline" data-act="jropen" data-id="${f.id}">${frNum(f.date)} · ${esc(jrTitle(f))}${f.niv === 'litige' ? ' (litige)' : ''}</button>`).join('')}</div>` : ''}
+  <button class="btn" data-act="monpdf" data-m="${ym}">Imprimer le récapitulatif du mois (PDF)</button>
+  <button class="btn ghost" style="margin-top:10px" data-act="monfiches" data-m="${ym}">Voir toutes les fiches du mois</button>
+  </div></div>
+  <p class="note">Tout est recalculé à partir de vos pointages et de vos fiches. Les notes personnelles ne sont jamais reprises.</p>`;
+}
+let mrTimer = null;
+function mrSave(ym, txt) {
+  txt = String(txt || '').replace(/\s+$/, ''); const st = S.settings; st.mrecap = st.mrecap || {}; const r = st.mrecap[ym] || {txt:'', at:'', v:[]};
+  if (txt === (r.txt || '')) return; const now = new Date().toISOString();
+  if (r.txt && r.at && Date.now() - Date.parse(r.at) > 5 * 60000) r.v = [...(r.v || []), {at:r.at, txt:r.txt}].slice(-40);
+  r.txt = txt; r.at = now; st.mrecap[ym] = r; st.updatedAt = now; persist(); try { pushSettings(); } catch (e) {}
+  const s = $('#mr-st'); if (s) s.textContent = 'Enregistré à ' + nowHM();
+}
+function mrFlush() { const t = $('#mr-txt'); if (mrTimer && t) { clearTimeout(mrTimer); mrTimer = null; mrSave(t.dataset.ym, t.value); } }
+document.addEventListener('input', e => { if (e.target.id !== 'mr-txt') return; clearTimeout(mrTimer); const t = e.target; mrTimer = setTimeout(() => { mrTimer = null; mrSave(t.dataset.ym, t.value); }, 1200); });
+document.addEventListener('change', e => { if (e.target.id === 'mr-txt') { clearTimeout(mrTimer); mrTimer = null; mrSave(e.target.dataset.ym, e.target.value); } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') mrFlush(); });
+window.addEventListener('pagehide', mrFlush);
+async function monthPdf(ym) {
+  mrFlush(); const o = monthData(ym), st = S.settings;
+  toast('Préparation du PDF…'); if (!await ensurePdf()) return toast('Connexion internet nécessaire la première fois pour créer un PDF.');
+  const {jsPDF} = window.jspdf, doc = new jsPDF({unit:'mm', format:'a4'}), w = jrPdfWriter(doc), G = [70, 78, 92];
+  w.line('Récapitulatif du mois : ' + moisNom(o.y, o.m), {b:true, s:15}); w.gap(1);
+  [st.nom && st.nom + (st.poste ? ', ' + st.poste : ''), st.employeur && 'Employeur : ' + st.employeur, o.end < o.last ? 'Arrêté au ' + frNum(o.end) : ''].filter(Boolean).forEach(l => w.line(l, {c:G}));
+  w.gap(4); w.line('Temps de travail', {b:true, s:11.5});
+  w.line(`Jours travaillés (notés) : ${nj(o.dec)}${o.real !== o.dec ? ' · jours réellement travaillés (règle des demi-journées) : ' + nj(o.real) : ''} · heures travaillées : ${fmt(o.eff)}${o.jours ? ' (moyenne ' + fmt(o.eff / o.jours) + ' par jour travaillé)' : ''}`);
+  { const md = monthDays(o); if (md.length && doc.autoTable) { doc.autoTable({startY:w.y + 1, margin:{left:14, right:14}, head:[['Date', 'Type', 'Horaires', 'Travaillé', 'Amplitude', 'Compté', 'Réel (avenant n° 52)']],
+      body:md.map(x => [frDay(x.ds) + ' ' + frNum(x.ds), x.type, x.hor || '—', x.eff ? fmt(x.eff) : '—', x.amp ? fmt(x.amp) : '—', x.dec ? unitTxt(x.dec) : '—', x.real !== x.dec ? unitTxt(x.real) + ' (' + x.why + ')' : (x.real ? unitTxt(x.real) : '—')]),
+      foot:[['Total', '', '', fmt(o.eff), '', nj(o.dec), nj(o.real)]], showFoot:'lastPage', styles:{fontSize:7.5, cellPadding:1.5, lineColor:[220, 224, 230], lineWidth:.1}, headStyles:{fillColor:[10, 10, 10], textColor:255}, footStyles:{fillColor:[242, 242, 242], textColor:20, fontStyle:'bold'}, columnStyles:{6:{cellWidth:46}}});
+    w.y = doc.lastAutoTable.finalY + 5; } }
+  const ab = [o.conge && 'congés payés ' + nj(o.conge), o.rtt && 'RTT ' + nj(o.rtt), o.recup && 'récupérations ' + nj(o.recup), o.ferie && 'fériés chômés ' + nj(o.ferie)].filter(Boolean); if (ab.length) w.line('Absences : ' + ab.join(', '));
+  w.gap(3); w.line('Repos (avenant n° 52 de la convention IDCC 2216)', {b:true, s:11.5});
+  w.line(`Repos quotidiens de moins de 12 h : ${o.r12.length}${o.r12.length ? ' (' + o.r12.map(([ds, v]) => frNum(ds) + ' : ' + v).join(' ; ') + ')' : ''}${o.r11.length ? ', dont ' + o.r11.length + ' sous le minimum légal de 11 h' : ''}`);
+  const badW = o.weeks.filter(x => restBad(x.r)); w.line(`Semaines sans 36 h de repos consécutives : ${badW.length} sur ${o.weeks.length}${badW.length ? ' (' + badW.map(x => 'semaine du ' + frNum(x.mon) + ' : ' + restTxt(x.r, true)).join(' ; ') + ')' : ''}`);
+  if (st.mode === 'forfait') w.line(`Demi-journées de repos hebdomadaire manquantes : ${o.missHalf} (à prendre dans les 3 mois)`);
+  if (o.amp.length) w.line(`Amplitudes de plus de 13 h : ${o.amp.map(([ds, v]) => frNum(ds) + ' : ' + v).join(' ; ')}`);
+  w.gap(3); w.line('Équipes', {b:true, s:11.5});
+  w.line(`Briefs d’équipe : ${Object.keys(o.briefs).length ? Object.entries(o.briefs).map(([r, n]) => r + ' ' + n).join(', ') : 'aucun noté'}${o.dem.fait + o.dem.pasfait + o.dem.att ? ' · demandes : ' + o.dem.fait + ' faites, ' + o.dem.pasfait + ' pas faites, ' + o.dem.att + ' en attente' : ''}`);
+  if (o.recap && o.recap.txt) { w.gap(3); w.line('Récapitulatif', {b:true, s:11.5}); w.line(o.recap.txt); }
+  if (o.horaires.length) { w.gap(3); w.line('Horaires imposés', {b:true, s:11.5}); o.horaires.forEach(f => w.line('• ' + frNum(f.date) + (f.heure ? ' à ' + f.heure : '') + ' : ' + (releveNotes(f.date).split(' — ').find(x => x.includes(jrTitle(f).replace(/…$/, ''))) || jrTitle(f)))); }
+  if (o.imp.length) { w.gap(3); w.line('Faits importants', {b:true, s:11.5}); o.imp.forEach(f => w.line('• ' + frNum(f.date) + (f.heure ? ' à ' + f.heure : '') + ' — ' + ((JR_TYPES[f.type] || {}).l || '') + (f.niv === 'litige' ? ' (litige)' : '') + ' : ' + jrTitle(f))); }
+  pdfFooter(doc, 'Récapitulatif mensuel — Mes Heures');
+  await deliver(doc.output('blob'), `Recap_${ym}.pdf`, 'application/pdf');
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
+  if (a === 'mprev') { mrFlush(); monYm = b.dataset.m === today().slice(0, 7) ? null : b.dataset.m; render(); }
+  else if (a === 'monpdf') monthPdf(b.dataset.m);
+  else if (a === 'dgo') { mrFlush(); dayDs = b.dataset.ds === today() ? null : b.dataset.ds; space = 'heures'; tab = 'today'; render(); window.scrollTo(0, 0); }
+  else if (a === 'monfiches') { mrFlush(); FX = {per:b.dataset.m, a:'', b:'', who:'', ray:'', type:'', niv:'', todo:false, ph:false}; jrSearch = ''; space = 'journal'; jrView = 'fiches'; render(); window.scrollTo(0, 0); }
 });
 
 /* ================= Démarrage ================= */
