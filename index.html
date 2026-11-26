@@ -491,6 +491,15 @@ input:focus,textarea:focus,select:focus{border-color:#0a0a0a;box-shadow:0 0 0 3p
 .vh1,.vh2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .vh1 input[type=date]{width:auto;flex:1}.vh1 select,.vh2 select{width:auto;flex:1}
 
+.addl{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
+.addl:has(select){grid-template-columns:1fr auto}.addl:has(select) input{grid-column:1/-1}
+.segv{grid-template-columns:repeat(4,1fr)!important}.segv button{flex:1 1 0;min-width:0;padding-left:4px!important;padding-right:4px!important;font-size:13.5px!important;white-space:nowrap}
+.addl input,.addl select{margin:0;min-width:0}.addl .btn{width:auto;padding:0 14px;min-height:44px}
+.brdone{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:#525252;margin:0 0 10px}
+.brdem{gap:10px}.brst{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.brdem2{display:flex;flex-direction:column;gap:6px;border-bottom:1px solid #f0f0f0;padding:8px 0}
+.brdem2>span:first-child{font-size:15px}
+
 </style>
 </head>
 <body>
@@ -1921,7 +1930,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 10.0</p>`;
+  <p class="note">Mes Heures, version 10.1</p>`;
 }
 
 function render() {
@@ -2997,7 +3006,7 @@ function jrTitle(f) { let t = (f.titre || '').trim(); const first = (f.texte || 
 function jrExcerpt(f, n) { let x = (f.texte || '').trim(); const first = x.split('\n')[0].trim(), t = jrTitle(f); if (t === first || (t.endsWith('…') && first.startsWith(t.slice(0, -1)))) x = x.split('\n').slice(1).join(' '); x = x.replace(/\s+/g, ' ').trim(); if (x === t) return ''; return x.length > n ? x.slice(0, n).replace(/\s+\S*$/, '') + '…' : x; }
 function jrPick(f) { const o = {}; JR_FIELDS.forEach(k => o[k] = clone(f[k] ?? (k === 'photos' ? [] : k === 'aCompleter' ? false : k === 'niv' ? 'info' : ''))); return o; }
 
-function vJournal() { return jrHeader() + (jrView === 'jour' ? vJrDay() : jrView === 'pers' ? vJrPers() : vJrFiches()); }
+function vJournal() { return jrHeader() + (jrView === 'brief' ? vBrief() : jrView === 'jour' ? vJrDay() : jrView === 'pers' ? vJrPers() : vJrFiches()); }
 function vJrFiches() {
   const all = jrList(), list = all.filter(fxMatch).sort((a, b) => jrSortKey(b) < jrSortKey(a) ? -1 : 1);
   const todo = all.filter(f => f.aCompleter).length, act = fxActive();
@@ -3208,7 +3217,7 @@ const jrUnfinished = f => (f.pids || []).filter(pid => jrStatus(f, pid) !== 'fai
 function jrSaveLists(st) { st.updatedAt = new Date().toISOString(); persist(); pushSettings(); }
 
 function jrHeader() {
-  const v = [['fiches', 'Fiches'], ['jour', 'Tâches du jour'], ['pers', 'Personnes']];
+  const v = [['brief', 'Brief'], ['fiches', 'Fiches'], ['jour', 'Tâches'], ['pers', 'Personnes']];
   return `<div class="segv">${v.map(([k, l]) => `<button class="${jrView === k ? 'on' : ''}" data-act="jrview" data-v="${k}">${l}</button>`).join('')}</div>`;
 }
 
@@ -3465,6 +3474,7 @@ async function jrPdfFiche(doc, w, f, ph) {
   const prev = f.lien && S.jr[f.lien]; if (prev && !prev.deleted) w.line('Fait suite à : ' + frNum(prev.date) + ' — ' + (JR_TYPES[prev.type] || {}).l + ' — ' + jrTitle(prev), {c:[70, 78, 92]});
   if (f.type === 'tache' && (f.pids || []).length) w.line('Suivi : ' + f.pids.map(p => { const x = (f.suivi || {})[p]; return jrPName(p, f) + ' : ' + JR_ST[jrStatus(f, p)].l.toLowerCase() + (x && x.at ? ' (constaté le ' + stampTxt(x.at) + ')' : ''); }).join(' ; '), {c:[70, 78, 92]});
   if (f.type === 'horaire') w.line(jrDaySummary(f.date), {c:[70, 78, 92]});
+  if (f.type === 'brief' && f.br && (f.br.dem || []).length) w.line('Suivi des demandes : ' + f.br.dem.map(d => d.t + ' : ' + (d.st === 'fait' ? 'fait' : d.st === 'pasfait' ? 'pas fait' : 'en attente') + (d.at ? ' (noté le ' + stampTxt(d.at) + ')' : '')).join(' ; '), {c:[70, 78, 92]});
   if (ph && (f.photos || []).length) {
     let col = 0; for (const id of f.photos) {
       const img = await jrImg(id); if (!img) continue;
@@ -3924,6 +3934,7 @@ function menuItems() {
   return `<div class="mmsec">Au quotidien</div>
     ${I('data-sp="accueil"', 'Accueil', st.k === 'on' ? 'au travail' : 'repos', false, space === 'accueil')}
     ${I('data-sp="heures" data-t="today"', 'Ma journée', [st.k === 'on' ? 'depuis ' + st.since : '', nToday ? nToday + ' fiche' + (nToday > 1 ? 's' : '') : ''].filter(Boolean).join(' · '), false, cur('heures', 'today'))}
+    ${I('data-sp="journal" data-jv="brief"', 'Brief d’équipe', (n => n ? n + ' fait' + (n > 1 ? 's' : '') + ' aujourd’hui' : 'aucun aujourd’hui')(jrList().filter(x => x.type === 'brief' && x.date === today()).length), false, cur('journal', 'brief'))}
     ${I('data-sp="heures" data-t="week"', 'Semaine', fmtC(w.total), false, cur('heures', 'week'))}
     ${I('data-sp="journal" data-jv="fiches"', 'Fiches', todo ? todo + ' à compléter' : String(jl.length), todo > 0, cur('journal', 'fiches'))}
     ${I('data-sp="journal" data-jv="jour"', 'Tâches du jour', tt ? tdn + '/' + tt : '—', false, cur('journal', 'jour'))}
@@ -3944,7 +3955,7 @@ function menuOpen() {
 function menuClose() { const m = $('#mmenu'); if (m) m.classList.remove('on'); document.body.style.overflow = ''; }
 function sectionTitle() {
   if (space === 'accueil') return '';
-  if (space === 'journal') return ({fiches:'Fiches', jour:'Tâches du jour', pers:'Personnes'})[jrView] || 'Journal';
+  if (space === 'journal') return ({brief:'Brief d’équipe', fiches:'Fiches', jour:'Tâches du jour', pers:'Personnes'})[jrView] || 'Journal';
   return ({today:'Ma journée', week:'Semaine', recap:'Compteurs', docs:'Documents', settings:'Réglages'})[tab] || '';
 }
 
@@ -3971,7 +3982,7 @@ function htmlFeed(ds) {
     + (un.length ? `<div class="fdu">Heure non précisée</div>` + un.map(e => fRow(e.f)).join('') : '');
   return `<div class="group feed"><div class="gh">Le fil de la journée${fs.length ? ' · ' + fs.length + ' fiche' + (fs.length > 1 ? 's' : '') : ''}</div>
     <div class="fdl">${rows || '<div class="small muted" style="padding:6px 0 4px">Rien pour ce jour.</div>'}</div>
-    <div class="gpad" style="padding-top:4px"><button class="btn" data-act="dayfiche" data-ds="${ds}">+ Ajouter une fiche</button></div></div>`;
+    <div class="gpad" style="padding-top:4px"><div class="btns two"><button class="btn" data-act="dayfiche" data-ds="${ds}">+ Ajouter une fiche</button><button class="btn ghost" data-act="brstart">Brief d’équipe</button></div></div></div>`;
 }
 /* ---- Récapitulatif de la journée (pour mémoire) ---- */
 function htmlRecap(ds) {
@@ -4208,6 +4219,108 @@ document.addEventListener('click', e => {
   else if (a === 'fxexp') fxExport();
   else if (a === 'vehadd') { const st = S.settings; st.vehs = vehList(); const last = st.vehs[st.vehs.length - 1]; st.vehs.push({from:today(), pm:false, cv:last.cv, elec:!last.elec}); st.updatedAt = new Date().toISOString(); persist(); try { pushSettings(); } catch (er) {} keepScroll(render); }
   else if (a === 'vehdel') { const st = S.settings; st.vehs = vehList(); st.vehs.splice(+b.dataset.i, 1); const l = vehList(), last = l[l.length - 1]; st.cv = last.cv; st.elec = last.elec; st.updatedAt = new Date().toISOString(); persist(); try { pushSettings(); } catch (er) {} keepScroll(render); }
+});
+
+/* ================= Brief d'équipe : une seule fiche par brief ================= */
+JR_TYPES.brief = {l:'Brief d’équipe', c:'#0a0a0a'};
+RELEVE_T.push('brief');
+JR_FIELDS.push('br', 'pids');
+let BR = null;
+const brUid = () => Math.random().toString(36).slice(2, 10);
+const brSujets = () => S.settings.brSuj || [];
+const sameR = (a, b) => normTxt(a) === normTxt(b);
+function brRayList() { const m = new Map(); [...(S.settings.brRay || []), ...fxRayons()].forEach(r => { if (r && !m.has(normTxt(r))) m.set(normTxt(r), r); }); return [...m.values()]; }
+function brTeam(ray) { return jrPers().filter(p => sameR(p.rayon, ray)); }
+function brNew(ray) { return {id:null, ray:ray || '', date:today(), heure:nowHM(), pres:brTeam(ray).map(p => p.id), suj:[], ras:false, notes:'', dem:[]}; }
+function brStart(ray) { BR = brNew(ray !== undefined ? ray : (S.settings.brLast || '')); space = 'journal'; jrView = 'brief'; closeSheet(); render(); window.scrollTo(0, 0); }
+function brEdit(id) { const f = S.jr[id]; if (!f || !f.br) return; BR = {...clone(f.br), id, date:f.date, heure:f.heure || ''}; BR.dem = BR.dem || []; space = 'journal'; jrView = 'brief'; closeSheet(); render(); window.scrollTo(0, 0); }
+const brSt = {'':'En attente', fait:'Fait', pasfait:'Pas fait'};
+function brPrev(ray, excl) { return jrList().filter(f => f.type === 'brief' && f.br && sameR(f.br.ray, ray) && f.id !== excl && (f.br.dem || []).some(d => !d.st)).sort((a, b) => jrSortKey(b) < jrSortKey(a) ? -1 : 1)[0]; }
+function vBrief() {
+  if (!BR) BR = brNew(S.settings.brLast || '');
+  const ray = BR.ray, team = brTeam(ray), others = jrPers().filter(p => !sameR(p.rayon, ray)), suj = brSujets().filter(s => !s.ray || sameR(s.ray, ray));
+  const doneToday = jrList().filter(f => f.type === 'brief' && f.date === today()).sort((a, b) => (a.heure || '') < (b.heure || '') ? -1 : 1);
+  const prev = ray ? brPrev(ray, BR.id) : null;
+  const chip = (act, attrs, l, on) => `<button type="button" class="chipb${on ? ' on' : ''}" data-act="${act}" ${attrs}>${esc(l)}</button>`;
+  const recent = jrList().filter(f => f.type === 'brief').sort((a, b) => jrSortKey(b) < jrSortKey(a) ? -1 : 1).slice(0, 8);
+  return `
+  ${doneToday.length ? `<div class="brdone">Fait aujourd’hui : ${doneToday.map(f => `<button class="chipb" data-act="jropen" data-id="${f.id}">${esc(f.br ? f.br.ray : f.cat)} ${esc(f.heure || '')} ✓</button>`).join('')}</div>` : ''}
+  <div class="group"><div class="gh">${BR.id ? 'Modifier le brief' : 'Nouveau brief'}</div><div class="gpad">
+    <label class="l">Équipe</label>
+    <div class="chips">${brRayList().map(r => chip('brray', `data-r="${esc(r)}"`, r, sameR(r, ray))).join('')}</div>
+    <div class="addl"><input type="text" id="br-newray" placeholder="Autre équipe (ex. Trad)"><button type="button" class="btn ghost" data-act="brrayadd">Ajouter</button></div>
+    <div class="two"><div><label class="l" for="br-date">Date</label><input type="date" id="br-date" value="${esc(BR.date)}"></div><div><label class="l" for="br-heure">Heure</label><input type="time" id="br-heure" value="${esc(BR.heure)}"></div></div>
+  </div></div>
+  ${ray ? `
+  <div class="group"><div class="gh">Présents · ${BR.pres.length}</div><div class="gpad">
+    ${team.length ? `<div class="chips">${team.map(p => chip('brp', `data-id="${p.id}"`, p.nom, BR.pres.includes(p.id))).join('')}</div><p class="small muted" style="margin:6px 0 0">Touchez un prénom pour le marquer absent.</p>` : '<p class="small muted" style="margin:0">Personne n’est encore enregistré dans cette équipe : ajoutez les prénoms ci-dessous, ils seront gardés.</p>'}
+    ${others.length ? `<details class="pfx"><summary>Renfort d’une autre équipe</summary><div class="chips">${others.map(p => chip('brp', `data-id="${p.id}"`, p.nom + (p.rayon ? ' (' + p.rayon + ')' : ''), BR.pres.includes(p.id))).join('')}</div></details>` : ''}
+    <div class="addl"><input type="text" id="br-newp" placeholder="Prénom à ajouter à ${esc(ray)}"><button type="button" class="btn ghost" data-act="brpadd">Ajouter</button></div>
+  </div></div>
+  ${prev ? `<div class="group"><div class="gh">Suivi du brief du ${frNum(prev.date)}${prev.heure ? ' à ' + esc(prev.heure) : ''}</div>${prev.br.dem.map((d, i) => d.st ? '' : `<div class="row brdem"><span>${esc(d.t)}</span><span class="brst">${chip('brprev', `data-id="${prev.id}" data-i="${i}" data-s="fait"`, 'Fait', false)}${chip('brprev', `data-id="${prev.id}" data-i="${i}" data-s="pasfait"`, 'Pas fait', false)}</span></div>`).join('')}</div>` : ''}
+  <div class="group"><div class="gh">Sujets abordés</div><div class="gpad">
+    <div class="chips">${chip('brras', '', 'RAS', BR.ras)}${suj.map(s => chip('brs', `data-id="${s.id}"`, s.l, BR.suj.includes(s.id))).join('')}</div>
+    <div class="addl"><input type="text" id="br-news" placeholder="Nouveau sujet (gardé pour la suite)"><select id="br-newsr"><option value="r">${esc(ray)}</option><option value="">Toutes les équipes</option></select><button type="button" class="btn ghost" data-act="brsadd">Ajouter</button></div>
+  </div></div>
+  <div class="group"><div class="gh">Ce que j’ai demandé</div><div class="gpad">
+    ${BR.dem.map((d, i) => `<div class="brdem2"><span>${esc(d.t)}</span><span class="brst">${BR.id ? Object.entries(brSt).map(([k, l]) => chip('brdst', `data-i="${i}" data-s="${k}"`, l, (d.st || '') === k)).join('') : ''}<button type="button" class="linkbtn" data-act="brddel" data-i="${i}">Retirer</button></span></div>`).join('')}
+    <div class="addl"><input type="text" id="br-newd" placeholder="Ex. refaire le balisage côte de bœuf avant 10 h"><button type="button" class="btn ghost" data-act="brdadd">Ajouter</button></div>
+    <p class="small muted" style="margin:6px 0 0">Au prochain brief de cette équipe, ces demandes reviennent pour que vous notiez si c’est fait.</p>
+  </div></div>
+  <div class="group"><div class="gpad"><label class="l" for="br-notes" style="margin-top:0">Notes (facultatif)</label><textarea id="br-notes" rows="3" placeholder="Remarques, réactions…">${esc(BR.notes)}</textarea></div></div>
+  <button class="btn" data-act="brsave">${BR.id ? 'Enregistrer les modifications' : 'Enregistrer le brief'}</button>
+  ${BR.id ? `<div class="btns two" style="margin-top:10px"><button class="btn ghost" data-act="brphotos">Photos et historique</button><button class="btn ghost" data-act="brcancel">Annuler</button></div>` : ''}
+  ` : '<p class="small muted" style="text-align:center;margin:18px 0">Choisissez l’équipe pour commencer.</p>'}
+  <details class="pfx" style="margin-top:16px"><summary>Gérer mes sujets (${brSujets().length})</summary>
+    ${brSujets().map(s => `<div class="row"><span>${esc(s.l)} <span class="small muted">· ${esc(s.ray || 'toutes les équipes')}</span></span><button class="linkbtn" data-act="brsdel" data-id="${s.id}">Supprimer</button></div>`).join('') || '<p class="small muted">Aucun sujet enregistré.</p>'}
+    <p class="small muted">Les prénoms et les équipes se gèrent dans « Personnes ».</p></details>
+  ${recent.length ? `<div class="group" style="margin-top:14px"><div class="gh">Derniers briefs</div>${recent.map(f => `<button class="fxr" data-act="jropen" data-id="${f.id}"><span class="fxh num">${esc(f.heure || '')}</span><span class="fxb"><b>${esc(jrTitle(f))} · ${frNum(f.date)}</b><span class="fxx">${esc(jrExcerpt(f, 110))}</span></span><span class="fxc">›</span></button>`).join('')}</div>` : ''}`;
+}
+function brSave() {
+  if (!BR || !BR.ray) return toast('Choisissez l’équipe.');
+  const ps = jrPers(), ray = BR.ray, team = brTeam(ray), now = new Date().toISOString();
+  const pres = BR.pres.map(id => ps.find(p => p.id === id)).filter(Boolean), abs = team.filter(p => !BR.pres.includes(p.id));
+  const sujL = BR.suj.map(id => (brSujets().find(s => s.id === id) || {}).l).filter(Boolean);
+  const texte = ['Présents : ' + (pres.map(p => p.nom).join(', ') || '—'), abs.length ? 'Absents : ' + abs.map(p => p.nom).join(', ') : '', BR.ras ? 'RAS' : '', sujL.length ? 'Sujets abordés : ' + sujL.join(', ') : '',
+    BR.dem.length ? 'Demandes :\n' + BR.dem.map(d => '– ' + d.t).join('\n') : '', (BR.notes || '').trim()].filter(Boolean).join('\n');
+  const id = BR.id || 'jb' + brUid(), old = S.jr[id];
+  const data = {type:'brief', niv:old ? old.niv || 'info' : 'info', date:BR.date || today(), heure:BR.heure, titre:'Brief ' + ray, texte, personnes:pres.map(p => p.nom).join(', '), temoins:'', cat:ray, pids:pres.map(p => p.id),
+    br:{ray, pres:[...BR.pres], abs:abs.map(p => p.id), suj:[...BR.suj], sujL, ras:!!BR.ras, notes:BR.notes || '', dem:BR.dem.map(d => ({...d}))}, aCompleter:BR.dem.some(d => !d.st)};
+  if (old) { old.versions = [...(old.versions || []), {at:old.updatedAt || old.createdAt, data:jrPick(old)}]; Object.assign(old, data, {updatedAt:now}); }
+  else S.jr[id] = {id, ...data, lien:'', photos:[], limite:'', direction:'', createdAt:now, updatedAt:now, versions:[]};
+  S.settings.brLast = ray; S.settings.updatedAt = now; persist(); try { pushJr(id); pushSettings(); } catch (e) {}
+  BR = null; toast('Brief ' + ray + ' enregistré'); render(); window.scrollTo(0, 0);
+}
+function brSetSettings() { S.settings.updatedAt = new Date().toISOString(); persist(); try { pushSettings(); } catch (e) {} }
+// Ouvrir un brief existant dans son écran
+jrOpen = (orig => function (id, pre) { const f = id && S.jr[id]; if (f && f.type === 'brief' && f.br && !(pre && pre.raw)) return brEdit(id); return orig(id, pre); })(jrOpen);
+const jrOpenRaw = id => jrOpen(id, {raw:true});
+document.addEventListener('input', e => {
+  if (!BR) return; const t = e.target;
+  if (t.id === 'br-date') BR.date = t.value; else if (t.id === 'br-heure') BR.heure = t.value; else if (t.id === 'br-notes') BR.notes = t.value;
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act; if (!/^br/.test(a)) return;
+  const st = S.settings, val = id => { const i = $('#' + id); const v = i ? i.value.trim() : ''; return v; };
+  if (a === 'brstart') return brStart();
+  if (!BR) BR = brNew(st.brLast || '');
+  if (a === 'brray') { const r = b.dataset.r; BR.ray = r; BR.pres = brTeam(r).map(p => p.id); }
+  else if (a === 'brrayadd') { const r = val('br-newray'); if (!r) return; st.brRay = [...new Set([...(st.brRay || []), r])]; brSetSettings(); BR.ray = r; BR.pres = brTeam(r).map(p => p.id); }
+  else if (a === 'brp') { const id = b.dataset.id; BR.pres = BR.pres.includes(id) ? BR.pres.filter(x => x !== id) : [...BR.pres, id]; }
+  else if (a === 'brpadd') { const n = val('br-newp'); if (!n) return; let p = jrPers().find(x => sameR(x.nom, n) && sameR(x.rayon, BR.ray)); if (!p) { p = {id:brUid(), nom:n.charAt(0).toUpperCase() + n.slice(1), rayon:BR.ray}; st.jrPers = [...jrPers(), p]; brSetSettings(); } if (!BR.pres.includes(p.id)) BR.pres.push(p.id); }
+  else if (a === 'brs') { const id = b.dataset.id; BR.suj = BR.suj.includes(id) ? BR.suj.filter(x => x !== id) : [...BR.suj, id]; if (BR.suj.length) BR.ras = false; }
+  else if (a === 'brras') { BR.ras = !BR.ras; }
+  else if (a === 'brsadd') { const l = val('br-news'); if (!l) return; const r = $('#br-newsr').value === 'r' ? BR.ray : ''; let s = brSujets().find(x => sameR(x.l, l) && sameR(x.ray, r)); if (!s) { s = {id:brUid(), l:l.charAt(0).toUpperCase() + l.slice(1), ray:r}; st.brSuj = [...brSujets(), s]; brSetSettings(); } if (!BR.suj.includes(s.id)) BR.suj.push(s.id); BR.ras = false; }
+  else if (a === 'brsdel') { if (!confirm('Supprimer ce sujet de la liste ? Les briefs déjà enregistrés le gardent.')) return; st.brSuj = brSujets().filter(x => x.id !== b.dataset.id); BR.suj = BR.suj.filter(x => x !== b.dataset.id); brSetSettings(); }
+  else if (a === 'brdadd') { const t = val('br-newd'); if (!t) return; BR.dem.push({t, st:'', at:''}); }
+  else if (a === 'brddel') BR.dem.splice(+b.dataset.i, 1);
+  else if (a === 'brdst') { const d = BR.dem[+b.dataset.i]; d.st = b.dataset.s; d.at = new Date().toISOString(); }
+  else if (a === 'brprev') { const f = S.jr[b.dataset.id]; if (!f) return; const now = new Date().toISOString(); f.versions = [...(f.versions || []), {at:f.updatedAt || f.createdAt, data:jrPick(f)}]; const d = f.br.dem[+b.dataset.i]; d.st = b.dataset.s; d.at = now; f.aCompleter = f.br.dem.some(x => !x.st); f.updatedAt = now; persist(); try { pushJr(f.id); } catch (er) {} toast('Noté : ' + brSt[d.st].toLowerCase()); }
+  else if (a === 'brsave') return brSave();
+  else if (a === 'brcancel') { BR = null; }
+  else if (a === 'brphotos') { const id = BR.id; BR = null; render(); return jrOpenRaw(id); }
+  else return;
+  keepScroll(render);
 });
 
 /* ================= Démarrage ================= */
