@@ -1933,7 +1933,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 10.5</p>`;
+  <p class="note">Mes Heures, version 10.8</p>`;
 }
 
 function render() {
@@ -3979,7 +3979,7 @@ function releveNotes(ds) { const d = S.days[ds], bi = d && catUnits(d, 'travail'
 function htmlFeed(ds) {
   const d = S.days[ds], ev = [];
   if (d) { const sg = [...(d.segs || [])].sort((a, b) => a.d < b.d ? -1 : 1); sg.forEach((s, i) => { ev.push({t:s.d, k:'pt', l:i === 0 ? 'Arrivée' : 'Reprise'}); if (s.f) ev.push({t:s.f, k:'pt', l:i === sg.length - 1 ? 'Départ' : 'Pause'}); }); }
-  if (d && catUnits(d, 'travail') && bImpOn(ds)) ev.push({t:bImp().h, k:'pt', l:'Brief imposé' + (bImp().par ? ' (' + esc(bImp().par) + ')' : '') + ' : présence obligatoire'});
+  if (d && catUnits(d, 'travail') && bImpOn(ds)) { const c = bounds(ds), late = c && c.st && c.st > dt(ds, bImp().h); ev.push({t:bImp().h, k:'pt', l:'Brief imposé' + (bImp().par ? ' (' + esc(bImp().par) + ')' : '') + ' : présence obligatoire' + (late ? ' · arrivée pointée à ' + HMx(c.st) : '')}); }
   const fs = jrOfDay(ds); fs.forEach(f => ev.push({t:f.heure || '', k:'f', f}));
   const timed = ev.filter(e => e.t).sort((a, b) => a.t < b.t ? -1 : a.t > b.t ? 1 : (a.k === 'pt' ? -1 : 1)), un = ev.filter(e => !e.t);
   const fRow = f => { const np = (f.photos || []).length; return `<button class="fd fc" data-act="jropen" data-id="${f.id}"><span class="ft num">${f.heure ? esc(f.heure) : ''}</span><span class="fdot f"></span>
@@ -4238,7 +4238,7 @@ const brSujets = () => S.settings.brSuj || [];
 const sameR = (a, b) => normTxt(a) === normTxt(b);
 function brRayList() { const m = new Map(); [...(S.settings.brRay || []), ...fxRayons()].forEach(r => { if (r && !m.has(normTxt(r))) m.set(normTxt(r), r); }); return [...m.values()]; }
 function brTeam(ray) { return jrPers().filter(p => sameR(p.rayon, ray)); }
-function brNew(ray) { return {id:null, ray:ray || '', date:today(), heure:bImpOn(today()) ? bImp().h : nowHM(), pres:brTeam(ray).map(p => p.id), suj:[], ras:false, notes:'', dem:[]}; }
+function brNew(ray) { return {id:null, ray:ray || '', date:today(), heure:bImpOn(today()) ? (c => c && c.st && HMx(c.st) > bImp().h ? HMx(c.st) : bImp().h)(bounds(today())) : nowHM(), pres:brTeam(ray).map(p => p.id), suj:[], ras:false, notes:'', dem:[]}; }
 function brStart(ray) { BR = brNew(ray !== undefined ? ray : (S.settings.brLast || '')); space = 'journal'; jrView = 'brief'; closeSheet(); render(); window.scrollTo(0, 0); }
 function brEdit(id) { const f = S.jr[id]; if (!f || !f.br) return; BR = {...clone(f.br), id, date:f.date, heure:f.heure || ''}; BR.dem = BR.dem || []; space = 'journal'; jrView = 'brief'; closeSheet(); render(); window.scrollTo(0, 0); }
 const brSt = {'':'En attente', fait:'Fait', pasfait:'Pas fait'};
@@ -4256,7 +4256,7 @@ function vBrief() {
     <label class="l">Équipe</label>
     <div class="chips">${brRayList().map(r => chip('brray', `data-r="${esc(r)}"`, r, sameR(r, ray))).join('')}</div>
     <div class="addl"><input type="text" id="br-newray" placeholder="Autre équipe (ex. Trad)"><button type="button" class="btn ghost" data-act="brrayadd">Ajouter</button></div>
-    ${bImpOn(BR.date || today()) ? `<p class="small" style="margin:10px 0 0"><b>Brief imposé à ${bImp().h}</b>${bImp().par ? ' par ' + esc(bImp().par) : ''} : l’heure est mise d’office, corrigez-la si le brief a eu lieu à un autre moment.</p>` : ''}
+    ${bImpOn(BR.date || today()) ? `<p class="small" style="margin:10px 0 0"><b>Brief imposé à ${bImp().h}</b>${bImp().par ? ' par ' + esc(bImp().par) : ''} : l’heure est mise d’office (ou ton heure d’arrivée si tu es arrivé plus tard) ; corrige-la si le brief a eu lieu à un autre moment.</p>` : ''}
     <div class="two"><div><label class="l" for="br-date">Date</label><input type="date" id="br-date" value="${esc(BR.date)}"></div><div><label class="l" for="br-heure">Heure</label><input type="time" id="br-heure" value="${esc(BR.heure)}"></div></div>
   </div></div>
   ${ray ? `
@@ -4344,7 +4344,7 @@ function monthData(ym) {
     dayParts(d).forEach(p => { if (p.t === 'conge' || p.t === 'anciennete' || p.t === 'fractionnement') o.conge += p.w; else if (p.t === 'rtt') o.rtt += p.w; else if (p.t === 'recup') o.recup += p.w; else if (p.t === 'ferie') o.ferie += p.w; });
     dayAlerts(ds).forEach(t => { const r = t.match(/^Repos de (\S+) depuis la veille/); if (r) { o.r12.push([ds, r[1]]); if (/sous le minimum légal/.test(t)) o.r11.push([ds, r[1]]); } if (/^Amplitude/.test(t)) o.amp.push([ds, t.match(/^Amplitude de (\S+)/)[1]]); });
   }
-  for (const mon of weeksEndingIn(y, m)) { if (mon > today() || (S.settings.debut && addD(mon, 6) < S.settings.debut)) continue; const r = restWeek(mon), wf = S.settings.mode === 'forfait' ? weekForfait(mon) : null, w = weekStats(mon); o.weeks.push({mon, r, w, miss:wf ? wf.missHalf : 0}); o.missHalf += wf ? wf.missHalf : 0; }
+  for (const mon of weeksEndingIn(y, m)) { if (mon > today() || (S.settings.debut && addD(mon, 6) < S.settings.debut)) continue; const r = restWeek(mon), wf = S.settings.mode === 'forfait' ? weekForfait(mon) : null, w = weekStats(mon); o.weeks.push({mon, r, w, miss:wf ? wf.missHalf : 0}); if (wf && wf.past) o.missHalf += wf.missHalf; else if (wf) o.missNow = wf.missHalf; }
   o.fiches = jrList().filter(f => f.date >= first && f.date <= last && f.type !== 'perso').sort((a, b) => jrSortKey(a) < jrSortKey(b) ? -1 : 1);
   o.fiches.forEach(f => {
     o.byType[f.type] = (o.byType[f.type] || 0) + 1;
@@ -4405,8 +4405,8 @@ function vMonth() {
     ${o.r11.length ? R('dont sous le minimum légal de 11 h', String(o.r11.length), 'sup') : ''}
     ${R('Semaines sans 36 h de repos d’affilée', badW.length + ' sur ' + o.weeks.length, badW.length ? 'sup' : '')}
     ${badW.length ? `<div class="row"><span class="small muted">${badW.map(x => 'semaine du ' + frNum(x.mon) + ' : ' + restTxt(x.r, true)).join(' · ')}</span></div>` : ''}
-    ${st.mode === 'forfait' ? R('Demi-journées de repos manquantes', String(o.missHalf), o.missHalf ? 'sup' : '') : ''}
-    ${(c => bImp() ? R('Brief de ' + bImp().h + ' avec moins de 12 h de repos', String(c.length), c.length ? 'sup' : '') + (c.length ? `<div class="row"><span class="small muted">${c.map(([ds, r]) => frDay(ds) + '. ' + (+ds.slice(8)) + ' : ' + fmt(r)).join(' · ')}</span></div>` : '') : '')(bImpConflicts(o.first, o.end))}
+    ${st.mode === 'forfait' ? R('Demi-journées de repos manquantes (semaines terminées)', String(o.missHalf), o.missHalf ? 'sup' : '') + (o.missNow ? `<div class="row"><span class="small muted">Semaine en cours : ${o.missNow} de plus si la semaine se termine comme prévu (provisoire, recalculé chaque jour).</span></div>` : '') : ''}
+    ${(c => bImp() ? R('Jours de brief imposé avec moins de 12 h de repos réel', String(c.length), c.length ? 'sup' : '') + (c.length ? `<div class="row"><span class="small muted">${c.map(([ds, r]) => frDay(ds) + '. ' + (+ds.slice(8)) + ' : ' + fmt(r)).join(' · ')}</span></div>` : '') : '')(bImpConflicts(o.first, o.end))}
     ${o.amp.length ? R('Amplitudes de plus de 13 h', String(o.amp.length), 'sup') + `<div class="row"><span class="small muted">${dl(o.amp)}</span></div>` : ''}
   </div>
   <div class="group"><div class="gh">Équipes et fiches</div>
@@ -4461,8 +4461,8 @@ async function monthPdf(ym) {
   w.gap(3); w.line('Repos (avenant n° 52 de la convention IDCC 2216)', {b:true, s:11.5});
   w.line(`Repos quotidiens de moins de 12 h : ${o.r12.length}${o.r12.length ? ' (' + o.r12.map(([ds, v]) => frNum(ds) + ' : ' + v).join(' ; ') + ')' : ''}${o.r11.length ? ', dont ' + o.r11.length + ' sous le minimum légal de 11 h' : ''}`);
   const badW = o.weeks.filter(x => restBad(x.r)); w.line(`Semaines sans 36 h de repos consécutives : ${badW.length} sur ${o.weeks.length}${badW.length ? ' (' + badW.map(x => 'semaine du ' + frNum(x.mon) + ' : ' + restTxt(x.r, true)).join(' ; ') + ')' : ''}`);
-  if (st.mode === 'forfait') w.line(`Demi-journées de repos hebdomadaire manquantes : ${o.missHalf} (à prendre dans les 3 mois)`);
-  { const c = bImpConflicts(o.first, o.end); if (bImp()) w.line(`Brief imposé à ${bImp().h}${bImp().par ? ' par ' + bImp().par : ''} : ${c.length} jour(s) avec moins de 12 h de repos depuis la fin de la veille${c.length ? ' (' + c.map(([ds, r]) => frNum(ds) + ' : ' + fmt(r)).join(' ; ') + ')' : ''}`); }
+  if (st.mode === 'forfait') w.line(`Demi-journées de repos hebdomadaire manquantes (semaines terminées) : ${o.missHalf} (à prendre dans les 3 mois)`);
+  { const c = bImpConflicts(o.first, o.end); if (bImp()) w.line(`Brief imposé à ${bImp().h}${bImp().par ? ' par ' + bImp().par : ''} ; jours concernés avec moins de 12 h de repos réel (pointages) depuis la fin de la veille : ${c.length}${c.length ? ' (' + c.map(([ds, r]) => frNum(ds) + ' : ' + fmt(r)).join(' ; ') + ')' : ''}`); }
   if (o.amp.length) w.line(`Amplitudes de plus de 13 h : ${o.amp.map(([ds, v]) => frNum(ds) + ' : ' + v).join(' ; ')}`);
   w.gap(3); w.line('Équipes', {b:true, s:11.5});
   w.line(`Briefs d’équipe : ${Object.keys(o.briefs).length ? Object.entries(o.briefs).map(([r, n]) => r + ' ' + n).join(', ') : 'aucun noté'}${o.dem.fait + o.dem.pasfait + o.dem.att ? ' · demandes : ' + o.dem.fait + ' faites, ' + o.dem.pasfait + ' pas faites, ' + o.dem.att + ' en attente' : ''}`);
@@ -4484,8 +4484,8 @@ document.addEventListener('click', e => {
 const bImp = () => { const b = S.settings.briefImp; return b && b.h ? b : null; };
 function bImpOn(ds) { const b = bImp(); return !!(b && (!b.depuis || ds >= b.depuis) && !(b.jours && b.jours.length && !b.jours.includes(pd(ds).getDay()))); }
 function bImpRest(ds) { // repos entre la fin de la veille et l'heure imposée du brief
-  const b = bImp(); if (!b || !bImpOn(ds)) return null; const p = bounds(addD(ds, -1)); if (!p || !p.en) return null;
-  return (dt(ds, b.h) - p.en) / 60000;
+  const b = bImp(); if (!b || !bImpOn(ds)) return null; const p = bounds(addD(ds, -1)), c = bounds(ds); if (!p || !p.en || !c || !c.st) return null;
+  return (c.st - p.en) / 60000; // repos réel, d'après les pointages (même si l'arrivée est après l'heure du brief)
 }
 function htmlBImpWarn() { // sur Ma journée : prévenir le soir d'une fermeture
   const b = bImp(), t = today(), n = addD(t, 1); if (!b || !bImpOn(n)) return '';
