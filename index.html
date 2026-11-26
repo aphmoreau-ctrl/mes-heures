@@ -1933,7 +1933,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 10.4</p>`;
+  <p class="note">Mes Heures, version 10.5</p>`;
 }
 
 function render() {
@@ -1941,6 +1941,7 @@ function render() {
   if (!S.settings.mig6 && Object.keys(S.days).length) mig6();
   if (!S.settings.mig10 && Object.keys(S.days).length) mig10();
   if (!S.settings.mig10c && Object.keys(S.days).length) mig10c();
+  if (!S.settings.mig10d && S.settings.mig10c) { const bi = S.settings.briefImp; if (bi && bi.depuis === '2026-11-25') bi.depuis = S.settings.debut || ''; S.settings.mig10d = true; S.settings.updatedAt = new Date().toISOString(); persist(); try { pushSettings(); } catch (e) {} }
   const v = $('#view'), isJ = space === 'journal', isH = space === 'accueil';
   if (tab === 'journal') tab = 'today';
   document.body.classList.toggle('spj', false);
@@ -4504,7 +4505,7 @@ function htmlBImpSet() {
 const NEWT = 'M. Eude impose que le brief avec les équipes soit fait chaque matin à 7 h 45.\nJe dois donc être présent au magasin à 7 h 45 chaque jour travaillé : mon heure d’arrivée est fixée par la direction, je ne suis pas libre d’organiser mon emploi du temps.\nS’y ajoutent les fermetures du magasin (fin vers 20 h 15), également imposées.\nConséquence : un soir de fermeture suivi du brief de 7 h 45 ne laisse qu’environ 11 h 30 de repos, sous les 12 h de l’avenant n° 52.\nDate à laquelle ce brief a été imposé : (à compléter).';
 function mig10c() {
   const st = S.settings, now = new Date().toISOString();
-  if (!st.briefImp) st.briefImp = {h:'07:45', par:'M. Eude', depuis:'2026-11-25'};
+  if (!st.briefImp) st.briefImp = {h:'07:45', par:'M. Eude', depuis:st.debut || ''};
   if (!S.jr.jx2611briefimp) {
     S.jr.jx2611briefimp = {id:'jx2611briefimp', type:'horaire', niv:'imp', date:'2026-11-26', heure:'', titre:'Heure d’arrivée imposée : brief d’équipe obligatoire chaque matin à 7 h 45',
       texte:NEWT,
