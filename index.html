@@ -1933,7 +1933,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 10.3</p>`;
+  <p class="note">Mes Heures, version 10.4</p>`;
 }
 
 function render() {
@@ -3972,12 +3972,13 @@ let FX = {per:'all', a:'', b:'', who:'', ray:'', type:'', niv:'', todo:false, ph
 const normTxt = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const nivTag = f => f.niv && f.niv !== 'info' ? `<span class="tag niv-${f.niv}">${JR_NIV[f.niv]}</span>` : '';
 const jrOfDay = ds => jrList().filter(f => f.date === ds).sort((a, b) => ((a.heure || '99:99') + (a.createdAt || '')) < ((b.heure || '99:99') + (b.createdAt || '')) ? -1 : 1);
-function releveNotes(ds) { return jrOfDay(ds).filter(f => RELEVE_T.includes(f.type)).map(f => { let x = [(f.titre || '').trim(), (f.texte || '').trim()].filter(Boolean); if (x.length === 2 && x[1].startsWith(x[0].replace(/…$/, ''))) x = [x[1]]; x = x.join(' : ').replace(/\s+/g, ' '); return (f.heure ? f.heure + ' ' : '') + (x.length > 220 ? x.slice(0, 220).replace(/\s+\S*$/, '') + '…' : x); }).join(' — '); }
+function releveNotes(ds) { const d = S.days[ds], bi = d && catUnits(d, 'travail') && typeof bImpOn === 'function' && bImpOn(ds) ? 'Arrivée imposée à ' + bImp().h + ' (brief' + (bImp().par ? ', ' + bImp().par : '') + ')' : ''; return [bi, jrOfDay(ds).filter(f => RELEVE_T.includes(f.type)).map(f => { let x = [(f.titre || '').trim(), (f.texte || '').trim()].filter(Boolean); if (x.length === 2 && x[1].startsWith(x[0].replace(/…$/, ''))) x = [x[1]]; x = x.join(' : ').replace(/\s+/g, ' '); return (f.heure ? f.heure + ' ' : '') + (x.length > 220 ? x.slice(0, 220).replace(/\s+\S*$/, '') + '…' : x); }).join(' — ')].filter(Boolean).join(' — '); }
 
 /* ---- Le fil de la journée : pointages et fiches, dans l'ordre des heures ---- */
 function htmlFeed(ds) {
   const d = S.days[ds], ev = [];
   if (d) { const sg = [...(d.segs || [])].sort((a, b) => a.d < b.d ? -1 : 1); sg.forEach((s, i) => { ev.push({t:s.d, k:'pt', l:i === 0 ? 'Arrivée' : 'Reprise'}); if (s.f) ev.push({t:s.f, k:'pt', l:i === sg.length - 1 ? 'Départ' : 'Pause'}); }); }
+  if (d && catUnits(d, 'travail') && bImpOn(ds)) ev.push({t:bImp().h, k:'pt', l:'Brief imposé' + (bImp().par ? ' (' + esc(bImp().par) + ')' : '') + ' : présence obligatoire'});
   const fs = jrOfDay(ds); fs.forEach(f => ev.push({t:f.heure || '', k:'f', f}));
   const timed = ev.filter(e => e.t).sort((a, b) => a.t < b.t ? -1 : a.t > b.t ? 1 : (a.k === 'pt' ? -1 : 1)), un = ev.filter(e => !e.t);
   const fRow = f => { const np = (f.photos || []).length; return `<button class="fd fc" data-act="jropen" data-id="${f.id}"><span class="ft num">${f.heure ? esc(f.heure) : ''}</span><span class="fdot f"></span>
@@ -4351,6 +4352,8 @@ function monthData(ym) {
     if (f.type === 'tache') (f.pids || []).forEach(p => { const s = jrStatus(f, p); s === 'fait' ? o.dem.fait++ : s === 'pasfait' ? o.dem.pasfait++ : o.dem.att++; });
     if ((f.niv === 'imp' || f.niv === 'litige') && f.type !== 'perso' && f.type !== 'horaire') o.imp.push(f);
   });
+  o.impStart = []; o.impEnd = [];
+  for (let ds = first; ds <= end; ds = addD(ds, 1)) { const d = S.days[ds]; if (!d || !inContract(ds) || !catUnits(d, 'travail')) continue; if (bImpOn(ds)) o.impStart.push(ds); if (jrOfDay(ds).some(f => f.type === 'horaire' && /^fermeture/i.test(jrTitle(f)))) o.impEnd.push(ds); }
   const mr = (S.settings.mrecap || {})[ym]; o.recap = mr || null;
   return o;
 }
@@ -4391,6 +4394,10 @@ function vMonth() {
       <span class="mdl"><b>${frDay(x.ds)}. ${+x.ds.slice(8)}</b> · ${esc(x.dec > 0 ? unitTxt(x.dec) + (x.d.half || x.d.type !== 'travail' ? ' (' + x.type.toLowerCase() + ')' : '') : x.type)}${x.hor ? `<br><span class="small muted num">${esc(x.hor)}${x.amp ? ' · amplitude ' + fmt(x.amp) : ''}${jrOfDay(x.ds).some(f => f.type === 'brief') ? ' · brief' : ''}</span>` : ''}${x.why ? `<br><span class="small"><b>Réel : ${unitTxt(x.real).toLowerCase()}</b> (${esc(x.why)})</span>` : ''}</span>
       <span class="v num">${x.eff ? fmt(x.eff) : ''}</span></button>`).join('')}<div class="row"><span><b>Total</b> · ${nj(o.dec)} noté${o.real !== o.dec ? ', ' + nj(o.real) + ' réel' : ''}</span><span class="v num">${fmt(o.eff)}</span></div></details>` : '')(monthDays(o))}
   </div>
+  ${o.impStart.length || o.impEnd.length ? `<div class="group"><div class="gh">Horaires imposés par la direction</div>
+    ${o.impStart.length ? R('Arrivée imposée à ' + bImp().h + ' (brief)', o.impStart.length + ' jour' + (o.impStart.length > 1 ? 's' : ''), 'sup') : ''}
+    ${o.impEnd.length ? R('Fermetures du magasin', o.impEnd.length + ' jour' + (o.impEnd.length > 1 ? 's' : ''), 'sup') : ''}
+    <div class="row"><span class="small muted">Le forfait jours est réservé aux cadres qui ont une autonomie dans l’organisation de leur emploi du temps (article L3121-58 du Code du travail). Des horaires de présence fixés par l’employeur vont à l’encontre de cette autonomie.</span></div></div>` : ''}
   <div class="group"><div class="gh">Repos (avenant n° 52)</div>
     ${R('Repos de moins de 12 h', String(o.r12.length), o.r12.length ? 'sup' : '')}
     ${o.r12.length ? `<div class="row"><span class="small muted">${dl(o.r12)}</span></div>` : ''}
@@ -4447,6 +4454,9 @@ async function monthPdf(ym) {
       foot:[['Total', '', '', fmt(o.eff), '', nj(o.dec), nj(o.real)]], showFoot:'lastPage', styles:{fontSize:7.5, cellPadding:1.5, lineColor:[220, 224, 230], lineWidth:.1}, headStyles:{fillColor:[10, 10, 10], textColor:255}, footStyles:{fillColor:[242, 242, 242], textColor:20, fontStyle:'bold'}, columnStyles:{6:{cellWidth:46}}});
     w.y = doc.lastAutoTable.finalY + 5; } }
   const ab = [o.conge && 'congés payés ' + nj(o.conge), o.rtt && 'RTT ' + nj(o.rtt), o.recup && 'récupérations ' + nj(o.recup), o.ferie && 'fériés chômés ' + nj(o.ferie)].filter(Boolean); if (ab.length) w.line('Absences : ' + ab.join(', '));
+  if (o.impStart.length || o.impEnd.length) { w.gap(3); w.line('Horaires imposés par la direction', {b:true, s:11.5});
+    if (o.impStart.length) w.line(`Arrivée imposée à ${bImp().h} pour le brief d’équipe${bImp().par ? ' (' + bImp().par + ')' : ''} : ${o.impStart.length} jour(s) travaillé(s) ce mois-ci.`);
+    if (o.impEnd.length) w.line(`Fermetures du magasin : ${o.impEnd.length} jour(s) (${o.impEnd.map(frNum).join(', ')}).`); }
   w.gap(3); w.line('Repos (avenant n° 52 de la convention IDCC 2216)', {b:true, s:11.5});
   w.line(`Repos quotidiens de moins de 12 h : ${o.r12.length}${o.r12.length ? ' (' + o.r12.map(([ds, v]) => frNum(ds) + ' : ' + v).join(' ; ') + ')' : ''}${o.r11.length ? ', dont ' + o.r11.length + ' sous le minimum légal de 11 h' : ''}`);
   const badW = o.weeks.filter(x => restBad(x.r)); w.line(`Semaines sans 36 h de repos consécutives : ${badW.length} sur ${o.weeks.length}${badW.length ? ' (' + badW.map(x => 'semaine du ' + frNum(x.mon) + ' : ' + restTxt(x.r, true)).join(' ; ') + ')' : ''}`);
@@ -4491,12 +4501,13 @@ function htmlBImpSet() {
     <div class="btns two" style="margin-top:10px"><button class="btn ghost" data-act="bisave">Enregistrer</button>${b.h ? '<button class="btn ghost" data-act="bioff">Plus imposé</button>' : ''}</div>
     <p class="small muted">L’appli vérifie alors chaque jour le repos entre ta fin de la veille et l’heure du brief, et te prévient le soir d’une fermeture.</p></div></div>`;
 }
+const NEWT = 'M. Eude impose que le brief avec les équipes soit fait chaque matin à 7 h 45.\nJe dois donc être présent au magasin à 7 h 45 chaque jour travaillé : mon heure d’arrivée est fixée par la direction, je ne suis pas libre d’organiser mon emploi du temps.\nS’y ajoutent les fermetures du magasin (fin vers 20 h 15), également imposées.\nConséquence : un soir de fermeture suivi du brief de 7 h 45 ne laisse qu’environ 11 h 30 de repos, sous les 12 h de l’avenant n° 52.\nDate à laquelle ce brief a été imposé : (à compléter).';
 function mig10c() {
   const st = S.settings, now = new Date().toISOString();
   if (!st.briefImp) st.briefImp = {h:'07:45', par:'M. Eude', depuis:'2026-11-25'};
   if (!S.jr.jx2611briefimp) {
-    S.jr.jx2611briefimp = {id:'jx2611briefimp', type:'horaire', niv:'imp', date:'2026-11-26', heure:'', titre:'M. Eude impose un brief d’équipe chaque matin à 7 h 45',
-      texte:'M. Eude impose un brief avec les équipes chaque matin à 7 h 45.\nConséquence : les jours où je ferme le magasin (fin vers 20 h 15), le repos jusqu’au brief du lendemain est d’environ 11 h 30, sous les 12 h de repos quotidien prévues par l’avenant n° 52.\nDate à laquelle ce brief a été imposé : (à compléter).',
+    S.jr.jx2611briefimp = {id:'jx2611briefimp', type:'horaire', niv:'imp', date:'2026-11-26', heure:'', titre:'Heure d’arrivée imposée : brief d’équipe obligatoire chaque matin à 7 h 45',
+      texte:NEWT,
       personnes:'', temoins:'', cat:'', lien:'', photos:[], aCompleter:true, limite:'', direction:'1', createdAt:now, updatedAt:now, versions:[]};
     try { pushJr('jx2611briefimp'); } catch (e) {}
   }
