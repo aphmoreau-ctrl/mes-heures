@@ -1058,6 +1058,7 @@ function vToday() {
   ${hc}
   ${isT && dd && dd.half && tCat(dd.pm) !== 'travail' && b && b.en && b.en <= dt(ds, '13:30') ? `<div class="alert">Demi-journée de repos cet après-midi : pour qu’elle compte comme telle, reprise au plus tôt ${DDx(new Date(b.en.getTime() + 1080 * 60000))} à ${HMx(new Date(b.en.getTime() + 1080 * 60000))} (18 h de repos après ${HMx(b.en)}, avenant n° 52).</div>` : ''}
   ${isT ? htmlBImpWarn() : ''}
+  ${isT ? halfHint(st, now) : ''}
   ${al.length && !isT ? `<div class="group"><div class="gh">Alertes</div>${al.map(a => `<div class="row"><span class="small">${esc(a)}</span></div>`).join('')}</div>` : ''}
   ${photosOfDay(ds)}
   ${isT ? `<div class="group">
@@ -1933,7 +1934,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 10.8</p>`;
+  <p class="note">Mes Heures, version 10.9</p>`;
 }
 
 function render() {
@@ -3887,7 +3888,7 @@ function dialHtml(st, d, now) {
   else if (st.k === 'pause' || st.k === 'abs') { const p = Math.max(0, (now - dt(today(), st.since)) / 60000); big = fmtC(p); cap = st.k === 'pause' ? 'de pause' : 'd’absence'; sub = `Depuis ${st.since} · ${fmtC(eff)} travaillées`; prog = Math.min(1, p / 60); }
   else {
     const td = S.days[today()], restDay = td && !(td.segs || []).length && ['repos', 'ferie', 'rtt', 'recup', 'conge'].includes(td.type), last = lastWorkEnd(now);
-    if (last) { const tg = restDay ? reqWeekly() : reqDaily(), r = (now - last) / 60000, lim = new Date(last.getTime() + tg * 60000); big = fmtC(r); cap = 'de repos sur ' + fmtC(tg); prog = Math.min(1, r / tg); sub = r >= tg ? hTxt(tg) + ' atteintes' : `Reprise dès ${lim.toLocaleDateString('fr-FR', {weekday:'long'})} ${HMx(lim)}`; }
+    if (last) { const tg = restDay ? reqWeekly() : reqDaily(), r = (now - last) / 60000, lim = new Date(last.getTime() + tg * 60000); big = fmt(r); cap = 'de repos depuis ' + (ymd(last) === today() ? '' : ymd(last) === addD(today(), -1) ? 'hier ' : frNum(ymd(last)) + ' ') + HMx(last); prog = Math.min(1, r / tg); sub = r >= tg ? hTxt(tg) + ' atteintes' : `Reprise dès ${lim.toLocaleDateString('fr-FR', {weekday:'long'})} ${HMx(lim)}`; }
     else { big = nowHM(); cap = 'pas encore pointé'; }
   }
   const C = 2 * Math.PI * 112;
@@ -3924,6 +3925,7 @@ function vHome() {
   const td = S.days[today()], kind = st.k === 'on' ? 'au travail' : st.k === 'pause' ? 'en pause' : td && !(td.segs || []).length && td.type !== 'travail' ? tLabel(td.type).toLowerCase() : 'repos';
   return `<div class="mhome"><div class="mdate">${esc(dl)} · ${esc(kind)}</div>
     ${dialHtml(st, d, now)}
+    ${halfHint(st, now)}
     ${punchBtns(st)}
     ${tilesHtml(now)}
     <button class="mlink" data-sp="heures" data-t="today">Ma journée en détail · saisir ou corriger</button>
@@ -4520,6 +4522,7 @@ document.addEventListener('click', e => {
   else if (a === 'bioff') { if (!confirm('Le brief n’est plus imposé ?')) return; st.briefImp = null; brSetSettings(); keepScroll(render); }
 });
 
+function halfHint(st, now) { if (st.k === 'on') return ''; const y = addD(today(), -1), yd = S.days[y], yb = bounds(y); if (!yd || !yd.half || !yd.pm || tCat(yd.pm) === 'travail' || !yb || !yb.en || yb.en > dt(y, '13:30') || (bounds(today()) || {}).st) return ''; const lim = new Date(yb.en.getTime() + 1080 * 60000); return now < lim ? `<div class="alert">Demi-journée d’hier (après-midi ${esc(tLabel(yd.pm).toLowerCase())}) : pour qu’elle compte, il faut 18 h de repos après ton départ de ${HMx(yb.en)}, donc ne pas pointer avant <b>${HMx(lim)}</b> (avenant n° 52). Avant, elle compterait comme une journée entière.</div>` : `<div class="alert">18 h de repos atteintes depuis hier ${HMx(yb.en)} : la demi-journée d’hier compte bien comme une demi-journée.</div>`; }
 /* ================= Démarrage ================= */
 render();
 showLock();
