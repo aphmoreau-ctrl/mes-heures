@@ -1934,7 +1934,7 @@ function vSettings() {
       <li>Utilisez ensuite uniquement l’icône : elle a ses propres données.</li>
     </ol>
   </div></div>
-  <p class="note">Mes Heures, version 10.9</p>`;
+  <p class="note">Mes Heures, version 10.10</p>`;
 }
 
 function render() {
@@ -3888,7 +3888,7 @@ function dialHtml(st, d, now) {
   else if (st.k === 'pause' || st.k === 'abs') { const p = Math.max(0, (now - dt(today(), st.since)) / 60000); big = fmtC(p); cap = st.k === 'pause' ? 'de pause' : 'd’absence'; sub = `Depuis ${st.since} · ${fmtC(eff)} travaillées`; prog = Math.min(1, p / 60); }
   else {
     const td = S.days[today()], restDay = td && !(td.segs || []).length && ['repos', 'ferie', 'rtt', 'recup', 'conge'].includes(td.type), last = lastWorkEnd(now);
-    if (last) { const tg = restDay ? reqWeekly() : reqDaily(), r = (now - last) / 60000, lim = new Date(last.getTime() + tg * 60000); big = fmt(r); cap = 'de repos depuis ' + (ymd(last) === today() ? '' : ymd(last) === addD(today(), -1) ? 'hier ' : frNum(ymd(last)) + ' ') + HMx(last); prog = Math.min(1, r / tg); sub = r >= tg ? hTxt(tg) + ' atteintes' : `Reprise dès ${lim.toLocaleDateString('fr-FR', {weekday:'long'})} ${HMx(lim)}`; }
+    if (last) { const tg = restDay ? reqWeekly() : reqDaily(), r = (now - last) / 60000, lim = new Date(last.getTime() + tg * 60000); big = nowHM(); cap = 'repos : ' + fmt(r) + ' depuis ' + (ymd(last) === today() ? '' : ymd(last) === addD(today(), -1) ? 'hier ' : frNum(ymd(last)) + ' ') + HMx(last); prog = Math.min(1, r / tg); sub = r >= tg ? hTxt(tg) + ' atteintes' : `Reprise dès ${lim.toLocaleDateString('fr-FR', {weekday:'long'})} ${HMx(lim)}`; }
     else { big = nowHM(); cap = 'pas encore pointé'; }
   }
   const C = 2 * Math.PI * 112;
